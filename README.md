@@ -17,5 +17,5 @@ Repo Management Units - Web
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/CrisDismaya/rmu-web.git
+   git clone https://github.com/CrisDismaya/rmu-web.git && cd rmu-web
    ```
