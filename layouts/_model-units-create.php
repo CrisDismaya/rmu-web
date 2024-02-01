@@ -18,7 +18,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Model Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Model Management</h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
@@ -108,7 +108,7 @@
 											<div class="row">
 												<div class="col-12 mb-3">
 													<label class="form-label">Choose Color</label>
-													<select id="model-color" class="select-single"></select>
+													<select id="model-color" class="select-single-modal"></select>
 												</div>
 											</div>
 										</div>
@@ -234,6 +234,7 @@
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		});
@@ -261,6 +262,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -288,6 +290,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -382,6 +385,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 			$('#inv-code').val(code)

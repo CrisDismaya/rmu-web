@@ -106,6 +106,8 @@
 								<div class="col-12">
 
 									<label for="customer-name" class="col-form-label"> Branch</label>
+									<input type="hidden" id="received_id">
+									<input type="hidden" id="branch_id">
 									<input type="text" class="form-control" id="branch_name" placeholder="Branch" autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
@@ -273,41 +275,43 @@
 				}
 				formData.append("spares", JSON.stringify(parts));
 
-				showLoader()
-				$.ajax({
-					url: url, 
-					type: 'POST', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					},
-					data : formData,
-					processData: false,
-					contentType: false,
-					enctype: 'multipart/form-data',
-					success: function (data) { 
-						
-						if(!data.success){
-							hideLoader()
-							toast(data.message, 'danger');
-						}
-						else{
-							hideLoader()
-							let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
-							toast(msg, 'success');
-							$('#staticBackdrop').modal('hide')
-							display_table($('#mod').val())
-							 qoute1 = null
-							 qoute2 = null
-							 qoute3 = null
-							 data_id = null
-						}
-					},
-					error: function(response) {
-						hideLoader()
-						toast(response.responseJSON.message, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
-					}
-				});
+				console.log(parts)
+
+				// showLoader()
+				// $.ajax({
+				// 	url: url, 
+				// 	type: 'POST', 
+				// 	headers:{
+				// 		'Authorization':`Bearer ${ auth.token }`,
+				// 	},
+				// 	data : formData,
+				// 	processData: false,
+				// 	contentType: false,
+				// 	enctype: 'multipart/form-data',
+				// 	success: function (data) { 
+				// 		console.log(data)
+				// 		if(!data.success){
+				// 			hideLoader()
+				// 			toast(data.message, 'danger');
+				// 		}
+				// 		else{
+				// 			hideLoader()
+				// 			let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
+				// 			toast(msg, 'success');
+				// 			$('#staticBackdrop').modal('hide')
+				// 			display_table($('#mod').val())
+				// 			 qoute1 = null
+				// 			 qoute2 = null
+				// 			 qoute3 = null
+				// 			 data_id = null
+				// 		}
+				// 	},
+				// 	error: function(response) {
+				// 		hideLoader()
+				// 		toast(response.responseJSON.message, 'danger');
+				// 		forceLogout(response.responseJSON) //if token is expired
+				// 	}
+				// });
 
 			});
 
@@ -328,7 +332,6 @@
 
 			for (let i = 0; i < spares.length; i++) {
 				parts.push({
-					received_parts_id: $('#received-id-' + spares[i].parts).val(),
 					parts_id: spares[i].parts,
 					price: $('#parts-' + spares[i].parts).val()
 				})
@@ -353,7 +356,7 @@
 				data: data,
 				dataType: 'json',
 				success: function(data) {
-					
+					console.log(data)
 					if (!data.success) {
 						hideLoader()
 						toast(data.message, 'danger');
@@ -528,7 +531,7 @@
 							}
 
 							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Maker') {
-								// console.log(oData.approved_price)
+								console.log(oData.approved_price)
 								html = 'Waiting for approval';
 							}
 
@@ -636,6 +639,9 @@
 					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
+
+
+
 		}
 
 		function getModuleId() {
@@ -705,9 +711,9 @@
 			$('#engine').val(engine)
 			$('#chassis').val(chassis)
 			$('#color').val(color)
-			
+
 			$.ajax({
-				url: `${baseUrl}/getRefurbishParts/${repo_id}`,
+				url: `${baseUrl}/getRefurbishParts/${refurbish_id}`,
 				type: 'GET',
 				headers: {
 					'Authorization': `Bearer ${ auth.token }`,
@@ -726,14 +732,13 @@
 							parts: data[i].id
 						})
 						tbl += `<tr>
-								<td>
-									<input type="hidden" class="form-control" id="received-id-${data[i].id}" value="${data[i].received_ids}" autocomplete="off" disabled>
-									<input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
-								</td>
-								<td>
-									<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
-								</td>
-							</tr>`
+                                    <td>
+													<input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
+                                    </td>
+                                    <td>
+                                   		<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
+                                    </td>
+                                </tr>`
 					}
 					tbl += `</table>`
 					$('#part-list').html(tbl)

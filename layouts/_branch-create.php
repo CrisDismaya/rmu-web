@@ -18,7 +18,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Branch Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Branch Management</h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
@@ -38,6 +38,14 @@
 									<h4 class="card-title mb-0 flex-grow-1"> Branch </h4>
 								</div>
 								<div class="card-body containter">
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Enter Branch Code </label>
+										<input id="branch-code" type="text" class="form-control" id="placeholderInput" placeholder="Branch Name" autocomplete="off">
+									</div>
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Enter Warehouse Code </label>
+										<input id="warehouse-code" type="text" class="form-control" id="placeholderInput" placeholder="Branch Name" autocomplete="off">
+									</div>
 									<div class="col-md-12 mb-3">
 										<label class="form-label"> Enter Branch Name </label>
 										<input id="branch-name" type="text" class="form-control" id="placeholderInput" placeholder="Branch Name" autocomplete="off">
@@ -64,6 +72,8 @@
 									<table id="branch-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
+												<th> Branch Code </th>
+												<th> Warehouse Code </th>
 												<th> Branch </th>
 												<th> Status </th>
 												<th> Action </th>
@@ -107,7 +117,9 @@
 				headers:{
 					'Authorization':`Bearer ${auth.token}`,
 				},
-				data: { 
+				data: {
+					branchCode : $('#branch-code').val(),
+					warehouseID : $('#warehouse-code').val(),
 					name : $('#branch-name').val(),
 				}, 
 				success: function (data) { 
@@ -119,6 +131,8 @@
 						hideLoader()
 						let msg = id == 0 ? 'Branch Succesfully added!' : 'Branch Succesfully updated!'
 						toast(msg, 'success');
+						$('#branch-code').val('');
+						$('#warehouse-code').val('');
 						$('#branch-name').val('');
 						$('#save-branches').data('id', 0)
 						display_table()
@@ -127,6 +141,7 @@
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		});
@@ -151,6 +166,8 @@
 				paging: false,
 				data: tableData,
 				columns: [
+					{ data: "branchCode" },
+					{ data: "warehouseID" },
 					{ data: "name" },
 					{ data: "status", defaultContent: '',
 						render: function (data, type, row) {
@@ -165,7 +182,7 @@
 
 							html = `
 								<button class="btn btn-sm btn-soft-warning"
-									onclick="edit(${ oData.id }, '${ oData.name }')"> 
+									onclick="edit(${ oData.id }, '${ oData.name }', '${ oData.branchCode }', '${ oData.warehouseID }')"> 
 									<i class="ri-edit-box-line"></i> Edit 
 								</button> 
 								&nbsp; | &nbsp;  
@@ -181,8 +198,10 @@
 			});
 		}
 
-		function edit(id, name){
+		function edit(id, name,code,warehouse){
 			$('#branch-name').val(name)
+			$('#branch-code').val(code)
+			$('#warehouse-code').val(warehouse)
 			$('#save-branches').data('id', id)
 		}
 
@@ -212,6 +231,7 @@
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}

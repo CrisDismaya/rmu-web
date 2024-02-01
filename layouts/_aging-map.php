@@ -17,7 +17,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Aging Mapping</h4>
+								<h4 class="mb-sm-0"  id="header-breadcram"></h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
@@ -114,6 +114,7 @@
 		<!--end loader-->
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
+		
 		display_table();
 
 		$('#days').change(function(){
@@ -195,6 +196,7 @@
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.data, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		});

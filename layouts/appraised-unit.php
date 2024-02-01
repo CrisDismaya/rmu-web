@@ -3,7 +3,7 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 <head>
-	<title> Sold Units | RMU </title>
+	<title> Appraised Units | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 	<style>
 		.seperator {
@@ -31,7 +31,7 @@
                <div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0" id="header-breadcram">List Of Units Sold</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">List Of Appraised Units</h4>
 							</div>
 						</div>
 					</div>
@@ -43,9 +43,13 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of  Units</h4>
 									<div class="flex-shrink-0">
-										<!-- <button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_receive_units()">
-											Create Request 
-										</button> -->
+                                        Filter type
+                                        <select id="status" class="select-single">
+                                            <option value="ALL">ALL</option>
+                                            <option value="PENDING">PENDING</option>
+                                            <option value="APPROVED">APPROVED</option>
+                                            <option value="DISAPPROVED">DISAPPROVED</option>
+                                        </select>   
 									</div>
 								</div>
 								<div class="card-body">
@@ -53,23 +57,15 @@
 									<thead>
 											<tr>
 												<th>Branch</th>
-                                                <th>Invoice Reference #</th>
 												<th> Brand </th>
 												<th> Model </th>
                                                 <th> Color </th>
-                                                
-												<th style="text-align: left !important;">Price </th>
+												<th style="text-align: left !important;">Request Price </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-                                                <th> Sale Type </th>
-                                                <th> Sold Date </th>
+                                                <th> Approved Date </th>
                                                 <th> Ex. Owner </th>
-												<th> Sold To </th>
-                                                <th> Downpayment </th>
-                                                <th> Monthly Amortization </th>
-                                                <th> Rebate </th>
-                                                <th> Terms </th>
-												<th> RDAF </th>
+                                                <th> Status </th>
 											</tr>
 										</thead>
 									</table>
@@ -84,23 +80,6 @@
 
 		</div>
 	</div>
-	<div class="modal fade" id="generateForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-xl" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="myExtraLargeModalLabel"> </h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body container">
-					<div class="card pa-2">
-						<div class="row" id="iframe-content" style="height:800px;">
-
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<?php include_once './_partials/__footer-template.php'; ?>
 
@@ -109,21 +88,27 @@
 	
 		$(document).ready(function(){
 
-			display_table()
+			display_table('PRELOAD')
+
+            $('#status').change(function(){
+                display_table('CHANGE')
+            })
 			
 		})
 
 
 
-		async function display_table(){
+		async function display_table(action){
 			const tableData = await $.ajax({
-				url: `${baseUrl}/SoldMasterList`,
+				url: `${baseUrl}/appraisedUnitList`,
 				method: 'GET',
 				dataType: 'json',
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
 				}
 			});
+
+            let list = action == 'PRELOAD' ||  $('#status').val() == 'ALL' ? tableData: tableData.filter((d) => { return d.status == $('#status').val()})
 
 			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
@@ -133,22 +118,20 @@
 		  		scrollX: true,
 				scrollCollapse: true,
 				paging: false,
-				data: tableData,
+				data: list,
 				// aoColumnDefs: [
 				// 	{ className: "text-end", targets: [ 4 ] },
 				// ],
 				columns: [
 					
 					{ data: "branchname" },
-                    { data: "invoice_reference_no" },
 					{ data: "brandname" },
 					{ data: "model_name" },
                     { data: "color" },
 					{ data: "approved_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "sale_type" },
-                    { data: "sold_date" },
+                    { data: "date_approved" },
                     { data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
@@ -157,33 +140,8 @@
 							$(nTd).html(html);
 						}
 					},
-                    { data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-						//	
-						    html = `<span>${ oData.firstname } ${ oData.middlename } ${ oData.lastname }</span>`;
-							
-							$(nTd).html(html);
-						}
-					},
-                    { data: "dp" },
-                    { data: "monthly_amo" },
-                    { data: "rebate" },
-                    { data: "terms" },
-					{
-						data: null,
-						defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							//	
-							html = `
-								<button id="forms-${iRow}" class="btn btn-primary" onclick="generateForm(${ oData.repo_id },${iRow})">View</button>`;
-							
-							
-
-							$(nTd).html(html);
-						}
-					},
-					
-				],
+					{ data: "status" },
+				], 
 				dom: 'Bfrtip',
 					buttons: [
 						'excelHtml5',
@@ -191,20 +149,6 @@
 						'pdfHtml5'
 					]
 			});
-		}
-
-		function generateForm(recordId, index) {
-
-			
-				$('#myExtraLargeModalLabel').html('RDAF FORM')
-				$('#iframe-content').html(`
-				<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/RDAF/${recordId}/sold" frameborder="0"></iframe>
-				`)
-
-				$('#generateForm').modal('show')
-			
-
-
 		}
 	</script>
 </body>

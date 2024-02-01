@@ -17,7 +17,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">System Menu Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">System Menu Management</h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
@@ -97,6 +97,7 @@
 									<table id="system-menu-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
+												<th></th>
 												<th> Category </th>
 												<th> Parent </th>
 												<th> Menu Name </th>
@@ -181,7 +182,7 @@
 				event.preventDefault();
 
             var id = $(this).data('id');
-				var url = (id == 0 ? `${ baseUrl }/createSystemMenu` : `${ baseUrl }/updateUserRole/${ id }`)
+				var url = (id == 0 ? `${ baseUrl }/createSystemMenu` : `${ baseUrl }/updateSystemMenu/${ id }`)
 
 				$.ajax({
 					url: url, 
@@ -210,6 +211,7 @@
 					},
 					error: function(response) {
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 			});
@@ -217,6 +219,11 @@
 			$('#save-matrix').click(() => {
 				let info = []
 				for(let i = 0; i < matrix.length; i++){
+
+					if($('#signatory-'+matrix[i].order).val() == ''){
+						toast('Signatory is required at row ' + parseInt(i+1) , 'danger');
+						return false
+					}
 					info.push({
 						module_id:matrix[i].moduleid,
 						level:matrix[i].order,
@@ -226,7 +233,7 @@
 					})
 					
 				}
-				console.log(info)
+			
 				$.ajax({
 					url: `${ baseUrl }/createMatrix`, 
 					type: 'POST', 
@@ -250,6 +257,7 @@
 					},
 					error: function(response) {
 						toast(response.responseJSON.data, 'error');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 			})
@@ -365,6 +373,14 @@
 					{ className: "text-center", "targets": [5, 6] }
 				],
 				columns: [
+					{ data: null, defaultContent: '',
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+							html = `<i class="ri-edit-2-fill" 
+							onclick="selectMenu(${ oData.id }, '${ oData.category_name }', '${ oData.parent_id }', '${ oData.menu_name }', '${ oData.file_path }')"
+							style="cursor:pointer;color:red" title="edit"></i>`;
+							$(nTd).html(html);
+						}
+					},
 					{ data: "category_name" },
 					{ data: "parent_name" },
 					{ data: "menu_name" },	
@@ -393,7 +409,13 @@
 				]
 			});
 		}
-
+		function selectMenu(id,category,parentid,menuname,filepath){
+			$('#save-access-menu').data('id', id);
+			$('#category-menu').val(category).trigger('change');
+			$('#parent-menu').val(parentid).trigger('change');
+			$('#menu-name').val(menuname)
+			$('#menu-file-path').val(filepath)
+		}
 		function setApproval(moduleid,page){
 
 			getAllPageSignatory(moduleid)
@@ -546,6 +568,7 @@
 					},
 					error: function(response) {
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 			}
@@ -622,6 +645,7 @@
 					},
 					error: function(response) {
 						toast(response.responseJSON.data, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 			

@@ -31,7 +31,7 @@
                <div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Request Approval of Units</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Request Approval of Units</h4>
 							</div>
 						</div>
 					</div>
@@ -58,7 +58,7 @@
 												<th> Color </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-												<th style="text-align: left !important;">Original Price </th>
+												<th style="text-align: left !important;">Current Price </th>
 												<th> Suggested Price </th>
 												<th> Request Selling Price </th>
 												<th> Status </th>
@@ -99,7 +99,7 @@
 												<th> Color </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-												<th style="text-align: left !important;">Original Price </th>
+												<th style="text-align: left !important;">Current Price </th>
 												
 												<th> Action </th>
 											</tr>
@@ -140,12 +140,20 @@
 										<input type="text" class="form-control" id="date-sold" placeholder="Color" autocomplete="off" disabled>
 									</div>
 									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Engine</label>
-										<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
+										<div class="row">
+											<div class="col-lg-6 col-md-6 col-sm-6 col-12">
+												<label for="customer-name" class="col-form-label">Engine</label>
+												<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
+											</div>
+											<div class="col-lg-6 col-md-6 col-sm-6 col-12">
+												<label for="customer-name" class="col-form-label">Chassis #</label>
+												<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
+											</div>
+										</div>
 									</div>
 									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Chassis #</label>
-										<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
+										<label for="customer-name" class="col-form-label">Current SRP</label>
+										<input type="text" class="form-control" id="srp" placeholder="Current SRP" autocomplete="off" disabled>
 									</div>
 							</div>
 
@@ -171,7 +179,7 @@
 									<input type="number" class="form-control" id="suggested_price"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">New Price</label>&nbsp;<i style="color:blue;heigth:50px;cursor:pointer" title="update price" class="ri-edit-box-line" id="update_price" onclick="update_price()"></i>
+									<label for="customer-name" class="col-form-label">New Price</label>&nbsp;<i style="color:blue;height:50px;cursor:pointer" title="update price" class="ri-edit-box-line" id="update_price" onclick="update_price()"></i>
 									<input type="number" class="form-control" id="approved_price"  autocomplete="off">
 								</div>
 								
@@ -313,6 +321,7 @@
 					error: function(response) {
 						hideLoader()
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 
@@ -369,6 +378,7 @@
 					error: function(response) {
 						hideLoader()
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 		}
@@ -406,7 +416,7 @@
 					{ data: "color" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "unit_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
+					{ data: "principal_balance", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
@@ -415,8 +425,8 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','new','${ oData.color }')">  
-									<i class="ri-edit-box-line"></i> Tag
+										  '${ tableData.role }','new','${ oData.color }','${ oData.principal_balance }')">  
+									<i class="ri-edit-box-line"></i> Appraise
 								</button> 
 							`;
 							
@@ -464,7 +474,7 @@
 					{ data: "color" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "unit_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
+					{ data: "principal_balance", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "suggested_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "approved_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "status" },
@@ -481,7 +491,7 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }')"> 
+										  '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
 									</button> 
 								`;
@@ -493,12 +503,8 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }')"> 
+										  '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
-									</button> 
-									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#history"
-									onclick="history(${ oData.id })"> 
-										  <i class=" ri-pages-line"></i> Approval Log
 									</button> 
 								`;
 							}
@@ -516,13 +522,8 @@
 									onclick="viewForApproval(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ oData.approved_price }', '${ tableData.role }','update','${ oData.color }')"> 
+										  '${ oData.approved_price }', '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
 										<i class="ri-check-circle"></i> Approve
-									</button> 
-									</button> 
-									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#history"
-									onclick="history(${ oData.id })"> 
-										  <i class=" ri-pages-line"></i> Approval Log
 									</button> 
 								`;
 							}
@@ -538,7 +539,7 @@
 			edit_price = true
 			$('#approved_price').prop('disabled',false)
 		}
-		function edit(id,branchid,branchname,brand,repo_id,modelname,chassis,engine,date_sold,role,categ,color){
+		function edit(id,branchid,branchname,brand,repo_id,modelname,chassis,engine,date_sold,role,categ,color,srp){
 			
 			if(categ == 'new'){
 				$('#back-search').show()
@@ -565,6 +566,7 @@
 					'Authorization':`Bearer ${ auth.token }`,
 				},
 				success: function (data) {
+					// console.log(data)
 					//let obJ = JSON.Parse(data)
 					$('#received_id').val(id)
 					$('#branch_id').val(branchid)
@@ -575,6 +577,7 @@
 					$('#date-sold').val(date_sold)
 					$('#engine').val(engine)
 					$('#chassis').val(chassis)
+					$('#srp').val(srp)
 					$('#color').val(color)
 					$('#days').val(data.days)
 					$('#dc').val(data.depreciation)
@@ -600,11 +603,12 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
 
-		function viewForApproval(id,branchid,branchname,brand,repo_id,modelname,chassis,engine,date_sold,approveprice,role,categ,color){
+		function viewForApproval(id,branchid,branchname,brand,repo_id,modelname,chassis,engine,date_sold,approveprice,role,categ,color,srp){
 
 			$('#list').hide()
 			$('#details').show()
@@ -634,15 +638,19 @@
 					$('#date-sold').val(date_sold)
 					$('#engine').val(engine)
 					$('#chassis').val(chassis)
+					$('#srp').val(srp)
 					$('#color').val(color)
 					$('#days').val(data.days)
 					$('#dc').val(data.depreciation)
 					$('#emdp').val(data.emdp)
 					$('#mdp').val(data.t_mdp)
 					$('#suggested_price').val(data.sp)
-					$('#approved_price').val(approveprice)
-					$('#approved_price').attr('disabled',true)
+					$('#approved_price').val(approveprice).attr('disabled',true)
 					data_id = id
+				},
+				error: function(response) {
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 			}

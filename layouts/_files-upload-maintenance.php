@@ -3,7 +3,7 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 <head>
-	<title> File Upload Management | RMU </title>
+	<title> Document Type Management | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 </head>
 <body>
@@ -18,12 +18,12 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">File Upload Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram"> Document Type Management </h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
 										<li class="breadcrumb-item"><a href="javascript: void(0);"> Maintenance </a></li>
-										<li class="breadcrumb-item active"> File Upload Management </li>
+										<li class="breadcrumb-item active"> Document Type Management </li>
 									</ol>
 								</div>
 							</div>
@@ -39,7 +39,7 @@
 								</div>
 								<div class="card-body containter">
 
-									<div class="col-md-12 mb-3">
+									<!-- <div class="col-md-12 mb-3">
 										<label class="form-label"> File Directory </label>
 										<div class="input-group">
 											<input id="file-directory" type="text" class="form-control" placeholder="File Directory" autocomplete="off">
@@ -49,12 +49,34 @@
 										</div>
 									</div>
 
-									<hr>
+									<hr> -->
 
 									<div class="col-md-12 mb-3">
 										<label class="form-label"> Filename </label>
 										<div class="input-group">
 											<input id="filename" type="text" class="form-control" placeholder="Enter Filename" autocomplete="off">
+										</div>
+									</div>
+
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Is required? </label>
+										<div class="input-group">
+											<select id="isRequired" class="select-single">
+												<option value=""> -Select-  </option>
+												<option value="1"> Required </option>
+												<option value="0"> Not Required </option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Status </label>
+										<div class="input-group">
+											<select id="fileStatus" class="select-single">
+												<option value=""> -Select-  </option>
+												<option value="1"> Active </option>
+												<option value="2"> Inactive </option>
+											</select>
 										</div>
 									</div>
 
@@ -83,6 +105,7 @@
 												<thead>
 													<tr>
 														<th> Filename </th>
+														<th> Is Required? </th>
 														<th> Status </th>
 														<th> Action </th>
 													</tr>
@@ -127,6 +150,8 @@
 					},
 					data: { 
 						filename : $('#filename').val(),
+						isRequired : $('#isRequired').val(),
+						status : $('#fileStatus').val(),
 					}, 
 					success: function (data) { 
 						if(!data.success){
@@ -136,13 +161,15 @@
 							let msg = id == 0 ? 'Files Succesfully added!' : 'Files Succesfully updated!'
 							toast(msg, 'success');
 							$('#filename').val('')
-							$('#file-extension').val('').trigger('change');
+							$('#isRequired').val('').trigger('change')
+							$('#fileStatus').val('').trigger('change');
 							$('#save-file-upload').data('id', 0)
 							display_table()
 						}
 					},
 					error: function(response) {
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 			});
@@ -170,6 +197,14 @@
 				data: tableData,
 				columns: [
 					{ data: "filename" },
+					{ data: "isRequired",
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+							var status = oData.isRequired;
+
+							html = `<span>${ status == 1 ? 'Required' : 'Not Required' }</span>`;
+							$(nTd).html(html);
+						}
+					},
 					{ data: "status",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							var status = oData.status;
@@ -191,7 +226,7 @@
 
 							html = `
 								<button class="btn btn-sm btn-soft-warning"
-									onclick="edit(${ oData.id }, '${ oData.filename }', '${ oData.extension }')"> 
+									onclick="edit(${ oData.id }, '${ oData.filename }', '${ oData.isRequired }', '${ oData.status }')"> 
 									<i class="ri-edit-box-line"></i> Edit 
 								</button> 
 							`;
@@ -202,10 +237,11 @@
 			});
 		}
 
-		function edit(id, filename, extension){
+		function edit(id, filename, isRequired, status){
 			$('#save-file-upload').data('id', id);
 			$('#filename').val(filename);
-			$('#file-extension').val(extension).trigger('change');
+			$('#isRequired').val(isRequired).trigger('change');
+			$('#fileStatus').val(status).trigger('change');
 		}
 
 	</script>

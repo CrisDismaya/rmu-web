@@ -118,6 +118,16 @@
 			}, 500);
 			
 		}
+
+		function forceLogout(response){
+			if(response.message == 'Unauthenticated.'){
+				alert('Your token session is expired.! Please relogin')
+				let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
+				localStorage.removeItem('data')
+				window.location.replace(link)	
+			}
+			
+		}
 	</script>
 	<style>
 		.loading-overlay {

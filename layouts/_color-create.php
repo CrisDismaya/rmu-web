@@ -18,7 +18,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Color Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Color Management</h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
@@ -38,6 +38,10 @@
 									<h4 class="card-title mb-0 flex-grow-1"> Color </h4>
 								</div>
 								<div class="card-body containter">
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Color Code </label>
+										<input id="colorcode" type="text" class="form-control" id="placeholderInput" placeholder="Color Code" autocomplete="off">
+									</div>
 									<div class="col-md-12 mb-3">
 										<label class="form-label"> Color Name </label>
 										<input id="color" type="text" class="form-control" id="placeholderInput" placeholder="Color Name" autocomplete="off">
@@ -64,6 +68,7 @@
 									<table id="branch-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
+												<th> Code </th>
 												<th> Name </th>
 												<th> Action </th>
 											</tr>
@@ -106,6 +111,7 @@
 					'Authorization':`Bearer ${auth.token}`,
 				},
 				data: { 
+					code : $('#colorcode').val(),
 					name : $('#color').val(),
 				}, 
 				success: function (data) { 
@@ -117,6 +123,7 @@
 						hideLoader()
 						let msg = id == 0 ? 'Color Succesfully added!' : 'Color Succesfully updated!'
 						toast(msg, 'success');
+						$('#colorcode').val('');
 						$('#color').val('');
 						$('#save-branches').data('id', 0)
 						display_table()
@@ -125,6 +132,7 @@
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		});
@@ -149,6 +157,7 @@
 				paging: false,
 				data: tableData,
 				columns: [
+					{ data: "code" },
 					{ data: "name" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -158,7 +167,7 @@
 
 							html = `
 								<button class="btn btn-sm btn-soft-warning"
-									onclick="edit(${ oData.id }, '${ oData.name }')"> 
+									onclick="edit(${ oData.id }, '${ oData.code }', '${ oData.name }')"> 
 									<i class="ri-edit-box-line"></i> Edit 
 								</button> 
 							`;
@@ -169,7 +178,8 @@
 			});
 		}
 
-		function edit(id, name){
+		function edit(id, code, name){
+			$('#colorcode').val(code)
 			$('#color').val(name)
 			$('#save-branches').data('id', id)
 		}

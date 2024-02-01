@@ -3,7 +3,7 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 <head>
-	<title> Model Management | RMU </title>
+	<title> SPAREPARTS MODULE | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 </head>
 <body>
@@ -18,12 +18,12 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Spare Parts Management</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">SPARE PARTS MODULE</h4>
 
 								<div class="page-title-right">
 									<ol class="breadcrumb m-0">
 										<li class="breadcrumb-item"><a href="javascript: void(0);"> Maintenance </a></li>
-										<li class="breadcrumb-item active"> Spare Parts Management </li>
+										<li class="breadcrumb-item active"> SPARE PARTS MODULE </li>
 									</ol>
 								</div>
 							</div>
@@ -38,14 +38,14 @@
 									<h4 class="card-title mb-0 flex-grow-1"> Spare Parts </h4>
 								</div>
 								<div class="card-body containter">
-									<div class="col-md-12 mb-3">
+									<!-- <div class="col-md-12 mb-3">
 										<label class="form-label"> Choose Model </label>
 										<select id="parts-model" class="select-single"></select>
-									</div>
-									<div class="col-md-12 mb-3">
+									</div> -->
+									<!-- <div class="col-md-12 mb-3">
 										<label class="form-label"> Inventory Code </label>
 										<input id="inv-code" type="text" class="form-control"  placeholder="Inventory Code" autocomplete="off">
-									</div>
+									</div> -->
 									<div class="col-md-12 mb-3">
 										<label class="form-label"> Enter Parts Name </label>
 										<input id="parts-name" type="text" class="form-control" id="parts-name" placeholder="Parts name" autocomplete="off">
@@ -54,6 +54,7 @@
 										<label class="form-label"> Enter Parts Price </label>
 										<input id="parts-price" type="text" class="form-control number-only text-end" id="parts-price" placeholder="0.00" autocomplete="off">
 									</div>
+
 									<div class="col-md-12">
 										<div class="d-grid gap-2" >
 											<button id="save-parts" type="button" class="btn btn-primary" data-id="0">
@@ -75,10 +76,11 @@
 									<table id="parts-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
-												<th> Inventory Code </th>
-												<th> Model </th>
+												<!-- <th> Inventory Code </th>
+												<th> Model </th> -->
 												<th> Name </th>
 												<th style="text-align:left !important;"> Price </th>
+												<th> Status </th>
 												<th> Action </th>
 											</tr>
 										</thead>
@@ -105,7 +107,7 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
 		new Cleave(".number-only", { numeral:!0, numeralThousandsGroupStyle:"thousand"})
-		fetch_model_data();
+		//fetch_model_data();
 		display_table();
 
 		$('#save-parts').click(function(){
@@ -123,10 +125,10 @@
 					'Authorization':`Bearer ${ auth.token }`,
 				},
 				data: { 
-					model_id : $('#parts-model').val(),
+					// model_id : $('#parts-model').val(),
 					name : $('#parts-name').val(),
 					price :price,
-					inventory_code:$('#inv-code').val()
+					// inventory_code:$('#inv-code').val()
 				}, 
 				success: function (data) { 
 					if(!data.success){
@@ -138,16 +140,17 @@
 						let msg = id == 0 ? 'Parts Succesfully added!' : 'Parts Succesfully updated!'
 						toast(msg, 'success');
 						$('#save-parts').data('id', 0)
-						$('#parts-model').val('').trigger('change');
+						// $('#parts-model').val('').trigger('change');
 						$('#parts-name').val('');
 						$('#parts-price').val('');
-						$('#inv-code').val('')
+						// $('#inv-code').val('')
 						display_table()
 					}
 				},
 				error: function(response) {
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		});
@@ -175,6 +178,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -199,8 +203,8 @@
 				paging: false,
 				data: tableData,
 				columns: [
-					{ data: "inventory_code" },
-					{ data: "model_name" },
+					// { data: "inventory_code" },
+					// { data: "model_name" },
 					{ data: "name" },
 					{ data: "price", className: 'text-end',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -210,13 +214,28 @@
 							$(nTd).html(html);
 						}
 					},
+					{ data: "status", defaultContent: '',
+						render: function (data, type, row) {
+							return (data == 'A' ? 'Active' : 'Inactive');
+						}
+					},
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+
+							var status = oData.status;
+							var classes = (status != 'A' ? 'success' : 'danger');
+							var text = (status != 'A' ? 'Activate' : 'Deactivate');
+
 							html = `
 								<button class="btn btn-sm btn-soft-warning"
 									onclick="edit(${ oData.id }, '${ oData.model_id }', '${ oData.name }', '${ oData.price }', '${ oData.inventory_code }')"> 
 									<i class="ri-edit-box-line"></i> Edit 
-								</button> 
+								</button>
+								&nbsp; | &nbsp;  
+								<button class="btn btn-sm btn-soft-${ classes }"
+									onclick="deactivate(${ oData.id }, '${ oData.status }')">
+									${ text }
+								</button>
 							`;
 							$(nTd).html(html);
 						}
@@ -226,11 +245,42 @@
 		}
 
 		function edit(id, modelid, name, price,code){
-			$('#inv-code').val(code)
-			$('#parts-model').val(modelid).trigger('change')
+			// $('#inv-code').val(code)
+			// $('#parts-model').val(modelid).trigger('change')
 			$('#parts-name').val(name)
 			$('#parts-price').val(roundOf(price))
 			$('#save-parts').data('id', id)
+		}
+
+		function deactivate(id, status){
+			let stats = (status == 'A' ? 'I' : 'A')
+
+			showLoader()
+
+			$.ajax({
+				url: `${baseUrl}/deactivateParts/`+id+`/`+stats, 
+				type: 'GET', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) { 
+					if(!data.success){
+						hideLoader()
+						toast(data.message, 'danger');
+					}
+					else{
+						hideLoader()
+						let msg = (stats == 'A' ? 'Parts Succesfully activated!' : 'Parts Succesfully deactivated!')
+						toast(msg, 'success');
+						display_table()
+					}
+				},
+				error: function(response) {
+					hideLoader()
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
 		}
 	</script>
 </body>

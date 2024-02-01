@@ -18,7 +18,7 @@
                <div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Repo Details</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Repo Details</h4>
 							</div>
 						</div>
 					</div>
@@ -30,7 +30,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of Repo Details</h4>
 									<div class="flex-shrink-0">
-										<button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_receive_units()">
+										<button id="add-receive-units" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_receive_units()">
 											Add Repo Details
 										</button>
 									</div>
@@ -45,6 +45,10 @@
 												<th> Model </th>
 												<th> Engine </th>
 												<th> Chassis </th>
+												<th> Uploaded <br> Required Files </th>
+												<th> Process Status </th>
+												<!-- <th> Repo Status </th>
+												<th> Approver </th> -->
 												<th> Action </th>
 											</tr>
 										</thead>
@@ -72,11 +76,14 @@
 					<div class="card">
 						<div class="card-body checkout-tab">
 							<div class="step-arrow-nav mt-n3 mx-n3 mb-3">
+								<div class="alert alert-secondary text-dark" role="alert">
+									Always click the last Tab to save the changes.
+								</div>
 
 								<ul class="nav nav-pills nav-justified custom-nav" role="tablist">
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-customer-tab')">
 										<button class="nav-link fs-15 p-3 active" id="pills-bill-info-tab" data-bs-toggle="pill" data-bs-target="#pills-bill-info" type="button" role="tab" aria-controls="pills-bill-info" aria-selected="false" data-position="0" tabindex="-1">
-											<i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Customer Info
+											<i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Owner's Info
 										</button>
 									</li>
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-unit-details-tab')">
@@ -84,14 +91,14 @@
 											<i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Unit Details
 										</button>
 									</li>
-									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-other-details-tab')">
-										<button class="nav-link fs-15 p-3 done" id="pills-other-details-tab" data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment" aria-selected="false" data-position="2" tabindex="-1">
-											<i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Other Details
-										</button>
-									</li>
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-upload-file-tab')">
 										<button class="nav-link fs-15 p-3 done" id="pills-upload-file-tab" data-bs-toggle="pill" data-bs-target="#pills-upload-file" type="button" role="tab" aria-controls="pills-upload-file" aria-selected="false" data-position="3" tabindex="-1">
 											<i class="ri-file-upload-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Upload Files
+										</button>
+									</li>
+									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-spare-parts-tab')">
+										<button class="nav-link fs-15 p-3 done" id="pills-spare-parts-tab" data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment" aria-selected="false" data-position="2" tabindex="-1">
+											<i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Missing & Damaged Parts
 										</button>
 									</li>
 								</ul>
@@ -104,7 +111,7 @@
 										<div class="row">
 											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Acumatica Customer ID </label>
+													<label class="form-label"> Select Customer <span class="text-danger">*</span></label>
 													<select id="customer-acumatica-id" class="select-single-modal"></select>
 												</div>
 											</div>
@@ -153,21 +160,21 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Brand </label>
+													<label class="form-label"> Brand <span class="text-danger">*</span></label>
 													<select id="unit-brand" class="select-single-modal"></select>
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Model </label>
+													<label class="form-label"> Model <span class="text-danger">*</span></label>
 													<select id="unit-model" class="select-single-modal" data-modelid=""></select>
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Plate Number </label>
+													<label class="form-label"> Plate Number <span class="text-danger">*</span></label>
 													<input id="unit-plate-number" type="text" class="form-control" value="" placeholder="Enter Plate Number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
@@ -176,42 +183,35 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Engine </label>
+													<label class="form-label"> Engine <span class="text-danger">*</span></label>
 													<input id="unit-model-engine" type="text" class="form-control" value="" placeholder="Enter Engine" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Chassis </label>
+													<label class="form-label"> Chassis <span class="text-danger">*</span></label>
 													<input id="unit-model-chassis" type="text" class="form-control" value="" placeholder="Enter Chassis" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Color </label>
+													<label class="form-label"> Color <span class="text-danger">*</span></label>
 													<select id="unit-color" class="select-single-modal"></select>
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> MV File Number </label>
+													<label class="form-label"> MV File Number <small class="text-muted">(Optional)</small></label>
 													<input id="unit-mv-file-number" type="text" class="form-control" value="" placeholder="Enter MV File Number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Type </label>
-													<input id="unit-type" type="text" class="form-control" value="" placeholder="Enter Type" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Classification </label>
+													<label class="form-label"> Classification <span class="text-danger">*</span></label>
 													<select id="unit-classification" class="select-single-modal">
 														<option value="">Select Classification</option>
 														<option value="A">A</option>
@@ -220,145 +220,106 @@
 														<option value="D">D</option>
 														<option value="E">E</option>
 													</select>
-													<!-- <input id="unit-classification" type="text" class="form-control" value="" placeholder="Enter Classification" onkeypress="" autocomplete="off"> -->
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Series </label>
-													<input id="unit-series" type="text" class="form-control" value="" placeholder="Enter Series" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Body </label>
-													<input id="unit-body" type="text" class="form-control" value="" placeholder="Enter Body" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Year Model </label>
+													<label class="form-label"> Year Model <span class="text-danger">*</span></label>
 													<input id="unit-year-model" type="text" class="form-control number-format" value="" maxlength="4" placeholder="Enter Year Model" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Gross Vehicle Weight </label>
-													<input id="unit-gross-vehicle-weight" type="text" class="form-control" value="" placeholder="Enter Gross Vehicle Weight" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Original SRP </label>
+													<label class="form-label"> Original SRP <span class="text-danger">*</span></label>
 													<input id="unit-price" type="text" class="form-control number-format text-end" value="" placeholder="Enter number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 											
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Date Sold </label>
+													<label class="form-label"> Date Sold <span class="text-danger">*</span></label>
 													<input id="unit-date-sold" type="date" class="form-control" value="" placeholder="Enter Date Sold" onkeypress="" autocomplete="off" >
 												</div>
 											</div>
+
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
+													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
+												</div>
+											</div>
+										</div>
+
+										<div class="row">
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> Loan Amount <span class="text-danger">*</span></label>
+													<input id="unit-loan-amount" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> Total Payment <span class="text-danger">*</span></label>
+													<input id="unit-total-payment" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> Principal Balance <span class="text-danger">*</span></label>
+													<input id="unit-principal-balance" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
+												</div>
+											</div>
 										</div>
 									</div>
 
-								</div>
-								<!-- end tab pane -->
+									<div class="row">
+										<!-- <div class="col-sm-4">
+											<div class="mb-3">
+												<label class="form-label"> MSuisva Form # <span class="text-danger">*</span></label>
+												<input id="unit-msuisva-form" type="text" class="form-control" value="" placeholder="Enter MSuisva Form" onkeypress="" autocomplete="off">
+											</div>
+										</div> -->
 
-								<div class="tab-pane fade" id="pills-payment" role="tabpanel" aria-labelledby="pills-other-details-tab">
-									<div>
-										<div class="row">
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Insurer </label>
-													<input id="unit-insurer" type="text" class="form-control" value="" placeholder="Enter Insurer" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-											
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Certificate of Cover No. </label>
-													<input id="unit-cert-cover-no" type="text" class="form-control" value="" placeholder="Enter Certificate of Cover No." onkeypress="" autocomplete="off">
-												</div>
-											</div>
-											
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Expiry Date </label>
-													<input id="unit-expiry-date" type="date" class="form-control" value="" placeholder="Enter Expiry Date" onkeypress="" autocomplete="off" >
-												</div>
+										<div class="col-sm-4">
+											<div class="mb-3">
+												<label class="form-label"> Date of Surrender <span class="text-danger">*</span></label>
+												<input id="unit-date-surrender" type="date" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
 											</div>
 										</div>
 
-										<div class="row">
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Encumbered To </label>
-													<input id="unit-encumbered-to" type="text" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Leased To </label>
-													<input id="unit-leased-to" type="text" class="form-control" value="" placeholder="Enter Leased To" onkeypress="" autocomplete="off">
-												</div>
+										<div class="col-sm-4">
+											<div class="mb-3">
+												<label class="form-label"> Location <span class="text-danger">*</span></label>
+												<select id="unit-location" class="select-single-modal"></select>
 											</div>
 										</div>
 
-										<div class="row">
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Latest OR Number </label>
-													<input id="unit-latest-or-number" type="text" class="form-control" value="" placeholder="Enter Latest OR Number" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Date of Last Registration </label>
-													<input id="unit-date-last-registration" type="date" class="form-control" value="" placeholder="Enter Date of Last Registration" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Amount Paid </label>
-													<input id="unit-amount-paid" type="text" class="form-control number-format text-end" value="" placeholder="Enter Amount Paid" onkeypress="" autocomplete="off">
-												</div>
+										<div class="col-sm-4">
+											<div class="mb-3">
+												<label class="form-label"> Loan No <span class="text-danger">*</span></label>
+												<input id="unit-loan-number" type="text" class="form-control" value="" placeholder="Loan No" onkeypress="" autocomplete="off">
 											</div>
 										</div>
 
-										<div class="row">
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Date of Surrender </label>
-													<input id="unit-date-surrender" type="date" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-											
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> MSuisva Form # </label>
-													<input id="unit-msuisva-form" type="text" class="form-control" value="" placeholder="Enter MSuisva Form" onkeypress="" autocomplete="off">
-												</div>
+										<div class="col-sm-4">
+											<div class="mb-3">
+												<label class="form-label"> ODO Meter <span class="text-danger">*</span></label>
+												<input id="unit-odo-meter" type="text" class="form-control" value="" placeholder="ODO Meter" onkeypress="" autocomplete="off">
 											</div>
 										</div>
-
 									</div>
+
 								</div>
 								<!-- end tab pane -->
 
 								<div class="tab-pane fade" id="pills-upload-file" role="tabpanel" aria-labelledby="pills-upload-file-tab">
 									<div>
 										<div class="row">
-											<div class="col-lg-12 text-end mb-2">
+											<div class="col-lg-12 text-end mb-2" id="div-button-add-upload">
 												<button type="button" id="append-new-upload" class="btn btn-sm btn-info btn-label">
 													<i class="ri-image-add-line label-icon align-middle fs-16 me-2"></i> 
 													Add upload
@@ -372,6 +333,52 @@
 								</div>
 								<!-- end tab pane -->
 
+								<div class="tab-pane fade" id="pills-payment" role="tabpanel" aria-labelledby="pills-spare-parts-tab">
+									<div>
+										<div class="row">
+											<div class="col-lg-12">
+
+												<div class="form-check mb-2">
+													<input class="form-check-input" type="checkbox" id="certifying-unit" style="width:20px; height:20px;">
+													<label class="form-check-label ms-sm-1" for="certifying-unit" style="line-height: 1.7rem;">
+														Certifying unit has no missing and damage parts
+													</label>
+												</div>
+
+												<div class="col-lg-12 row">
+													<div class="col-sm-3">
+														<label class="form-label"> Spare Parts </label>
+													</div>
+													
+													<div class="col-sm-3">
+														<label class="form-label"> Status </label>
+													</div>
+
+													<div class="col-sm-2">
+														<label class="form-label"> Price </label>
+													</div>
+
+													<div class="col-sm-3">
+														<label class="form-label"> Remarks </label>
+														<span class="text-muted">(Optional)</span>
+													</div>
+													
+													<div class="col-sm-1">
+														<input type="hidden" id="spare-parts-append-count" data-continue-count="0" data-row-count="0" value="0">
+														<button id="add-new-spare-parts" type="button" class="btn btn-secondary btn-sm">
+															<i class="ri-add-line align-bottom"></i>
+														</button>
+													</div>
+												</div>
+												<hr style="margin: .5rem 0;">
+												
+												<div id="div-append-spare-parts"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- end tab pane -->
+
 							</div>
 							<!-- end tab content -->
 						</div>
@@ -380,7 +387,7 @@
 				</div>
 				<div class="modal-footer btn-save-footer">
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-					<button id="save-details" data-id="0" type="button" class="btn btn-primary" data-receive-unit-id="0">Save changes</button>
+					<button id="save-details" data-id="0" type="button" class="btn btn-primary" data-repo-id="0">Save changes</button>
 				</div>
 			</div>
 		</div>
@@ -406,11 +413,16 @@
 
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
-		var color_id = '', counter = 0, file_count = [];
+		var color_id = '', counter = 0, filesCounter = 0, partsCounter = 0;
+		var attrValue = auth.role.toLowerCase() === 'warehouse custodian' ? true : false;
+		var requiredFiles = [];
+
 		$(document).ready(function(){
+			$('#add-receive-units').prop('disabled', true)
 			display_table()
 			fetch_brand_list()
          fetch_customer_profile_list()
+			fetch_locations_list();
 			fetch_list_of_image('0')
 			// fetch_color_list()
 		 
@@ -450,33 +462,34 @@
 				var model_id = $(this).val();
 				if(model_id != ''){
 					fetch_color_list(model_id, color_id)
-					$('#unit-color').prop('disabled', false);
+					$('#unit-color').prop('disabled', parseInt($('#save-details').data('repo-id')) == 0 || attrValue === false ? false : true);
 				}
 				else{
 					$('#unit-color').empty();
-					$('#unit-color').prop('disabled', true);
+					// $('#unit-color').prop('disabled', true);
 				}
 			});
 
 			$('#append-new-upload').click(function(e){
 				e.preventDefault()
-				counter++
+				filesCounter++
 				
 				// accept="image/png, image/jpg, image/jpeg"
 				$('#append-upload-section').prepend(`
-					<div class="col-sm-3" id="append-item-${ counter }">
+					<div class="col-sm-3" id="append-item-${ filesCounter }">
+						<input type="hidden" id="image-id-${ filesCounter }" value="0">
 						<figure class="figure mb-2">
-							<img  src="../assets/images/small/img-4.jpg" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ counter }-preview" onclick="document.getElementById('input-file-${ counter }').click();">
-							<input type="file" id="input-file-${ counter }" class="form-control d-none"  onchange="preview_photo(this.id)">
+							<img  src="../assets/images/small/img-4.jpg" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ filesCounter }-preview" onclick="document.getElementById('input-file-${ filesCounter }').click();">
+							<input type="file" id="input-file-${ filesCounter }" class="form-control d-none"  onchange="preview_photo(this.id)">
 							<figcaption class="figure-caption input-group input-group-sm">
 								<div class="input-group">
-									<select class="form-select form-select-sm" id="seleted-image-${ counter }" aria-label="Example select with button addon">
+									<select class="form-select form-select-sm" id="seleted-image-${ filesCounter }" aria-label="Example select with button addon">
 										<option value=""> Select </option>
 									</select>
-									<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" type="button" onclick="view_image(${ counter })" >
+									<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" type="button" onclick="view_image(${ filesCounter })" >
 										<i class="ri-image-line label-icon align-middle"></i> 
 									</button>
-									<button class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" type="button" onclick="remove_image(${ counter })">
+									<button class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" type="button" onclick="remove_image(${ filesCounter })">
 										<i class="ri-delete-bin-line label-icon align-middle"></i>
 									</button>
 								</div>
@@ -485,68 +498,232 @@
 					</div>
 				`);
 
-				$('#append-counter').val(counter);
-				fetch_list_of_image(counter)
+				$('#append-counter').val(filesCounter);
+				fetch_list_of_image(filesCounter)
+			});
+
+			$('#certifying-unit').click(function(){
+				$('#add-new-spare-parts').attr('disabled', $(this).is(':Checked'))
+				$(this).is(':Checked') ? $('#div-append-spare-parts').empty() : '';
+			});
+
+			$('#add-new-spare-parts').click(function(e){
+				e.preventDefault()
+
+				var partsId = $(`#unit-parts-${ partsCounter }`).val();
+				var partsStatus = $(`#unit-parts-status-${ partsCounter }`).val();
+				var partsPrice = $(`#unit-parts-price-${ partsCounter }`).val();
+				var partsRemarks = $(`#unit-parts-remarks-${ partsCounter }`).val();
+
+				if (partsId === '' || partsStatus === '' || partsPrice === '') {
+					toast('Please fill out all the fields before add a new row', 'warning');
+					return;
+				}
+
+				partsCounter++;
+
+				var html = `
+					<div id="row-tools-${ partsCounter }" class="col-lg-12 row">
+						<input type="hidden" id="unit-spare-parts-id-${ partsCounter }" value="0">
+						<div class="col-sm-3">
+							<div class="mb-3">
+								<select id="unit-parts-${ partsCounter }" class="select-single-modal" onchange="fetch_price_per_parts(this)">></select>
+							</div>
+						</div>
+						
+						<div class="col-sm-3">
+							<div class="mb-3">
+								<select id="unit-parts-status-${ partsCounter }" class="form-control">
+									<option value=""> Select Status </option>
+									<option value="Damaged"> Damaged </option>
+									<option value="Missing"> Missing </option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-sm-2">
+							<div class="mb-3">
+								<input type="text" id="unit-parts-price-${ partsCounter }" class="form-control number-format text-end" placeholder="0.00" autocomplete="off">
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="mb-3">
+								<input type="text" id="unit-parts-remarks-${ partsCounter }" class="form-control isNullPrice" placeholder="Remarks" autocomplete="off">
+							</div>
+						</div>
+
+						<div class="col-sm-1">
+							<div class="mb-3">
+								<button type="button" id="remove-row-${ partsCounter }" class="btn btn-danger remove-row" data-row-id="${ partsCounter }" onclick="remove_parts(${ partsCounter })" disabled>
+									<i class="ri-subtract-line align-bottom"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				`;
+
+				$('#div-append-spare-parts').prepend(html);
+				fetch_spare_parts_list(partsCounter, $("#unit-model").val())
+				$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
+				var choices2 = new Choices(`#unit-parts-status-${ partsCounter }`);
+
+				$('#spare-parts-append-count').val(partsCounter)
+				parseInt($('#spare-parts-append-count').val()) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
+				setTimeout(() => { $(`#remove-row-${ partsCounter }`).prop('disabled', false) }, 2000)
+				append_number_format_keyup()
 			});
 
 			$('#save-details').click(function(event){
 				event.preventDefault();
-				$('#save-details').prop('disabled', true);
 
 				var pictues = [];
-				var id = $(this).data('receive-unit-id')
+				var id = $(this).data('repo-id')
 				var url = (id == 0 ? `${ baseUrl }/createRepo` : `${ baseUrl }/updateRepo/${ id }`)
+
+				if(id == 0){
+					if($('#customer-acumatica-id').val() == ''){
+						toast("Owner's Info Tab: Please fill-up the red mark asterisk (*)", 'warning');
+						return false;
+					}
+					else if(
+						$('#unit-brand').val() == '' || $('#unit-model').val() == '' || $('#unit-plate-number').val().trim() == '' || $('#unit-model-engine').val().trim() == '' || $('#unit-model-chassis').val().trim() == '' || 
+						$('#unit-color').val().trim() == '' || $('#unit-classification').val().trim() == '' || $('#unit-year-model').val().trim() == '' || $('#unit-price').val().trim() == '' || $('#unit-date-sold').val().trim() == '' || 
+						$('#unit-date-surrender').val().trim() == '' || $('#unit-loan-amount').val().trim() == ''  || $('#unit-loan-amount').val().trim() == '' ||
+						$('#unit-total-payment').val().trim() == '' || $('#unit-principal-balance').val().trim() == '' || $('#unit-original-owner').val().trim() == '' || $('#unit-location').val().trim() == '' || 
+						$('#unit-loan-number').val().trim() == '' || $('#unit-odo-meter').val().trim() == ''
+					){
+						toast('Unit Details Tab: Please fill-up the red mark asterisk (*)', 'warning');
+						return false;
+					}
+				}
+
+				var required_files_count = requiredFiles.length
+				var append_count = parseInt($('#append-counter').val())
+				if(parseInt($('#append-counter').val()) > 0){
+					let uploadedFiles = [];
+					for (let i = 1; i <= filesCounter; i++) {
+						var append_id_if_exists = $(`#append-item-${ i }`).length;
+						if(append_id_if_exists == 1){
+							var id = parseInt($(`#image-id-${ i }`).val());
+							var file = $(`#input-file-${ i }`)[0].files[0];
+							var selected_file = $(`#seleted-image-${ i }`).val();
+							var selected_filename = $(`#seleted-image-${ i } option:selected`).text();
+							var checker_of_empty = (file == undefined || selected_file == "" ? false : true)
+
+							if(id == 0){
+								if(!checker_of_empty){
+									toast(`Upload Files Tab: Please check the details of pictres if complete`, 'warning');
+									return false;
+								}
+								else {
+									var size = (id == 0 ? Math.round(($(`#input-file-${ i }`)[0].files[0].size / 1024)) : 0);
+									if(size > 3072){
+										toast(`The file size of ${ selected_filename } is exceeded in 3 MB.`, 'warning');
+										return false;
+									}
+									else {
+										uploadedFiles.push(selected_file);
+									}
+								}
+							}
+							else {
+								uploadedFiles.push(selected_file);
+							}
+						}
+					}
+
+					var isCompleteRequiredFiles = requiredFiles.every(item => uploadedFiles.includes(item.id));
+					if(!isCompleteRequiredFiles){
+						toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
+						return false;
+					}
+				}
+				else{
+					toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
+					return false;
+				}
+
+				if(parseInt($('#spare-parts-append-count').val()) > 0){
+					for (let index = 1; index <= partsCounter; index++) {
+
+						var partsId = $(`#unit-parts-${ index }`).val();
+						var partsStatus = $(`#unit-parts-status-${ index }`).val();
+						var partsPrice = $(`#unit-parts-price-${ index }`).val();
+						var partsRemarks = $(`#unit-parts-remarks-${ index }`).val();
+
+						if (partsId === '' || partsStatus === '' || partsPrice === '') {
+							toast('Missing & Damaged Parts Tab: Please check the row if fields is not empty', 'warning');
+							return false;
+						}
+					}
+				}
+				else if(!$('#certifying-unit').is(':Checked')){
+					toast('Missing & Damaged Parts Tab: Please Check the checkbox if not available parts', 'warning')
+					return false
+				}
 
 				showLoader()
 
 				// console.log(`${ id } - ${ url }`)
 				var from_data = new FormData();
+				from_data.append('repo_id', $(this).data('repo-id'));
 				from_data.append('customer_acumatica_id', $('#customer-acumatica-id').val());
 				from_data.append('brand_id', $('#unit-brand').val());
 				from_data.append('model_id', $('#unit-model').val());
-				from_data.append('plate_number', $('#unit-plate-number').val().toUpperCase());
-				from_data.append('model_engine', $('#unit-model-engine').val().toUpperCase());
-				from_data.append('model_chassis', $('#unit-model-chassis').val().toUpperCase());
+				from_data.append('plate_number', $('#unit-plate-number').val().trim().toUpperCase());
+				from_data.append('model_engine', $('#unit-model-engine').val().trim().toUpperCase());
+				from_data.append('model_chassis', $('#unit-model-chassis').val().trim().toUpperCase());
 				from_data.append('color_id', $('#unit-color').val());
-				from_data.append('mv_file_number', $('#unit-mv-file-number').val());
-				from_data.append('type', $('#unit-type').val());
-				from_data.append('classification', $('#unit-classification').val().toUpperCase());
-				from_data.append('series', $('#unit-series').val());
-				from_data.append('body', $('#unit-body').val().toUpperCase());
-				from_data.append('year_model', $('#unit-year-model').val());
-				from_data.append('gross_vehicle_weight', $('#unit-gross-vehicle-weight').val());
-				from_data.append('original_srp', $('#unit-price').val());
+				from_data.append('mv_file_number', $('#unit-mv-file-number').val().trim());
+				from_data.append('classification', $('#unit-classification').val().trim().toUpperCase());
+				from_data.append('year_model', $('#unit-year-model').val().trim());
+				from_data.append('original_srp', $('#unit-price').val().trim());
 				from_data.append('date_sold', $('#unit-date-sold').val());
-				from_data.append('insurer', $('#unit-insurer').val().toUpperCase());
-				from_data.append('cert_cover_no', $('#unit-cert-cover-no').val());
-				from_data.append('expiry_date', $('#unit-expiry-date').val());
-				from_data.append('encumbered_to', $('#unit-encumbered-to').val());
-				from_data.append('leased_to', $('#unit-leased-to').val());
-				from_data.append('latest_or_number', $('#unit-latest-or-number').val());
-				from_data.append('date_last_registration', $('#unit-date-last-registration').val());
-				from_data.append('amount_paid', $('#unit-amount-paid').val());
+				from_data.append('original_owner', $('#unit-original-owner').val());
+				from_data.append('unit_loan_amount', $('#unit-loan-amount').val());
+				from_data.append('unit_total_payment', $('#unit-total-payment').val());
+				from_data.append('unit_principal_balance', $('#unit-principal-balance').val());
+				// from_data.append('msuisva_form_no', $('#unit-msuisva-form').val().trim());
 				from_data.append('date_surrender', $('#unit-date-surrender').val());
-				from_data.append('msuisva_form_no', $('#unit-msuisva-form').val());
+				from_data.append('location', $('#unit-location').val());
+				from_data.append('certify_no_missing_and_damaged_parts', $('#certifying-unit').is(':Checked'));
 				from_data.append('append_count', parseInt($('#append-counter').val()));
+				from_data.append('spare_parts_count', parseInt($('#spare-parts-append-count').val()));
 				from_data.append('module_id', parseInt($('#moduleid').val()));
+				from_data.append('loan_number', $('#unit-loan-number').val().trim());
+				from_data.append('odo_meter', $('#unit-odo-meter').val().trim());
 
 				$('#save-details').prop('disabled', false);
-				var append_count = parseInt($('#append-counter').val())
 				for (let i = 1; i <= append_count; i++) {
-					var isExists = $(`#seleted-image-${ i }`).val() != undefined ? true : false;
-					var file = $(`#input-file-${ i }`)[0].files[0];
+					var append_id_if_exists = $(`#append-item-${ i }`).length;
+					if(append_id_if_exists == 1){
+						var file = $(`#input-file-${ i }`)[0].files[0];
 
-					if(typeof file !== 'undefined'){ // to check if the append is deleted
-						from_data.append(`image_${ i }`, $(`#input-file-${ i }`)[0].files[0]);
-						from_data.append(`image_id_${ i }`, $(`#seleted-image-${ i }`).val());
-						from_data.append(`image_name_${ i }`, $(`#seleted-image-${ i } option:selected`).text());
+						if(typeof file !== 'undefined'){ // to check if the append is deleted
+							from_data.append(`image_fetch_id_${ i }`, $(`#image-id-${ i }`).val());
+							from_data.append(`image_${ i }`, $(`#input-file-${ i }`)[0].files[0]);
+							from_data.append(`image_id_${ i }`, $(`#seleted-image-${ i }`).val());
+							from_data.append(`image_name_${ i }`, $(`#seleted-image-${ i } option:selected`).text());
+						}
+					}
+				}
+
+				for (let x = 1; x <= partsCounter; x++) {
+					var append_id_if_exists = $(`#row-tools-${ x }`).length;
+					if(append_id_if_exists == 1){
+						from_data.append(`parts_unique_id_${ x }`, $(`#unit-spare-parts-id-${ x }`).val());
+						from_data.append(`spare_parts_id_${ x }`, $(`#unit-parts-${ x }`).val());
+						from_data.append(`spare_parts_status_${ x }`, $(`#unit-parts-status-${ x }`).val());
+						from_data.append(`spare_parts_price_${ x }`, $(`#unit-parts-price-${ x }`).val());
+						from_data.append(`spare_parts_remarks_${ x }`, $(`#unit-parts-remarks-${ x }`).val());
 					}
 				}
 
 				// for (var pair of from_data.entries()) {
 				// 	console.log(pair[0]+ ', ' + pair[1]); 
 				// }
-				
+
 				$.ajax({
 					url: url, 
 					type: 'POST', 
@@ -559,24 +736,22 @@
 					success: function (data) { 
 						// console.log(data)
 						if(!data.success){
-							toast(data.message, 'danger');
-							hideLoader()
+							toast(data.data, 'danger');
 						}
 						else{
-							let msg = id == 0 ? 'Received Unit Succesfully added!' : 'Received Unit Succesfully updated!'
+							let msg = id == 0 ? 'Succesfully added!' : 'Succesfully updated!'
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
                      display_table()
 							add_receive_units()
-							hideLoader()
 						}
-						
-						$('#save-details').prop('disabled', false);
+						hideLoader()
 					},
 					error: function(response) {
 						hideLoader()
 						$('#save-details').prop('disabled', false);
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 
@@ -603,74 +778,100 @@
 				paging: false,
 				data: tableData,
 				columns: [
-					{ data: "acumatica_id" },
-					{ data: "customer_name" },
+					{ data: "acumatica_id",
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+							html = `
+								<b>${ oData.acumatica_id != null ? oData.acumatica_id : '-' }</b>
+							`;
+							$(nTd).html(html);
+						}
+					},
+					{ data: "customer_name", className: "fw-semibold" },
 					{ data: "brandname" },
 					{ data: "model_name" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
+					{ data: "total_upload_files", className: 'text-center' },
+					{ data: "current_status" },
+					// { data: "repo_status" },
+					// { data: "approver_name" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="edit(${ oData.id })"> 
-									<i class="ri-edit-box-line"></i> Edit 
+									onclick="edit(${ oData.id }, '${ oData.current_status }')"> 
+									<i class="ri-edit-box-line"></i> Edit
 								</button> 
 							`;
 							$(nTd).html(html);
 						}
 					},
+				],
+				dom: 'Bfrtip',
+				buttons: [
+					'excelHtml5',
+					'csvHtml5',
+					'pdfHtml5'
 				]
 			});
+
+			$('#add-receive-units').prop('disabled', false)
 		}
 
 		function add_receive_units(){
 			fetch_color_list(0)
-			$('#save-details').data('receive-unit-id', 0);
+			$('#save-details').show()
+			$('#save-details').data('repo-id', 0);
 			$('.btn-save-footer').hide()
 			
-			$('#customer-acumatica-id').val('').trigger('change')
+			$('#customer-acumatica-id').val('').trigger('change').attr('disabled', false)
 			$('#customer-first-name').val('')
 			$('#customer-middle-name').val('')
 			$('#customer-last-name').val('')
 			$('#customer-contact-no').val('')
 			$('#customer-complete-address').val('')
 
-			$('#unit-brand').val('').trigger('change')
-			$('#unit-model').empty().append(`<option value=""> No Available Data </option>`)
-         $('#unit-plate-number').val('')
-			$('#unit-model-engine').val('')
-			$('#unit-model-chassis').val('')
-         $('#unit-color').val('').trigger('change')
-         $('#unit-mv-file-number').val('')
-         $('#unit-type').val('')
-         $('#unit-classification').val('').trigger('change')
-         $('#unit-series').val('')
-         $('#unit-body').val('')
-         $('#unit-year-model').val('')
-         $('#unit-gross-vehicle-weight').val('')
-			$('#unit-price').val('')
-         $('#unit-date-sold').val('')
-         $('#unit-insurer').val('')
-         $('#unit-cert-cover-no').val('')
-         $('#unit-expiry-date').val('')
-         $('#unit-encumbered-to').val('')
-         $('#unit-leased-to').val('')
-         $('#unit-latest-or-number').val('')
-         $('#unit-date-last-registration').val('')
-         $('#unit-amount-paid').val('')
-         $('#unit-date-surrender').val('')
-         $('#unit-msuisva-form').val('')
+			$('#unit-brand').val('').trigger('change').attr('disabled', false)
+			$('#unit-model').empty().append(`<option value=""> No Available Data </option>`).attr('disabled', false)
+         $('#unit-plate-number').val('').attr('disabled', false)
+			$('#unit-model-engine').val('').attr('disabled', false)
+			$('#unit-model-chassis').val('').attr('disabled', false)
+         $('#unit-color').val('').trigger('change').attr('disabled', true)
+         $('#unit-mv-file-number').val('').attr('disabled', false)
+         $('#unit-classification').val('').trigger('change').attr('disabled', false)
+         $('#unit-year-model').val('').attr('disabled', false)
+			$('#unit-price').val('').attr('disabled', false)
+         $('#unit-date-sold').val('').attr('disabled', false)
+         $('#unit-date-surrender').val('').attr('disabled', false)
+         // $('#unit-msuisva-form').val('').attr('disabled', false)
+			$('#unit-location').val('').trigger('change').attr('disabled', false)
+			$('#unit-loan-number').val('').attr('disabled', false)
+			$('#unit-odo-meter').val('').attr('disabled', false)
 
 			$('#append-counter').val(0)
 			counter = 0;
 
 			$('#append-upload-section').empty()
 			$('#append-existing-upload-section').empty()
+			
+			filesCounter = 0
+			partsCounter = 0
+			$('#unit-loan-amount').val('').attr('disabled', false)
+			$('#unit-total-payment').val('') .attr('disabled', false)
+			$('#unit-principal-balance').val('').attr('disabled', false)
+			$('#unit-original-owner').val('').attr('disabled', false)
+
+			
+			$('#div-button-add-upload').css('display', 'block')
+			$('#add-new-spare-parts').css('display', 'block')
+
+			$('#certifying-unit').prop('disabled', false);
+			$('#spare-parts-append-count').val(0)
+			$('#div-append-spare-parts').empty()
 		}
 		
 		function button_show_hide(tab_id){
-			if(tab_id == 'pills-upload-file-tab'){
+			if(tab_id == 'pills-spare-parts-tab'){
 				$('.btn-save-footer').show()
 			}
 			else {
@@ -678,39 +879,46 @@
 			}
 		}
 
-		function fetch_list_of_image(counter, files_id = ''){
+		function fetch_list_of_image(filesCounter, files_id = ''){
 			$.ajax({
 				url: `${ baseUrl }/list_of_files`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
 				},
-				success: function (data) {
-					$(`#seleted-image-${ counter }`).empty();
-
+				success: function (response) {
+					$(`#seleted-image-${ filesCounter }`).empty();
+					var data = response.files
+					requiredFiles = response.required
+				
 					if(data.length > 0){
-						$(`#seleted-image-${ counter }`).append(`<option value=""> Select Image </option>`);
+						$(`#seleted-image-${ filesCounter }`).append(`<option value=""> Select Image </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
-							$(`#seleted-image-${ counter }`).append(`<option value="${ el.id }">${ el.filename }</option>`);
+							$(`#seleted-image-${ filesCounter }`).append(`
+								<option value="${ el.id }">
+									${ el.isRequired == 1 ? `<span class="text-danger">*</span>` : `` } ${ el.filename }
+								</option>
+							`);
 						}
 					}
 					else{
-						$(`#seleted-image-${ counter }`).append(`<option value=""> No Available Data </option>`);
+						$(`#seleted-image-${ filesCounter }`).append(`<option value=""> No Available Data </option>`);
 					}
-					$(`#seleted-image-${ counter }`).val(files_id).trigger('change');
+					$(`#seleted-image-${ filesCounter }`).val(files_id).trigger('change');
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
 
-		function view_image(counter){
-			var isEmpty = $(`#input-file-${ counter }`).val()
-			var item_id = $(`#seleted-image-${ counter }`).val()
-			var item_text = $(`#seleted-image-${ counter } option:selected`).text()
-			var item_source = $(`#input-file-${ counter }-preview`).attr('src')
+		function view_image(filesCounter){
+			var isEmpty = $(`#input-file-${ filesCounter }`).val()
+			var item_id = $(`#seleted-image-${ filesCounter }`).val()
+			var item_text = $(`#seleted-image-${ filesCounter } option:selected`).text()
+			var item_source = $(`#input-file-${ filesCounter }-preview`).attr('src')
 
 			if(item_id == ''){
 				toast('Select the Image Name', 'warning')
@@ -724,30 +932,12 @@
 			}
 		}
 
-		function remove_image(counter, deleted_id = 0){
-			if(deleted_id > 0){
-				$.ajax({
-					url: `${ baseUrl }/repoDeleteFiles/${ deleted_id }`, 
-					type: 'GET', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					},
-					success: function (data) {
-						$(`#append-item-${ counter }`).remove();
-						toast(`File ${ data } Successfully Deleted`, 'success');
-					}
-				});
-			}
-			else {
-				$(`#append-item-${ counter }`).remove();
-			}
-		}
-
 		function preview_photo(previewid){
 			if(previewid != ''){
-				const file = $(`#${ previewid }`)[0].files[0];
-				// console.log(file.name);
+				const fileInput = $(`#${ previewid }`)[0];
+				const file = fileInput.files[0];
 				if (file){
+					// console.log(file.name);
 
 					var string = file.name.split('.')
 					var extension = string[string.length - 1].toLowerCase();
@@ -776,6 +966,10 @@
 					}
 					reader.readAsDataURL(file);
 				}
+				else{
+					// console.error('File is undefined or empty.');
+					$(`#${ previewid }-preview`).attr('src', '../assets/images/small/img-4.jpg');
+				}
 			}
 		}
 
@@ -790,7 +984,7 @@
 					$('#customer-acumatica-id').empty();
 
 					if(data.length > 0){
-						$('#customer-acumatica-id').append(`<option value=""> Choose Customer </option>`);
+						$('#customer-acumatica-id').append(`<option value=""> Select Customer </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#customer-acumatica-id').append(`<option value="${ el.id }">${ el.customer_name }</option>`);
@@ -803,6 +997,38 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
+		}
+
+		function fetch_locations_list(){
+			$.ajax({
+				url: `${ baseUrl }/list_of_location`, 
+				type: 'GET', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) {
+					$('#unit-location').empty();
+
+					if(data.length > 0){
+						$('#unit-location').append(`<option value=""> Select Location </option>`);
+						for (let i = 0; i < data.length; i++) {
+							const el = data[i];
+							if(el.status == 1){
+								$('#unit-location').append(`<option value="${ el.id }">${ el.name }</option>`);
+							}
+						}
+					}
+					else{
+						$('#unit-location').append(`<option value=""> No Available Data </option>`);
+					}
+					$('#unit-location').val('').trigger('change');
+				},
+				error: function(response) {
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -820,10 +1046,11 @@
 					$('#customer-middle-name').val(data.middlename)
 					$('#customer-last-name').val(data.lastname)
 					$('#customer-contact-no').val(data.contact)
-					$('#customer-complete-address').val(data.address)
+					$('#customer-complete-address').val(`${ data.fulladdress }`)
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -839,7 +1066,7 @@
 					$('#unit-brand').empty();
 
 					if(data.length > 0){
-						$('#unit-brand').append(`<option value=""> Choose Brand </option>`);
+						$('#unit-brand').append(`<option value=""> Select Brand </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#unit-brand').append(`<option value="${ el.id }">${ el.brandname }</option>`);
@@ -852,6 +1079,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -868,7 +1096,7 @@
 					$('#unit-model').empty();
 
 					if(data.length > 0){
-						$('#unit-model').append(`<option value=""> Choose Model </option>`);
+						$('#unit-model').append(`<option value=""> Select Model </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#unit-model').append(`<option value="${ el.id }">${ el.model_name }</option>`);
@@ -881,6 +1109,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -897,7 +1126,7 @@
 					$('#unit-model').empty();
 
 					if(data.length > 0){
-						$('#unit-model').append(`<option value=""> Choose Model </option>`);
+						$('#unit-model').append(`<option value=""> Select Model </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#unit-model').append(`<option value="${ el.id }">${ el.model_name }</option>`);
@@ -906,10 +1135,11 @@
 					else{
 						$('#unit-model').append(`<option value=""> No Available Data </option>`);
 					}
-					$('#unit-model').val(modelid).trigger('change')
+					$('#unit-model').val(modelid).trigger('change').attr('disabled', attrValue)
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -925,7 +1155,7 @@
 					$('#unit-color').empty();
 
 					if(data.length > 0){
-						$('#unit-color').append(`<option value=""> Choose Color </option>`);
+						$('#unit-color').append(`<option value=""> Select Color </option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#unit-color').append(`<option value="${ el.id }">${ el.name }</option>`);
@@ -938,12 +1168,104 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
 
+		function fetch_spare_parts_list(partsCounter, modelid, partsid = ''){
+			$.ajax({
+				url: `${ baseUrl }/partsPerModel`, 
+				type: 'GET', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) {
+					// console.log(data)
+					$(`#unit-parts-${ partsCounter }`).empty();
+
+					if(data.length > 0){
+						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> Select Spart Parts </option>`);
+						for (let i = 0; i < data.length; i++) {
+							const el = data[i];
+							$(`#unit-parts-${ partsCounter }`).append(`<option value="${ el.value }">${ el.label }</option>`);
+						}
+					}
+					else{
+						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> No Available Data </option>`);
+					}
+					$(`#unit-parts-${ partsCounter }`).val(partsid != '' ? partsid : '').trigger('change');
+				},
+				error: function(response) {
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
+		}
+
+		function fetch_price_per_parts(element){
+			var pieces = $(element).attr('id').split('-')
+			var last = pieces[pieces.length - 1]
+			var parts_id = $(element).val()
+			if(parts_id != ''){
+				$.ajax({
+					url: `${ baseUrl }/partsPrice/${ parts_id }`, 
+					type: 'GET', 
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					success: function (data) {
+						$(`#unit-parts-price-${ last }`).val(roundOf(data.price))
+						$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(data.price))
+					},
+					error: function(response) {
+						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
+					}
+				})
+			}
+		}
+
+		function remove_image(filesCounter, deleted_id = 0){
+			$(`#append-item-${ filesCounter }`).remove();
+			if(deleted_id > 0){
+				$.ajax({
+					url: `${ baseUrl }/repoDeleteFiles/${ deleted_id }`, 
+					type: 'GET', 
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					success: function (data) {
+						$(`#append-item-${ filesCounter }`).remove();
+						toast(`File ${ data } Successfully Deleted`, 'success');
+					}
+				});
+			}
+			$('#append-counter').val( parseInt($('#append-counter').val()) - 1 )
+		}
+
+		function remove_parts(counter, deleted_id = 0){
+			$(`#row-tools-${ counter }`).remove();
+			if(deleted_id > 0){
+				$.ajax({
+					url: `${ baseUrl }/repoDeleteParts/${ deleted_id }`, 
+					type: 'GET', 
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					success: function (data) {
+						toast(`Tools ${ data } Successfully Deleted`, 'success');
+					}
+				});
+			}
+
+			$('#spare-parts-append-count').val( parseInt($('#spare-parts-append-count').val()) - 1)
+			parseInt($('#spare-parts-append-count').val()) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
+		}
+
 		function edit(id){
-			$('#save-details').data('receive-unit-id', id);
+			$('#save-details').prop('disabled', true);
+			$('#save-details').data('repo-id', id);
 			var moduleid = parseInt($('#moduleid').val());
 			$.ajax({
 				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ moduleid }`, 
@@ -953,40 +1275,40 @@
 				},
 				success: function (data) {
 					// console.log(data)
-					$('#customer-acumatica-id').val(data.customer_acumatica_id).trigger('change')
-					$('#unit-brand').val(data.brand_details.id).trigger('change')
-			   	fetch_branch_with_model(data.brand_details.id, data.model_id)
 
-               $('#unit-plate-number').val(data.plate_number)
-               $('#unit-model-engine').val(data.model_engine)
-					color_id = data.color_id;
+					data.disabled == true ? $('#save-details').hide() : $('#save-details').show()
 
-               $('#unit-model-chassis').val(data.model_chassis)
-               $('#unit-color').val(data.color_id).trigger('change')
+					$('#save-details').data('repo-id', data.repo.id)
+					$('#customer-acumatica-id').val(data.customer_details.id).trigger('change').attr('disabled', attrValue)
+					$('#unit-brand').val(data.brand_details.id).trigger('change').attr('disabled', attrValue)
+			   	fetch_branch_with_model(data.brand_details.id, data.model_details.id)
+
+               $('#unit-plate-number').val(data.repo.plate_number).attr('disabled', attrValue)
+               $('#unit-model-engine').val(data.repo.model_engine).attr('disabled', attrValue)
+					color_id = data.repo.color_id;
+
+               $('#unit-model-chassis').val(data.repo.model_chassis).attr('disabled', attrValue)
+               $('#unit-color').val(data.repo.color_id).trigger('change').attr('disabled', attrValue)
 					
-               $('#unit-mv-file-number').val(data.mv_file_number)
-               $('#unit-type').val(data.type)
-               $('#unit-classification').val(data.classification)
-               $('#unit-series').val(data.series)
-               $('#unit-body').val(data.body)
-               $('#unit-year-model').val(data.year_model)
-               $('#unit-gross-vehicle-weight').val(data.gross_vehicle_weight)
-               $('#unit-price').val(roundOf(data.original_srp))
-
-               $('#unit-date-sold').val(data.date_sold)
-               
-               $('#unit-insurer').val(data.insurer)
-               $('#unit-cert-cover-no').val(data.cert_cover_no)
-               $('#unit-expiry-date').val(data.expiry_date)
-               $('#unit-encumbered-to').val(data.encumbered_to)
-               $('#unit-leased-to').val(data.leased_to)
-               $('#unit-latest-or-number').val(data.latest_or_number)
-               $('#unit-date-last-registration').val(data.date_last_registration)
-               $('#unit-amount-paid').val(roundOf(data.amount_paid))
-               $('#unit-date-surrender').val(data.date_surrender)
-					$('#unit-msuisva-form').val(data.msuisva_form_no)
+               $('#unit-mv-file-number').val(data.repo.mv_file_number).attr('disabled', attrValue)
+               $('#unit-classification').val(data.repo.classification).attr('disabled', attrValue)
+               $('#unit-year-model').val(data.repo.year_model).attr('disabled', attrValue)
+               $('#unit-price').val(roundOf(data.repo.original_srp)).attr('disabled', attrValue)
+               $('#unit-original-owner').val(data.received_details.original_owner).attr('disabled', attrValue)
+               $('#unit-loan-amount').val(roundOf(data.received_details.loan_amount)).attr('disabled', attrValue)
+               $('#unit-total-payment').val(roundOf(data.received_details.total_payments)).attr('disabled', attrValue)
+               $('#unit-principal-balance').val(roundOf(data.received_details.principal_balance)).attr('disabled', attrValue)
+               $('#unit-date-sold').val(data.repo.date_sold).attr('disabled', attrValue)
+               $('#unit-date-surrender').val(data.repo.date_surrender).attr('disabled', attrValue)
+					// $('#unit-msuisva-form').val(data.repo.msuisva_form_no).attr('disabled', attrValue)
+					$('#unit-location').val(data.repo.location).trigger('change').attr('disabled', attrValue)
+					$('#unit-loan-number').val(data.repo.loan_number).attr('disabled', attrValue)
+					$('#unit-odo-meter').val(data.repo.odo_meter).attr('disabled', attrValue)
 
 					var filesJson = data.picture_details;
+
+					// div-button-add-upload
+					$('#div-button-add-upload').css('display', (data.disabled === true ? 'none' : 'block'))
 					$('#append-upload-section').empty()
 					var image_path = `${ baseUrl.replace('/api', '') }`;
 					
@@ -1017,6 +1339,7 @@
 						
 						$('#append-upload-section').append(`
 							<div class="col-sm-3" id="append-item-${ append_count }">
+								<input type="hidden" id="image-id-${ append_count }" value="${ el.id }">
 								<figure class="figure mb-2">
 									<img  src="${ image_source }" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ append_count }-preview" onclick="document.getElementById('input-file-${ append_count }').click();">
 									<input type="file" id="input-file-${ append_count }" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
@@ -1031,7 +1354,7 @@
 											<a role="button" class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="download-file-${ append_count }" href="${ image_source }" download style="display:${ image_extension.indexOf(extension) !== -1 ? 'none' : 'block' };">
 												<i class="ri-download-2-line label-icon align-middle"></i> 
 											</a>
-											<button class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" type="button" onclick="remove_image(${ append_count }, ${ el.id })">
+											<button class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" type="button" onclick="remove_image(${ append_count }, ${ el.id })" style="display:${ data.disabled === true ? 'none' : 'block' };">
 												<i class="ri-delete-bin-line label-icon align-middle"></i>
 											</button>
 										</div>
@@ -1042,9 +1365,73 @@
 
 						fetch_list_of_image(append_count, el.files_id)
 					}
-					counter = filesJson.length
+					filesCounter = filesJson.length
 					$('#append-counter').val(`${ filesJson.length }`);
 					
+					// add-new-spare-parts
+					$('#add-new-spare-parts').css('display', (data.disabled === true ? 'none' : 'block'))
+					var partsJson = data.parts_details;
+					$('#div-append-spare-parts').empty()
+					for (let i = 0; i < partsJson.length; i++){
+						const el = partsJson[i];
+
+						var append_count = i + 1;
+
+						$('#div-append-spare-parts').append(`
+							<div id="row-tools-${ append_count }" class="col-lg-12 row">
+								<input type="hidden" id="unit-spare-parts-id-${ append_count }" value="${ el.id }">
+								<div class="col-sm-3">
+									<div class="mb-3">
+										<select id="unit-parts-${ append_count }" class="select-single-modal" onchange="fetch_price_per_parts(this)"></select>
+									</div>
+								</div>
+								
+								<div class="col-sm-3">
+									<div class="mb-3">
+										<select id="unit-parts-status-${ append_count }" class="form-control">
+											<option value=""> Select Status </option>
+											<option value="Damaged"> Damaged </option>
+											<option value="Missing"> Missing </option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-sm-2">
+									<div class="mb-3">
+										<input type="text" id="unit-parts-price-${ append_count }" class="form-control number-format text-end" value="${ roundOf(el.latest_price) }" placeholder="0.00" autocomplete="off">
+									</div>
+								</div>
+
+								<div class="col-sm-3">
+									<div class="mb-3">
+										<input type="text" id="unit-parts-remarks-${ append_count }" class="form-control isNullPrice" placeholder="Remarks" autocomplete="off" value="${ (el.parts_remarks == null ? '' : el.parts_remarks) }">
+									</div>
+								</div>
+
+								<div class="col-sm-1">
+									<div class="mb-3">
+										<button type="button" id="remove-row-${ append_count }" class="btn btn-danger remove-row" data-row-id="${ append_count }" onclick="remove_parts(${ append_count }, ${ el.id })" style="display:${ data.disabled === true ? 'none' : 'block' };">
+											<i class="ri-subtract-line align-bottom"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						`);
+
+						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change')
+						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
+						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id)
+						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
+						// $(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
+					}
+					partsCounter = partsJson.length
+					$('#spare-parts-append-count').val(`${ partsJson.length }`);
+
+					var cert_value = (data.received_details.is_certified_no_parts == "true" || partsJson.length == 0 ? true : false);
+					$('#certifying-unit').attr('checked', cert_value).attr('disabled', !cert_value)
+					$('#add-new-spare-parts').attr('disabled', cert_value)
+
+					$('#save-details').prop('disabled', false);
 				}
 			});
 		}

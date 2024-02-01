@@ -2,7 +2,7 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 <head>
-	<title> Refurbish | RMU </title>
+	<title> Refurbish Process | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 	<style>
 		.seperator {
@@ -16,6 +16,17 @@
 			border-radius: 6px;
 			height: 70px;
 			padding: 20px;
+
+		}
+
+		.upload-class {
+			float: right;
+			top: -25px;
+			position: relative;
+			right: 20px;
+			font-size: large;
+			color: #7cebeb;
+			cursor: pointer;
 		}
 	</style>
 </head>
@@ -32,7 +43,7 @@
 					<div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0" id="header-breadcram">Request Refurbish of Units</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Refurbish Process of Units</h4>
 							</div>
 						</div>
 					</div>
@@ -44,9 +55,9 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of Request</h4>
 									<div class="flex-shrink-0">
-										<button id="request" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="Request_reprice()">
-											Create Request
-										</button>
+										<!-- <button id="request" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="Request_reprice()">
+											Create Request 
+										</button> -->
 									</div>
 								</div>
 								<div class="card-body">
@@ -59,7 +70,7 @@
 												<th> Color </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-												<th> Status </th>
+												<th> Process Status </th>
 												<th> Current Holder </th>
 												<th> Remarks </th>
 												<th> Action </th>
@@ -81,31 +92,18 @@
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="myExtraLargeModalLabel"> Repo Details </h5>
+					<h5 class="modal-title" id="myExtraLargeModalLabel"> Refurbish Tagging </h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
 				</div>
 				<div class="modal-body container">
 					<div class="card pa-2">
-						<div class="row" id="list">
-							<table id="list-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-								<thead>
-									<tr>
-										<th>Branch</th>
-										<th> Brand </th>
-										<th> Model </th>
-										<th> Color </th>
-										<th> Engine </th>
-										<th> Chassis </th>
-										<th> Action </th>
-									</tr>
-								</thead>
-							</table>
-						</div>
 						<div class="row" id="details">
-							<div class="col-lg-6 col-md-6 col-sm-6 col-12 seperator">
+							<div class="col-lg-5 col-md-6 col-sm-6 col-12 seperator">
 								<div class="col-12">
 
 									<label for="customer-name" class="col-form-label"> Branch</label>
+									<input type="hidden" id="refurbish_id">
+									<input type="hidden" id="branch_id">
 									<input type="text" class="form-control" id="branch_name" placeholder="Branch" autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
@@ -127,40 +125,47 @@
 									</div>
 
 								</div>
-
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Engine</label>
-									<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
+									<div class="row">
+										<div class="col-6">
+											<label for="customer-name" class="col-form-label">Engine</label>
+											<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
+										</div>
+										<div class="col-6">
+											<label for="customer-name" class="col-form-label">Chassis #</label>
+											<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
+										</div>
+									</div>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Chassis #</label>
-									<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
+									<label for="customer-name" class="col-form-label">Classification</label>
+									<select id="unit-classification" class="select-single-modal">
+										<option value="">Select Classification</option>
+										<option value="A">A</option>
+										<option value="B">B</option>
+										<option value="C">C</option>
+										<option value="D">D</option>
+										<option value="E">E</option>
+									</select>
 								</div>
 							</div>
 
-							<div class="col-lg-6 col-md-6 col-sm-6 col-12">
+							<div class="col-lg-7 col-md-6 col-sm-6 col-12">
 								<h5>Missing and Damages Parts</h5>
 								<div id="part-list" style="height:250px; overflow-y:auto;"></div>
-								<h5>Upload Qoutation</h5>
+								<h5>Unit picture and Other Related Documents</h5>
+								<i class="ri-file-add-line upload-class" title="Upload Documents" onclick="addNewDocument()"></i>
 								<div style="height:100px; overflow-y:scroll;" id="upload">
-									<table>
-										<tr>
-											<input type="file" id="q1" onchange="uploadQoute(this.id,1)" />
-										</tr>
-										<tr>
-											<input type="file" id="q2" onchange="uploadQoute(this.id,2)" />
-										</tr>
-										<tr>
-											<input type="file" id="q3" onchange="uploadQoute(this.id,3)" />
-										</tr>
-									</table>
-
-								</div>
-								<div style="height:100px; overflow-y:scroll;" id="qoute-list">
 									<table id="uploaded-qoutation">
 									</table>
+									<table id="table-docs"></table>
 								</div>
+								<!-- <div style="height:100px; overflow-y:scroll;" id="qoute-list">
+                                    <table id="uploaded-qoutation">
+									</table>
+								</div> -->
 							</div>
+							<span style="color:red" id="maker-remarks"></span>
 							<div class="col-12 note">
 								<center><i class="fa-solid fa-triangle-exclamation"></i>
 									<span>Note: This request is subject for approval. !</span>
@@ -171,19 +176,15 @@
 								<textarea class="form-control" id="remarks" rows="3"></textarea>
 							</div>
 							<!-- end card body -->
-
-							<div class="modal-footer btn-save-footer note1">
+							<input type="hidden" id="record_id" />
+							<div class="modal-footer btn-save-footer ">
 								<!-- <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a> -->
-								<button id="save-details" type="button" class="btn btn-primary">Submit</button>
-								<button id="back-search" type="button" class="btn btn-primary">Back</button>
+								<button type="button" id="save-refurbish-process" data-id="0" type="button" class="btn btn-primary btnmaker" data-receive-unit-id="0">Submit</button>
+								<button data-id="0" type="button" class="btn btn-primary btnapprover" data-receive-unit-id="0" onclick="decision('1')">Approve</button>
+								<button data-id="0" type="button" class="btn btn-primary btnapprover" data-receive-unit-id="0" onclick="decision('2')">Disapprove</button>
+								<button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()">Back</button>
 							</div>
 
-							<div class="modal-footer btn-save-footer remarks1">
-
-								<button id="btn-approve" type="button" class="btn btn-primary" onclick="decision(1)">Approve</button>
-								<button id="btn-disapprove" type="button" class="btn btn-danger" onclick="decision(2)">Disapprove</button>
-								<!-- <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a> -->
-							</div>
 						</div>
 
 					</div>
@@ -208,27 +209,58 @@
 	<script>
 		var data_id = null
 		var edit_price = false
-		var qoute1 = null
-		var qoute2 = null
-		var qoute3 = null
 		var spares = []
 		var qoute_data = []
+		var arr = []
+		var user_action = null
 
 		function Request_reprice() {
 			getListOfUnits()
 		}
 
-		function uploadQoute(id, hiearchy) {
-			const file = $('#q' + hiearchy)[0].files[0];
+		function addNewDocument() {
+			let docs = ''
+
+			arr.push({
+				id: '',
+				value: ''
+			})
+
+			for (let i = 0; i < arr.length; i++) {
+				arr[i].id = i + 1
+
+				if (i + 1 === arr.length) {
+					docs = `<tr id="docs-uploaded">
+							<td><input type="file" id="doc-${arr[i].id}" onchange="uploadQoute(this.id,${arr[i].id})"/></td>
+							<td><i class="ri-delete-back-2-line" style="color:red;cursor:pointer;" onclick="removeDocs(${arr[i].id})" title="Remove"/></td>
+						</tr>
+						`
+				}
+
+			}
+
+			$('#table-docs').append(docs)
+		}
+
+		function removeDocs(index) {
+
+
+			let tmp = arr.filter(d => {
+				return d.id != index
+			})
+
+			arr = tmp
+			$("#table-docs").on("click", "#docs-uploaded", function() {
+				$(this).closest("tr").remove();
+			});
+		}
+
+		function uploadQoute(id, index) {
+
+			const file = $('#doc-' + index)[0].files[0];
 			let reader = new FileReader();
 			reader.onload = function(event) {
-				if (hiearchy == 1) {
-					qoute1 = event.target.result;
-				} else if (hiearchy == 2) {
-					qoute2 = event.target.result;
-				} else {
-					qoute3 = event.target.result;
-				}
+				arr[index - 1].value = event.target.result;
 
 			}
 			reader.readAsDataURL(file);
@@ -236,70 +268,73 @@
 
 		function closeModal() {
 			spares = []
-			$('#details').hide()
-			$('#list').show()
+			// $('#details').hide()
+			// $('#list').show()
 			$('#qoute-list').hide()
 			$('#upload').show()
 		}
 
 		$(document).ready(function() {
-			$('#details').hide()
+			// $('#details').hide()
 			$('#qoute-list').hide()
 			getModuleId()
 
-			$('#save-details').click(function(event) {
+			$('#save-refurbish-process').click(function(event) {
+
 				event.preventDefault();
 
-
-				var url = (data_id == null ? `${baseUrl}/requestRefurbish` : `${baseUrl}/updateRefurbish/${ data_id }`)
-
+				var id = $('#record_id').val()
+				var url = (user_action === 'create' ? `${baseUrl}/proceedRefurbish` : `${baseUrl}/updateRefurbishProcess/${ id }`)
 
 				var formData = new FormData();
 
-				formData.append("q1", $('#q1')[0].files[0]);
-				formData.append("q2", $('#q2')[0].files[0]);
-				formData.append("q3", $('#q3')[0].files[0]);
+				for (let i = 0; i < arr.length; i++) {
+					formData.append("related_documents_" + arr[i].id, $('#doc-' + arr[i].id)[0].files[0]);
+				}
+				formData.append("total_documents", arr.length);
+				formData.append("refurbish_id", $('#refurbish_id').val());
 				formData.append("repo_id", $('#repo_id').val());
 				formData.append("module_id", $('#mod').val());
+				formData.append("classification", $('#unit-classification').val());
 
 				let parts = []
 
 				for (let i = 0; i < spares.length; i++) {
 					parts.push({
-						received_parts_id: $('#received-id-' + spares[i].parts).val(),
+						received_parts_id: $(`#received-id-${ spares[i].parts }`).val(),
 						parts_id: spares[i].parts,
-						price: $('#parts-' + spares[i].parts).val()
+						status: $('#repo_stats-' + spares[i].parts).val(),
+						actual_price: $('#actual-price-' + spares[i].parts).val()
 					})
 				}
 				formData.append("spares", JSON.stringify(parts));
+				// console.log(parts)
 
 				showLoader()
 				$.ajax({
-					url: url, 
-					type: 'POST', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
+					url: url,
+					type: 'POST',
+					headers: {
+						'Authorization': `Bearer ${ auth.token }`,
 					},
-					data : formData,
+					data: formData,
 					processData: false,
 					contentType: false,
 					enctype: 'multipart/form-data',
-					success: function (data) { 
+					success: function(data) {
 						
-						if(!data.success){
+						if (!data.success) {
 							hideLoader()
 							toast(data.message, 'danger');
-						}
-						else{
+						} else {
 							hideLoader()
-							let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
+							let msg = user_action === 'create' ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
 							display_table($('#mod').val())
-							 qoute1 = null
-							 qoute2 = null
-							 qoute3 = null
-							 data_id = null
+							qoute1 = null
+							qoute2 = null
+							qoute3 = null
 						}
 					},
 					error: function(response) {
@@ -312,8 +347,8 @@
 			});
 
 			$('#back-search').click(function() {
-				$('#details').hide()
-				$('#list').show()
+				// $('#details').hide()
+				// $('#list').show()
 
 			})
 		})
@@ -328,13 +363,14 @@
 
 			for (let i = 0; i < spares.length; i++) {
 				parts.push({
-					received_parts_id: $('#received-id-' + spares[i].parts).val(),
 					parts_id: spares[i].parts,
-					price: $('#parts-' + spares[i].parts).val()
+					status: $('#repo_stats-' + spares[i].parts).val(),
+					actual_price: $('#actual-price-' + spares[i].parts).val()
 				})
 			}
 
 			const data = {
+				repo_id: $('#repo_id').val(),
 				data_id: data_id,
 				remarks: $('#remarks').val(),
 				status: status,
@@ -345,7 +381,7 @@
 			showLoader()
 
 			$.ajax({
-				url: `${baseUrl}/refurbishDecision`,
+				url: `${baseUrl}/refurbishProcessDecision`,
 				type: 'POST',
 				headers: {
 					'Authorization': `Bearer ${ auth.token }`,
@@ -353,7 +389,7 @@
 				data: data,
 				dataType: 'json',
 				success: function(data) {
-					
+					console.log(data)
 					if (!data.success) {
 						hideLoader()
 						toast(data.message, 'danger');
@@ -377,78 +413,10 @@
 			});
 		}
 
-		async function getListOfUnits() {
-
-			let data = null
-			const tableData = await $.ajax({
-				url: `${baseUrl}/listOfForRefurbish`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				}
-			});
-			data = tableData.data
-
-			$("#list-table").DataTable().destroy();
-			$("#list-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-				scrollX: true,
-				scrollCollapse: true,
-				paging: false,
-				data: data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
-				columns: [
-
-					{
-						data: "branchname"
-					},
-					{
-						data: "brandname"
-					},
-					{
-						data: "model_name"
-					},
-					{
-						data: "color"
-					},
-					{
-						data: "model_engine"
-					},
-					{
-						data: "model_chassis"
-					},
-					{
-						data: null,
-						defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							//	
-							html = `
-							<button class="btn btn-sm btn-soft-warning" 
-									onclick="edit(${ oData.repoid },'${ oData.receive_id }', '${ oData.branch }', '${ oData.branchname }', 
-										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
-										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','new','${ oData.color }')">  
-									<i class="ri-edit-box-line"></i> Refurbish
-								</button> 
-							`;
-
-
-							$(nTd).html(html);
-						}
-					},
-				]
-			});
-		}
-
 		async function display_table(modid) {
 			let data = null
 			const tableData = await $.ajax({
-				url: `${baseUrl}/getListForApprovalRefurbish/${modid}`,
+				url: `${baseUrl}/getListForRefurbishProcess/${modid}`,
 				method: 'GET',
 				dataType: 'json',
 				headers: {
@@ -457,6 +425,8 @@
 			});
 
 			data = tableData.data
+
+			console.log(data)
 
 			if (tableData.role == 'Approver') {
 				$('#request').hide()
@@ -508,7 +478,25 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
 							//	
 
+
 							html = 'No action available';
+							if (oData.status == 'Subject For Refurbishing' && tableData.role == 'Maker') {
+
+								html = `
+									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+									onclick="edit(${ oData.repo_id },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
+										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
+										 '${ oData.model_chassis }', '${ oData.model_engine }',
+										  '${ tableData.role }','create','${ oData.color }','${ oData.remarks }','0','${ oData.classification }','${ oData.receive_id }')"> 
+										<i class="ri-edit-box-line"></i> Proceed to refurbish
+									</button>
+									<button class="btn btn-sm btn-soft-warning"  
+									onclick="remove(${ oData.refurbish_id })"> 
+										<i class="ri-delete-bin-5-line"></i> Cancel
+									</button> 
+								`;
+							}
+
 							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Maker') {
 								html = `
 									No Action Available
@@ -516,36 +504,39 @@
 							}
 
 							if (oData.status == 'DISAPPROVED' && tableData.role == 'Maker') {
+
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
 									onclick="edit(${ oData.repo_id },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','update','${ oData.color }')"> 
-										<i class="ri-edit-box-line"></i> Review Request
+										  '${ tableData.role }','update','${ oData.color }','${ oData.remarks }','${ oData.processid }','${ oData.classification }','${ oData.receive_id }')"> 
+										<i class="ri-edit-box-line"></i> Update to proceed
+									</button>
+									<button class="btn btn-sm btn-soft-warning"  
+									onclick="remove(${ oData.refurbish_id })"> 
+										<i class="ri-delete-bin-5-line"></i> Cancel
 									</button> 
 								`;
 							}
 
 							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Maker') {
-								// console.log(oData.approved_price)
 								html = 'Waiting for approval';
 							}
 
 							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Approver') {
-
-								qoute_data.push({
-									"qoute_id": oData.refurbish_id,
-									"qoute_data": oData.qoute
-
-								})
+								$('.upload-class').hide()
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="viewForApproval(${ oData.repo_id },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
+									onclick="viewForApproval(${ oData.processid },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','new','${ oData.color }')"> 
+										  '${ tableData.role }','new','${ oData.color }','${ oData.classification }','${ oData.receive_id }')"> 
 										<i class="ri-check-circle"></i> Approve
+									</button>
+									<button class="btn btn-sm btn-soft-warning"  
+									onclick="remove(${ oData.refurbish_id })"> 
+										<i class="ri-delete-bin-5-line"></i> Cancel
 									</button> 
 								`;
 							}
@@ -557,15 +548,95 @@
 			});
 		}
 
-		function edit(repo_id, receive_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, categ, color) {
+		function remove(id) {
+			let prompt = confirm('Are you sure do you want to cancel this refurbishing procedure transaction ?')
+			if (prompt) {
+				showLoader()
 
-			if (categ == 'new') {
-				data_id = null
-				$('#back-search').show()
-			} else {
-				$('#back-search').hide()
-				data_id = receive_id
+				$.ajax({
+					url: `${ baseUrl }/cancelRefurbish`,
+					type: 'POST',
+					headers: {
+						'Authorization': `Bearer ${ auth.token }`,
+					},
+					data: {
+						id: id,
+					},
+					success: function(data) {
+
+						if (!data.success) {
+							hideLoader()
+							toast(data.message, 'danger');
+						} else {
+							hideLoader()
+
+							toast('Transaction successfully cancelled', 'success');
+							display_table($('#mod').val())
+
+						}
+					},
+					error: function(response) {
+						hideLoader()
+						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
+					}
+				});
 			}
+		}
+
+		function getUploadedDocuments(refurbishId) {
+			$('#uploaded-qoutation').html('')
+
+			$.ajax({
+				url: `${baseUrl}/getUploadedDocuments/${refurbishId}`,
+				type: 'GET',
+				headers: {
+					'Authorization': `Bearer ${ auth.token }`,
+				},
+				success: function(data) {
+					$('#uploaded-qoutation tr').remove();
+					if (data.length > 0) {
+
+						let qoutations = JSON.parse(data[0].files_names)
+						let row = ''
+						let link = baseUrl.replace('/api', '')
+						for (let i = 0; i < qoutations.length; i++) {
+
+							row += `<tr>
+										<td>
+											<a href="#" onclick="downloadURI('${link}/${qoutations[i].path}','${qoutations[i].filename}')"><span title="Download Qoutation">${qoutations[i].filename}</span></a>
+										</td>
+									</tr>`
+						}
+
+						$('#uploaded-qoutation').show()
+
+						$('#uploaded-qoutation').html(row)
+					}
+
+				},
+				error: function(response) {
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			})
+		}
+
+		function edit(repo_id, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, actionTaken, color, remarks, processid, classification, receive_id) {
+			$('#uploaded-qoutation').hide()
+			$('#maker-remarks').hide()
+			user_action = actionTaken
+			if (remarks !== 'null') {
+				$('#maker-remarks').html('Remarks: ' + remarks)
+				$('#maker-remarks').show()
+
+				if (actionTaken === 'update') {
+					$('#record_id').val(processid)
+					getUploadedDocuments(refurbish_id)
+				}
+
+			}
+
 
 			$('#list').hide()
 			$('#details').show()
@@ -577,16 +648,18 @@
 
 				$('.remarks').css('display', 'none')
 				$('.remarks1').css('display', 'none')
+				$('.btnmaker').css('display', 'block')
+				$('.btnapprover').css('display', 'none')
 			} else {
 				$('.note').css('display', 'none')
 				$('.note1').css('display', 'none')
+				$('.btnmaker').css('display', 'none')
+				$('.btnapprover').css('display', 'block')
 			}
 
 
-
-
 			//let obJ = JSON.Parse(data)
-			$('#received_id').val(receive_id)
+			$('#refurbish_id').val(refurbish_id)
 			$('#branch_id').val(branchid)
 			$('#branch_name').val(branchname)
 			$('#brand').val(brand)
@@ -596,37 +669,73 @@
 			$('#engine').val(engine)
 			$('#chassis').val(chassis)
 			$('#color').val(color)
+			$('#unit-classification').val(classification).trigger('change')
 
 
 			//get list of missing and damages parts
+			getPartsForRefurbish(receive_id, role)
+		}
+
+		function getPartsForRefurbish(receive_id, role) {
+			$('#part-list').html('')
 			$.ajax({
-				url: `${baseUrl}/getMissingDamageParts/${receive_id}`,
+				url: `${baseUrl}/getPartsForRefurbish/${receive_id}`,
 				type: 'GET',
 				headers: {
 					'Authorization': `Bearer ${ auth.token }`,
 				},
 				success: function(data) {
+		
 					let tbl = `<table border="1" width="100%">
                                     <thead>
                                         <tr>
                                             <th>Parts</th>
-                                            <th>Price</th>
+											<th>Price</th>
+											<th>Actual Price</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                 `
 					for (let i = 0; i < data.length; i++) {
 						spares.push({
-							parts: data[i].id
+							parts: data[i].record_id
 						})
+
 						tbl += `<tr>
                                     <td>
-                                    <input type="hidden" class="form-control" id="received-id-${data[i].id}" value="${data[i].received_ids}" autocomplete="off" disabled>
-                                    <input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
+                                    <input type="hidden" class="form-control" id="received-id-${data[i].record_id}" value="${data[i].record_id}" autocomplete="off" disabled>
+                                    <input type="text" class="form-control" value="${data[i].name}" autocomplete="off" disabled>
                                     </td>
-                                    <td>
-                                    <input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
+									<td>
+                                    <input type="number" class="form-control"  value="${data[i].price}" autocomplete="off" disabled>
                                     </td>
-                                </tr>`
+									<td>
+                                    <input type="number" class="form-control" id="actual-price-${data[i].record_id}"  value="${data[i].actual_price}">
+                                    </td>
+                                    <td>`
+
+						if (role == 'Maker') {
+
+							tbl += `<select id="repo_stats-${data[i].record_id}" class="form-control">
+											<option value="">Select Status</option>
+											<option value="done">Refurbishing Done</option>
+											<option value="na">No available Parts</option>
+										</select>`
+
+						} else {
+							tbl += `<select id="repo_stats-${data[i].record_id}" class="form-control" disabled>
+											<option value="">Select Status</option>
+											<option value="done">Refurbishing Done</option>
+											<option value="na">No available Parts</option>
+										</select>`
+						}
+
+						tbl += `</td></tr>`
+
+
+						setTimeout(() => {
+							$(`#repo_stats-${data[i].record_id}`).val(data[i].status).trigger('change');
+						}, 200);
 					}
 					tbl += `</table>`
 					$('#part-list').html(tbl)
@@ -659,43 +768,30 @@
 			});
 		}
 
-		function viewForApproval(repo_id, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, categ, color) {
+		function viewForApproval(processid, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, categ, color, classification, receive_id) {
 
 			$('#list').hide()
 			$('#details').show()
 
-			$('#upload').hide()
+
 			$('#qoute-list').show()
 
 
 			if (role == 'Approver') {
 				$('.note').css('display', 'none')
-				$('.note1').css('display', 'none')
+				$('.btnapprover').css('display', 'block')
+				$('.btnmaker').css('display', 'none')
 			} else {
+				$('.btnapprover').css('display', 'none')
+				$('.btnmaker').css('display', 'block')
 				$('.remarks').css('display', 'none')
 				$('.remarks1').css('display', 'none')
 			}
 
-			let qoute = qoute_data.filter(d => {
-				return d.qoute_id == refurbish_id
-			})[0]
-
-			let qoutations = JSON.parse(qoute.qoute_data)
-			let row = ''
-
-			let link = baseUrl.replace('/api', '')
-			for (let i = 0; i < qoutations.length; i++) {
-				row += `<tr>
-							<td>
-								<a href="#" onclick="downloadURI('${link}/${qoutations[i].path}','${qoutations[i].filename}')"><span title="Download Qoutation">${qoutations[i].filename}</span></a>
-							</td>
-						</tr>`
-			}
-
-			$('#uploaded-qoutation').html(row)
+			getUploadedDocuments(refurbish_id)
 
 
-			data_id = refurbish_id
+			data_id = processid
 			$('#branch_id').val(branchid)
 			$('#branch_name').val(branchname)
 			$('#brand').val(brand)
@@ -705,45 +801,10 @@
 			$('#engine').val(engine)
 			$('#chassis').val(chassis)
 			$('#color').val(color)
-			
-			$.ajax({
-				url: `${baseUrl}/getRefurbishParts/${repo_id}`,
-				type: 'GET',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				},
-				success: function(data) {
-					let tbl = `<table border="1" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Parts</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                `
-					for (let i = 0; i < data.length; i++) {
-						spares.push({
-							parts: data[i].id
-						})
-						tbl += `<tr>
-								<td>
-									<input type="hidden" class="form-control" id="received-id-${data[i].id}" value="${data[i].received_ids}" autocomplete="off" disabled>
-									<input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
-								</td>
-								<td>
-									<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
-								</td>
-							</tr>`
-					}
-					tbl += `</table>`
-					$('#part-list').html(tbl)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
+			$('#unit-classification').val(classification).trigger('change')
 
+
+			getPartsForRefurbish(receive_id, role)
 
 		}
 

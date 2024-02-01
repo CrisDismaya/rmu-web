@@ -118,10 +118,20 @@
 								</span>
 							</span>
 						</button>
+						<div class="dropdown-menu dropdown-menu-end">
+							<!-- item-->
+							<h6 class="dropdown-header">Welcome <span id="name-log"></span>!</h6>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="javascript:void(0);"  onclick="change_passowrd_modal()">
+								<i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> 
+								<span class="align-middle">Chamge Password</span>
+							</a>
+							<!-- <a class="dropdown-item" href="auth-logout-basic.html"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span></a> -->
+						</div>
 					</div>
 
 					<div class="ms-1 header-item d-none d-sm-flex">
-						<button id="auth-logout" type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" onclick="route('/rmu_web/index.php')">
+						<button id="auth-logout" type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" onclick="route('/rmu_web/index.php',null)">
 							<i class='bx bx-log-out fs-22'></i>
 						</button>
 					</div>
@@ -129,6 +139,40 @@
 			</div>
 		</div>
 	</header>
+
+	<div class="modal fade" id="change-password" aria-labelledby="myExtraLargeModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="myExtraLargeModalLabel"> Change Password </h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+
+				<div class="modal-body">
+					<div class="col-md-12 mb-3">
+						<label class="form-label"> Old password </label>
+						<input type="password" id="old-password" class="form-control" placeholder="Enter Old Password">
+					</div>
+
+					<div class="col-md-12 mb-3">
+						<label class="form-label"> New password </label>
+						<input type="password" id="new-password" class="form-control" placeholder="Enter New Password">
+					</div>
+
+					<div class="col-md-12 mb-2">
+						<label class="form-label"> Confirm password </label>
+						<input type="password" id="confirm-password" class="form-control" placeholder="Enter Confirm Password">
+					</div>
+					<span id='password-message'></span>
+				</div>
+
+				<div class="modal-footer">
+					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+					<button type="button" id="save-button" class="btn btn-primary" data-id=""> Save </button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- removeNotificationModal -->
 	<div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true"></div>
@@ -177,13 +221,23 @@
 	<!-- Vertical Overlay-->
 	<div class="vertical-overlay"></div>
 
+	<div class="loading-overlay" id="loading-overlay">
+		<div class="overlay"></div>
+		<div class="spanner">
+		<div class="loader"></div>
+		<p>Please wait. . . .</p>
+		</div>
+	</div> 
+
 	<script>
 		
 		let user = JSON.parse(localStorage.getItem('data'))
+		document.getElementById('name-log').innerHTML = user.name
 		document.getElementById('user').innerHTML = user.name
 		document.getElementById('role').innerHTML = user.role
-		function route(link){
-
+		
+		function route(link,name){
+			localStorage.setItem('navbar',name)
 			if(link == '/rmu_web/index.php'){
 				localStorage.removeItem('data')
 				link =  location.protocol == "https:" ? '/index.php' : link
@@ -198,7 +252,81 @@
 			 //this is notif bell 
 			getUserNotification()
 			getModuleByUser()
+
+			$("#new-password, #confirm-password").on("keyup", function() {
+				updatePasswordMessage();
+			});
+
+			$('#save-button').click(function(){
+
+				if($('#old-password').val() == '' || $('#new-password').val() == '' || $('#confirm-password').val() == ''){
+					toast('Please complete input the fields', 'danger');
+					return false;
+				}
+				showLoader() 
+
+				$.ajax({
+					url: `${ baseUrl }/changePassword`, 
+					type: 'POST', 
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${auth.token}`,
+					},
+					data: { 
+						old_password : $('#old-password').val(),
+						new_password : $('#new-password').val()
+					}, 
+					success: function (data) { 
+						console.log(data)
+						if(!data.success){
+							toast(data.data, 'danger');
+						}
+						else{
+							toast(data.data, 'success');
+							$('#change-password').modal('hide')
+						}
+						hideLoader()
+					},
+					error: function(response) {
+						hideLoader()
+						toast(response.responseJSON.data, 'danger');
+					}
+				});
+			});
 		})
+
+		function change_passowrd_modal(){
+			$('#old-password').val('')
+			$('#new-password').val('')
+			$('#confirm-password').val('')
+			$('#save-button').prop('disabled', true)
+			$('#change-password').modal('show')
+		}
+
+		function passwordsMatch() {
+			var newPassword = $("#new-password").val();
+			var confirmPassword = $("#confirm-password").val();
+			return newPassword === confirmPassword;
+		}
+
+		function updatePasswordMessage() {
+			var newPassword = $("#new-password").val();
+			var confirmPassword = $("#confirm-password").val();
+			var message = $("#password-message");
+
+			if(newPassword == '' || confirmPassword == ''){
+				message.text("").removeClass("text-danger").removeClass("text-success");
+				$('#save-button').prop('disabled', true)
+			}
+			else if (newPassword === confirmPassword) {
+				message.text("Passwords match").removeClass("text-danger").addClass("text-success");
+				$('#save-button').prop('disabled', false)
+			} 
+			else {
+				message.text("Passwords do not match").removeClass("text-success").addClass("text-danger");
+				$('#save-button').prop('disabled', true)
+			}
+		}
 
 		async function getUserNotification(){
 			const result = await $.ajax({
@@ -225,7 +353,7 @@
                                                     <i class="bx bx-badge-check"></i>
                                                 </span>
                                             </div>
-                                            <div class="flex-1" onclick="route('${data.link}')">
+                                            <div class="flex-1" onclick="route('${data.link}','${data.module}')">
                                                 <a href="javascript: void(0);" class="stretched-link">
                                                     <h6 class="mt-0 mb-2 lh-base">You have a ${data.status == 2 ? 'disapproved' : 'pending'}  approval request from <b>${data.requestor}
 													</b> for module <b>${data.module}</b>.
@@ -248,124 +376,34 @@
 
 		async function getModuleByUser(){
 			
-			const result = await $.ajax({
+			// const result = await $.ajax({
+			// 	url: `${baseUrl}/getMyModules`, 
+			// 	type: 'GET', 
+			// 	headers:{
+			// 		'Authorization':`Bearer ${ auth.token }`,
+			// 		}
+			// 	});
+
+				$.ajax({
 				url: `${baseUrl}/getMyModules`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) { 
+					 treeJson(data)
+				},
+				error: function(response) {
+					if(typeof response.responseJSON == 'undefined'){
+						alert('Your token session is expired.! Please relogin')
+						let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
+						localStorage.removeItem('data')
+						window.location.replace(link)
 					}
-				});
-
-				if(auth.role == 'superadmin'){
-					$('#sidebar-container').html(`<li class="nav-item" onclick="route('dashboard.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class="ri-dashboard-2-line"></i> <span data-key="t-dashboard"> Dashboard </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_customer-profiling.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> Customer Profiling </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_repo-create.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> Repo Details </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_receiving-of-units.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> Receive of Units </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('inventory.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class="ri-file-list-3-line"></i> <span data-key="t-physical-inventory"> Physical Inventory </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_stock_transfer.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-stock-transfer"> Stock Transfer </span>
-							<span id="for_stock_transfer" class="badge badge-pill bg-danger" data-key="t-hot"><span class="notif_stock_transfer"></span></span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_stock_transfer_received.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-stock-transfer"> Received Stock Transfer </span>
-							<span id="for_stock_transfer_received" class="badge badge-pill bg-danger" data-key="t-hot"><span class="notif_stock_transfer_received"></span></span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_refurbish-unit.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-unit-approval"> Request Repo Refurbish </span>&nbsp;
-							<span id="for_approval" style="display:none;color:white;background-color:#f71505; border-radius:50%;padding:3px;"></span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_approval-unit.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class=" ri-pages-line"></i> <span data-key="t-unit-approval"> Request Repo Price </span>&nbsp;
-							<span id="for_approval" style="display:none;color:white;background-color:#f71505; border-radius:50%;padding:3px;"></span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('sold-unit.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class="ri-file-list-3-line"></i> <span data-key="t-generate-qr-code"> Sold Units </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_sales-tagging.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class="ri-file-list-3-line"></i> <span data-key="t-generate-qr-code"> Sales Tagging </span>
-						</a>
-					</li>
-					<li class="nav-item" onclick="route('_report_transfers_units.php')">
-						<a class="nav-link menu-link" href="javascript: void(0);">
-							<i class="ri-file-list-3-line"></i> <span data-key="t-generate-qr-code"> Transfer Report </span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link menu-link" href="#sidebar-maintenance" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebar-maintenance">
-							<i class=" ri-settings-3-line"></i> <span data-key="t-maintenance"> Maintenance </span>
-						</a>
-						<div class="collapse menu-dropdown" id="sidebar-maintenance">
-							<ul class="nav nav-sm flex-column">
-								<li class="nav-item" onclick="route('_branch-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Branch Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_brand-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Brand Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_model-units-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Model Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_color-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Model Color Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_model-parts-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Spare Parts Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_user-create.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> User Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_user-role.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> User Role Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_system-menu.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> System Menu Management </a>
-								</li>
-								<li class="nav-item" onclick="route('_aging-map.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Aging Mapping </a>
-								</li>
-								<li class="nav-item" onclick="route('_files-upload-maintenance.php')">
-									<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> Document Type Management </a>
-								</li>
-							</ul>
-						</div>
-					</li>`)
-				}else{
-					treeJson(result)
+				
 				}
+			});
 
-				// getNotif()
-	
 		}
 
 		function treeJson(val) {
@@ -418,10 +456,9 @@
 						// console.log(notification_id)
 						// <span id="for_stock_transfer_received" class="badge badge-pill bg-danger" data-key="t-hot"><span class="notif_stock_transfer_received"></span></span>
 
-						sidebar +=`<li class="nav-item" onclick="route('${details.file_path}')">
+						sidebar +=`<li class="nav-item" onclick="route('${details.file_path}','${details.menu_name}')">
 									<a class="nav-link menu-link" href="javascript: void(0);">
 										<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> ${details.menu_name} </span>
-										<span id="${ notification_id }" class="badge badge-pill bg-danger d-none" data-key="t-new">0</span>
 									</a>
 								</li>`
 					}
@@ -464,7 +501,7 @@
 							
 							let class_id = menu_name.includes(' ') ? menu_name.replace(' ','-') : menu_name
 
-							$('.'+class_id).append(`<li class="nav-item" onclick="route('${details.file_path}')">
+							$('.'+class_id).append(`<li class="nav-item" onclick="route('${details.file_path}','${details.menu_name}')">
 						 			<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> ${details.menu_name} </a>
 						 		</li>`)
 						}, 300);

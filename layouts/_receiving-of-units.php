@@ -17,7 +17,7 @@
                <div class="row">
 						<div class="col-12">
 							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0">Receiving of Units</h4>
+								<h4 class="mb-sm-0" id="header-breadcram">Receiving of Units</h4>
 							</div>
 						</div>
 					</div>
@@ -153,21 +153,21 @@
 										<div class="row">
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Loan Amount </label>
+													<label class="form-label"> Loan Amount <span class="text-danger">*</span></label>
 													<input id="unit-loan-amount" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Total Payment </label>
+													<label class="form-label"> Total Payment <span class="text-danger">*</span></label>
 													<input id="unit-total-payment" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
 											<div class="col-sm-4">
 												<div class="mb-3">
-													<label class="form-label"> Principal Balance </label>
+													<label class="form-label"> Principal Balance <span class="text-danger">*</span></label>
 													<input id="unit-principal-balance" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
 												</div>
 											</div>
@@ -445,6 +445,7 @@
 						},
 						error: function(response) {
 							toast(response.responseJSON.message, 'danger');
+							forceLogout(response.responseJSON) //if token is expired
 						}
 					})
 				});
@@ -465,6 +466,11 @@
 				var url = (received_id == 0 ? `${ baseUrl }/createReceiveUnit` : `${ baseUrl }/updateReceiveUnit/${ id }`)
 				// console.log(url)
 				// console.log(repo_id)
+
+				if($('#unit-loan-amount').val() == '' || $('#unit-total-payment').val() == '' || $('#unit-principal-balance').val() == ''){
+					toast("Unit Details Tab: Please fill-up the red mark asterisk (*)", 'danger');
+					return false;
+				}
 
 				showLoader()
 
@@ -539,6 +545,7 @@
 						console.log(response)
 						hideLoader()
 						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
 
@@ -606,8 +613,15 @@
 				// 	{ className: "text-end", targets: [ 4 ] },
 				// ],
 				columns: [
-					{ data: "acumatica_id" },
-					{ data: "customer_name" },
+					{ data: "acumatica_id",
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+							html = `
+								<b>${ oData.acumatica_id != null ? oData.acumatica_id : '-' }</b>
+							`;
+							$(nTd).html(html);
+						}
+					},
+					{ data: "customer_name", className: "fw-semibold" },
 					{ data: "brandname" },
 					{ data: "model_name" },
 					{ data: "model_engine" },
@@ -696,6 +710,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -778,6 +793,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -807,6 +823,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -830,6 +847,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -857,6 +875,7 @@
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}
@@ -876,8 +895,8 @@
 			$('#unit-engine').val(engine)
 			$('#unit-chassis').val(chassis)
 			$('#unit-price').val(price)
-			$('#unit-loan-amount').val(price).attr('readonly', true)
-			$('#unit-total-payment').val(amount_paid).attr('readonly', true)
+			// $('#unit-loan-amount').val(price)
+			$('#unit-total-payment').val(amount_paid)
 			
 			$.ajax({
 				url: `${ baseUrl }/receivedUnitsPerId`, 
@@ -892,12 +911,13 @@
 				},
 				success: function (data) {
 					
-					console.log(data)
 					var res = data.message;
 					var receive = (res.received_details != null ? true : false);
 					$('#certifying-unit').prop('checked', (receive ? res.received_details.is_certified_no_parts == 'true' ? true : false : false))
 					$('#add-new-spare-parts').attr('disabled', receive ? res.received_details.is_certified_no_parts == 'true' ? true : false : false)
-					$('#unit-principal-balance').val(principal).attr('readonly', true)
+					$('#unit-loan-amount').val(receive ? res.received_details.loan_amount : '')
+					$('#unit-total-payment').val(receive ? res.received_details.total_payments : '')
+					$('#unit-principal-balance').val(receive ? res.received_details.principal_balance : '')
 
 					var files = res.file_details;
 					images_counter = files.length;
@@ -1013,6 +1033,10 @@
 						var choices = new Choices(`#unit-parts-status-${ counter }`);
 						append_number_format_keyup()
 					}
+				},
+				error: function(response) {
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}

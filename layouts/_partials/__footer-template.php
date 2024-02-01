@@ -33,6 +33,9 @@
 	<script src="../assets/libs/prismjs/prism.js"></script>
 	<script src="../assets/js/app.js"></script>
 	<script src="../assets/js/js-custom.js"></script>
+	<script>
+		$('#header-breadcram').html(localStorage.getItem('navbar'))
+	</script>
 	
 
 	

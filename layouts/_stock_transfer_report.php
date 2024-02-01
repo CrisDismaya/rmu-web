@@ -3,7 +3,7 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="light" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
 
 <head>
-	<title> Stock Transfer Receiving | RMU </title>
+	<title> Stock Transfer Report | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 </head>
 <body>
@@ -13,44 +13,43 @@
 		
 		<div class="main-content">
 			<div class="page-content">
-				<div class="container-fluid">
+            <div class="container-fluid">
 
-					<div class="row">
-						<div class="col-12">
-							<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-								<h4 class="mb-sm-0" id="header-breadcram"> Receiving Stock Transfer </h4>
-							</div>
-						</div>
-					</div>
+               <!-- start page title -->
+               <div class="row">
+                  <div class="col-12">
+                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0" id="header-breadcram">Stock Transfer Report</h4>
+                     </div>
+                  </div>
+               </div>
+               <!-- end page title -->
 
-					<div class="row">
+               <div class="row">
 						<!-- table -->
 						<div class="col-lg-12">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
-									<h4 class="card-title mb-0 flex-grow-1"> Receiving Stock Transfer </h4>
+									<h4 class="card-title mb-0 flex-grow-1"> Stock Transfer Report </h4>
 								</div>
 								<div class="card-body">
-									<table id="list-for-receive-transfer-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
+									<table id="transfer-approved-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<th> Reference Code </th>
 											<th> Branch From </th>
-											<!-- <th> Request Creator </th> -->
-											<th> Ex-Owner </th>
-											<th> Brand </th>
-											<th> Model </th>
+											<th> Branch To </th>
 											<th> Engine </th>
 											<th> Chassis </th>
-											<th> Previous Image </th>
-											<th> Is Received With? </th>
+											<th> Pictures </th>
+											<th> Status </th>
+											<th> Date Approved </th>
 										</thead>
 									</table>
 								</div>
 							</div>
 						</div>
 					</div>
-
-				</div>
+            </div>
 			</div>
 
 		</div>
@@ -85,25 +84,16 @@
 		</div>
 	</div>
 
-	<!--start loader-->
-	<div class="loading-overlay" id="loading-overlay">
-		<div class="overlay"></div>
-		<div class="spanner">
-		<div class="loader"></div>
-		<p>Please wait. . . .</p>
-		</div>
-	</div> 
-	<!--end loader-->
-
 	<?php include_once './_partials/__footer-template.php'; ?>
-	<script>
-		$(document).ready(function(){
+
+   <script>
+      $(document).ready(function(){
 			display_table();
 		});
 
 		async function display_table(){
 			const tableData = await $.ajax({
-				url: `${baseUrl}/getAllReceiveStockTransfer`,
+				url: `${baseUrl}/fetch_stock_transfer_approved`,
 				method: 'GET',
 				dataType: 'json',
 				headers:{
@@ -111,8 +101,8 @@
 				}
 			});
 
-			$("#list-for-receive-transfer-table").DataTable().destroy();
-			$("#list-for-receive-transfer-table").DataTable({
+			$("#transfer-approved-table").DataTable().destroy();
+			$("#transfer-approved-table").DataTable({
 				deferRender: true,
 				searching: true,
 				scrollY: 400,
@@ -122,42 +112,26 @@
 				data: tableData,
 				columns: [
 					{ data: "reference_code", className: 'text-center' },
-					{ data: "branch_name" },
-					{ data: "customer_name", className: 'fw-semibold' },
-					{ data: "brandname" },
-					{ data: "model_name" },
+					{ data: "origin" },
+					{ data: "receiver" },
 					{ data: "engine" },
 					{ data: "chassis" },
-					{ data: null, defaultContent: '', className: 'text-center',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+					{
+						data: null,
+						defaultContent: '',
+						className: "text-center",
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
 							html = `
 								<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${ oData.repo_id })"> 
 									<i class="bx bx-images"></i>
 								</button> 
 							`;
-							$(nTd).html(html);
-						}
-					},
-					{ data: null, defaultContent: '', className: 'text-center',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 
-							html = `
-								<div class="input-group input-group-sm">
-									<select class="form-select" id="decision_of_${ oData.reference_code }" aria-label="Example select with button addon">
-										<option value="" ${ oData.is_received == '0' ? 'selected' : '' }> Select </option>
-										<option value="1" ${ oData.is_received == '1' ? 'selected' : '' }> Use Previous Images </option>
-										<option value="2" ${ oData.is_received == '2' ? 'selected' : '' }> Upload New Images </option>
-									</select>
-									<button class="btn btn-sm btn-outline-primary ${ oData.received_status == 'NO DECISION' ? '' : 'd-none' }" type="button" onclick="save_decision(this)" 
-										data-repoid="${ oData.repo_id }" data-reference="${ oData.reference_code }" data-stock-approval-id="${ oData.stock_approval_id }" data-stock-unit-id="${ oData.stock_unit_id }">
-										<i class="ri-save-line"></i>
-									</button>
-								</div>
-							`;
-							
 							$(nTd).html(html);
 						}
 					},
+					{ data: "approval_status", className: 'text-center' },
+					{ data: "date_approved", className: 'text-center' },
 				],
 				dom: 'Bfrtip',
 				buttons: [
@@ -167,23 +141,17 @@
 				]
 			});
 		}
-
-		function view_image(item_source){
-			$('#modal-preview').modal('show')
-			$('#image-selected-preview').attr('src', item_source)
-
-		}
-
-		function fetch_files_updated(repoid){
+		
+		function fetch_files_updated(repoid) {
 			const data = $.ajax({
 				url: `${baseUrl}/getAllFileUploaded`,
 				method: 'POST',
 				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
+				headers: {
+					'Authorization': `Bearer ${ auth.token }`,
 				},
-				data:{
-					repoid : repoid
+				data: {
+					repoid: repoid
 				}
 			});
 
@@ -196,19 +164,15 @@
 					var extension = string[string.length - 1].toLowerCase();
 					var image_extension = ['jpg', 'jpeg', 'png'];
 
-					if(image_extension.indexOf(extension) !== -1){
-						image_source = image_path +'/'+ el['path'];
-					}
-					else if(extension == 'pdf'){
+					if (image_extension.indexOf(extension) !== -1) {
+						image_source = image_path + '/' + el['path'];
+					} else if (extension == 'pdf') {
 						image_source = '../assets/images/small/default-pdf.png';
-					}
-					else if(extension == 'docx'){
+					} else if (extension == 'docx') {
 						image_source = '../assets/images/small/default-docs.png';
-					}
-					else if(extension == 'xlsx'){
+					} else if (extension == 'xlsx') {
 						image_source = '../assets/images/small/default-xlsx.png';
-					}
-					else{
+					} else {
 						image_source = '../assets/images/small/img-1.jpg';
 					}
 
@@ -235,48 +199,10 @@
 			});
 		}
 
-		function save_decision(element){
-			var repoid = $(element).data('repoid');
-			var reference = $(element).data('reference');
-			var approvalid = $(element).data('stock-approval-id');
-			var unitid = $(element).data('stock-unit-id');
-			
-			if($(`#decision_of_${ reference }`).val() == ''){
-				toast('Please select the decision before you save.', 'danger');
-				return false;
-			}
-
-			showLoader()
-			$.ajax({
-				url: `${baseUrl}/receivedDesicion`, 
-				type: 'POST', 
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				data: { 
-					repoid : repoid,
-					approvalid: approvalid,
-					unitid: unitid,
-					decisionid : $(`#decision_of_${ reference }`).val(),
-				}, 
-				success: function (data) { 
-					console.log(data);
-					if(!data.success){
-						toastr.error(data.message);
-					}
-					else{
-						toast('Received Unit Successfully!', 'success');
-						display_table();
-					}
-					hideLoader()
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'error');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
+		function view_image(item_source){
+			$('#modal-preview').modal('show')
+			$('#image-selected-preview').attr('src', item_source)
 		}
-	</script>
+   </script>
 </body>
 </html>
