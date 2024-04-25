@@ -158,58 +158,63 @@
 								<div class="tab-pane fade" id="pills-bill-address" role="tabpanel" aria-labelledby="pills-unit-details-tab">
 									<div>
 										<div class="row">
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Brand <span class="text-danger">*</span></label>
 													<select id="unit-brand" class="select-single-modal"></select>
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Model <span class="text-danger">*</span></label>
 													<select id="unit-model" class="select-single-modal" data-modelid=""></select>
 												</div>
 											</div>
 
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Plate Number <span class="text-danger">*</span></label>
-													<input id="unit-plate-number" type="text" class="form-control" value="" placeholder="Enter Plate Number" onkeypress="" autocomplete="off">
-												</div>
-											</div>
-										</div>
-
-										<div class="row">
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Engine <span class="text-danger">*</span></label>
 													<input id="unit-model-engine" type="text" class="form-control" value="" placeholder="Enter Engine" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Chassis <span class="text-danger">*</span></label>
 													<input id="unit-model-chassis" type="text" class="form-control" value="" placeholder="Enter Chassis" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Color <span class="text-danger">*</span></label>
 													<select id="unit-color" class="select-single-modal"></select>
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Plate Number <span class="text-danger">*</span></label>
+													<input id="unit-plate-number" type="text" class="form-control" value="" placeholder="Enter Plate Number" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> MV File Number <small class="text-muted">(Optional)</small></label>
 													<input id="unit-mv-file-number" type="text" class="form-control" value="" placeholder="Enter MV File Number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Year Model <span class="text-danger">*</span></label>
+													<input id="unit-year-model" type="text" class="form-control number-format" value="" maxlength="4" placeholder="Enter Year Model" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Classification <span class="text-danger">*</span></label>
 													<select id="unit-classification" class="select-single-modal">
@@ -223,96 +228,110 @@
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Year Model <span class="text-danger">*</span></label>
-													<input id="unit-year-model" type="text" class="form-control number-format" value="" maxlength="4" placeholder="Enter Year Model" onkeypress="" autocomplete="off">
+													<label class="form-label"> Description of unit <span class="text-danger">*</span></label>
+													<select id="unit-description" class="select-single-modal">
+														<option value="">Select Description of unit</option>
+														<option value="Good as new repossessed unit">Good as new repossessed unit</option>
+														<option value="Minimal repair of refurbishment">Minimal repair of refurbishment</option>
+														<option value="Major repair and refubishment">Major repair and refubishment</option>
+														<option value="Cannibalized">Cannibalized</option>
+														<option value="Meet an accident">Meet an accident</option>
+														<option value="Totally wrecked">Totally wrecked</option>
+													</select>
+												</div>
+											</div>
+											
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Unit Documents <span class="text-danger">*</span></label>
+													<select id="unit-documents" class="select-single-modal">
+														<option value="">Select Unit Documents</option>
+														<option value="CD">Complete Documents</option>
+														<option value="ID">Incomplete Documents</option>
+													</select>
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
+													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
+												</div>
+											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Date Sold <span class="text-danger">*</span></label>
+													<input id="unit-date-sold" type="date" class="form-control" value="" placeholder="Enter Date Sold" onkeypress="" autocomplete="off" >
+												</div>
+											</div>
+											
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Date of Repossession <span class="text-danger">*</span></label>
+													<input id="unit-date-surrender" type="date" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Original SRP <span class="text-danger">*</span></label>
 													<input id="unit-price" type="text" class="form-control number-format text-end" value="" placeholder="Enter number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 											
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Date Sold <span class="text-danger">*</span></label>
-													<input id="unit-date-sold" type="date" class="form-control" value="" placeholder="Enter Date Sold" onkeypress="" autocomplete="off" >
-												</div>
-											</div>
-
-											<div class="col-sm-4">
-												<div class="mb-3">
-													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
-													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
-												</div>
-											</div>
-										</div>
-
-										<div class="row">
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Loan Amount <span class="text-danger">*</span></label>
 													<input id="unit-loan-amount" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
 												</div>
 											</div>
+											
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Principal Balance <span class="text-danger">*</span></label>
+													<input id="unit-principal-balance" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
+												</div>
+											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Total Payment <span class="text-danger">*</span></label>
 													<input id="unit-total-payment" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 
-											<div class="col-sm-4">
+											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Principal Balance <span class="text-danger">*</span></label>
-													<input id="unit-principal-balance" type="text" class="form-control number-format text-end" value="" placeholder="0.00" onkeypress="" autocomplete="off">
+													<label class="form-label"> Date of last payment <small class="text-muted">(Optional)</small></label>
+													<input id="unit-date-last-payment" type="date" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Loan No <span class="text-danger">*</span></label>
+													<input id="unit-loan-number" type="text" class="form-control" value="" placeholder="Loan No" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> ODO Meter <span class="text-danger">*</span></label>
+													<input id="unit-odo-meter" type="text" class="form-control" value="" placeholder="ODO Meter" onkeypress="" autocomplete="off">
+												</div>
+											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Location <span class="text-danger">*</span></label>
+													<select id="unit-location" class="select-single-modal"></select>
 												</div>
 											</div>
 										</div>
 									</div>
-
-									<div class="row">
-										<!-- <div class="col-sm-4">
-											<div class="mb-3">
-												<label class="form-label"> MSuisva Form # <span class="text-danger">*</span></label>
-												<input id="unit-msuisva-form" type="text" class="form-control" value="" placeholder="Enter MSuisva Form" onkeypress="" autocomplete="off">
-											</div>
-										</div> -->
-
-										<div class="col-sm-4">
-											<div class="mb-3">
-												<label class="form-label"> Date of Surrender <span class="text-danger">*</span></label>
-												<input id="unit-date-surrender" type="date" class="form-control" value="" placeholder="Enter Encumbered To" onkeypress="" autocomplete="off">
-											</div>
-										</div>
-
-										<div class="col-sm-4">
-											<div class="mb-3">
-												<label class="form-label"> Location <span class="text-danger">*</span></label>
-												<select id="unit-location" class="select-single-modal"></select>
-											</div>
-										</div>
-
-										<div class="col-sm-4">
-											<div class="mb-3">
-												<label class="form-label"> Loan No <span class="text-danger">*</span></label>
-												<input id="unit-loan-number" type="text" class="form-control" value="" placeholder="Loan No" onkeypress="" autocomplete="off">
-											</div>
-										</div>
-
-										<div class="col-sm-4">
-											<div class="mb-3">
-												<label class="form-label"> ODO Meter <span class="text-danger">*</span></label>
-												<input id="unit-odo-meter" type="text" class="form-control" value="" placeholder="ODO Meter" onkeypress="" autocomplete="off">
-											</div>
-										</div>
-									</div>
-
 								</div>
 								<!-- end tab pane -->
 
@@ -577,7 +596,6 @@
 			$('#save-details').click(function(event){
 				event.preventDefault();
 
-				var pictues = [];
 				var id = $(this).data('repo-id')
 				var url = (id == 0 ? `${ baseUrl }/createRepo` : `${ baseUrl }/updateRepo/${ id }`)
 
@@ -600,36 +618,28 @@
 
 				var required_files_count = requiredFiles.length
 				var append_count = parseInt($('#append-counter').val())
-				if(parseInt($('#append-counter').val()) > 0){
+				if(append_count > 0){
 					let uploadedFiles = [];
 					for (let i = 1; i <= filesCounter; i++) {
-						var append_id_if_exists = $(`#append-item-${ i }`).length;
-						if(append_id_if_exists == 1){
+						if($(`#append-item-${ i }`).length){
+
 							var id = parseInt($(`#image-id-${ i }`).val());
 							var file = $(`#input-file-${ i }`)[0].files[0];
 							var selected_file = $(`#seleted-image-${ i }`).val();
 							var selected_filename = $(`#seleted-image-${ i } option:selected`).text();
-							var checker_of_empty = (file == undefined || selected_file == "" ? false : true)
 
-							if(id == 0){
-								if(!checker_of_empty){
-									toast(`Upload Files Tab: Please check the details of pictres if complete`, 'warning');
-									return false;
-								}
-								else {
-									var size = (id == 0 ? Math.round(($(`#input-file-${ i }`)[0].files[0].size / 1024)) : 0);
-									if(size > 3072){
-										toast(`The file size of ${ selected_filename } is exceeded in 3 MB.`, 'warning');
-										return false;
-									}
-									else {
-										uploadedFiles.push(selected_file);
-									}
-								}
+							if(id == 0 && !file || !selected_file){
+								toast(`Upload Files Tab: Please check the details of pictres if complete`, 'warning');
+								return false;
 							}
-							else {
-								uploadedFiles.push(selected_file);
+
+							var size = (id == 0 ? Math.round(($(`#input-file-${ i }`)[0].files[0].size / 1024)) : 0);
+							if(id == 0 && size > 3072){
+								toast(`The file size of ${ selected_filename } is exceeded in 3 MB.`, 'warning');
+								return false;
 							}
+
+							uploadedFiles.push(selected_file);
 						}
 					}
 
@@ -638,6 +648,14 @@
 						toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
 						return false;
 					}
+
+					var filterRedundant = checkRedundancy(requiredFiles, uploadedFiles);
+					console.log(filterRedundant)
+					if(filterRedundant != false){
+						toast(`Upload Files Tab: Please check the file have redundant file: ${ filterRedundant }`, 'warning');
+						return false;
+					}
+
 				}
 				else{
 					toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
@@ -693,6 +711,9 @@
 				from_data.append('module_id', parseInt($('#moduleid').val()));
 				from_data.append('loan_number', $('#unit-loan-number').val().trim());
 				from_data.append('odo_meter', $('#unit-odo-meter').val().trim());
+				from_data.append('unit_description', $('#unit-description').val().trim());
+				from_data.append('unit_documents', $('#unit-documents').val().trim());
+				from_data.append('last_payment', $('#unit-date-last-payment').val().trim());
 
 				$('#save-details').prop('disabled', false);
 				for (let i = 1; i <= append_count; i++) {
@@ -847,6 +868,10 @@
 			$('#unit-location').val('').trigger('change').attr('disabled', false)
 			$('#unit-loan-number').val('').attr('disabled', false)
 			$('#unit-odo-meter').val('').attr('disabled', false)
+
+			$('#unit-description').val('').attr('disabled', false)
+			$('#unit-documents').val('').attr('disabled', false)
+			$('#unit-date-last-payment').val('').attr('disabled', false)
 
 			$('#append-counter').val(0)
 			counter = 0;
@@ -1263,6 +1288,24 @@
 			parseInt($('#spare-parts-append-count').val()) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
 		}
 
+		function checkRedundancy(requiredJson, receivedArray) {
+			const requiredIds = requiredJson.map(item => item.id);
+			const idCounts = receivedArray.reduce((counts, id) => {
+				counts[id] = (counts[id] || 0) + 1;
+				return counts;
+			}, {});
+
+			const redundantIds = Object.entries(idCounts).some(([id, count]) => count > requiredIds.filter(reqId => reqId === id).length);
+
+			if (redundantIds.length > 0) {
+				const redundantFileIds = redundantIds.map(([id, _]) => id);
+				const redundantFiles = requiredJson.filter(item => redundantFileIds.includes(item.id)).map(item => item.filename);
+				return `Redundant files: ${redundantFiles.join(", ")}`;
+			} else {
+				return false;
+			}
+		}
+
 		function edit(id){
 			$('#save-details').prop('disabled', true);
 			$('#save-details').data('repo-id', id);
@@ -1304,6 +1347,9 @@
 					$('#unit-location').val(data.repo.location).trigger('change').attr('disabled', attrValue)
 					$('#unit-loan-number').val(data.repo.loan_number).attr('disabled', attrValue)
 					$('#unit-odo-meter').val(data.repo.odo_meter).attr('disabled', attrValue)
+					$('#unit-description').val(data.repo.unit_description).attr('disabled', attrValue)
+					$('#unit-documents').val(data.repo.unit_documents).attr('disabled', attrValue)
+					$('#unit-date-last-payment').val(data.repo.last_payment).attr('disabled', attrValue)
 
 					var filesJson = data.picture_details;
 

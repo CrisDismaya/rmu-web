@@ -62,7 +62,7 @@
 												<th> Engine </th>
 												<th> Chassis </th>
 												<th> Color </th>
-												<th style="text-align: left !important;">Current SRP </th>
+												<th style="text-align: left !important;">Price</th>
 												<!-- <th> Appraised SRP </th> -->
 												<th> Aging </th>
 												<th> Quantity </th>
@@ -251,7 +251,7 @@
 						data: "color"
 					},
 					{
-						data: "current_appraised",
+						data: "standard_matrix_value",
 						render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''),
 						className: "text-end"
 					},
