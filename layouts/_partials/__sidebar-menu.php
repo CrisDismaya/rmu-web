@@ -124,7 +124,7 @@
 							<div class="dropdown-divider"></div>
 							<a class="dropdown-item" href="javascript:void(0);"  onclick="change_passowrd_modal()">
 								<i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> 
-								<span class="align-middle">Chamge Password</span>
+								<span class="align-middle">Change Password</span>
 							</a>
 							<!-- <a class="dropdown-item" href="auth-logout-basic.html"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span></a> -->
 						</div>

@@ -280,7 +280,7 @@
 
 				var id = $(this).data('receive-unit-id')
 				var url = (id == 0 ? `${baseUrl}/requestRepoPrice` : `${baseUrl}/updaterequestRepoPrice/${ id }`)
-
+				
 				const data = {
 					received_unit_id :				$('#received_id').val(),
 					branch: 						$('#branch_id').val(),
@@ -416,7 +416,7 @@
 					{ data: "color" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "principal_balance", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
+					{ data: "standard_matrix_value", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
@@ -425,7 +425,7 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','new','${ oData.color }','${ oData.principal_balance }')">  
+										  '${ tableData.role }','new','${ oData.color }','${ oData.standard_matrix_value }')">  
 									<i class="ri-edit-box-line"></i> Appraise
 								</button> 
 							`;

@@ -814,8 +814,6 @@
 					{ data: "model_chassis" },
 					{ data: "total_upload_files", className: 'text-center' },
 					{ data: "current_status" },
-					// { data: "repo_status" },
-					// { data: "approver_name" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
@@ -1228,26 +1226,33 @@
 			});
 		}
 
-		function fetch_price_per_parts(element){
+		function fetch_price_per_parts(element, new_value = ''){
 			var pieces = $(element).attr('id').split('-')
 			var last = pieces[pieces.length - 1]
 			var parts_id = $(element).val()
-			if(parts_id != ''){
-				$.ajax({
-					url: `${ baseUrl }/partsPrice/${ parts_id }`, 
-					type: 'GET', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					},
-					success: function (data) {
-						$(`#unit-parts-price-${ last }`).val(roundOf(data.price))
-						$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(data.price))
-					},
-					error: function(response) {
-						toast(response.responseJSON.message, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
-					}
-				})
+
+			if(new_value){
+				$(`#unit-parts-price-${ last }`).val(roundOf(new_value))
+				$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(new_value))
+			}
+			else {
+				if(parts_id != ''){
+					$.ajax({
+						url: `${ baseUrl }/partsPrice/${ parts_id }`, 
+						type: 'GET', 
+						headers:{
+							'Authorization':`Bearer ${ auth.token }`,
+						},
+						success: function (data) {
+							$(`#unit-parts-price-${ last }`).val(roundOf(data.price))
+							$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(data.price))
+						},
+						error: function(response) {
+							toast(response.responseJSON.message, 'danger');
+							forceLogout(response.responseJSON) //if token is expired
+						}
+					})
+				}
 			}
 		}
 
@@ -1428,7 +1433,7 @@
 								<input type="hidden" id="unit-spare-parts-id-${ append_count }" value="${ el.id }">
 								<div class="col-sm-3">
 									<div class="mb-3">
-										<select id="unit-parts-${ append_count }" class="select-single-modal" onchange="fetch_price_per_parts(this)"></select>
+										<select id="unit-parts-${ append_count }" class="select-single-modal" onchange="fetch_price_per_parts(this, ${ roundOf(el.latest_price) })"></select>
 									</div>
 								</div>
 								
@@ -1468,7 +1473,7 @@
 						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
 						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id)
 						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
-						// $(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
+						$(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
 					}
 					partsCounter = partsJson.length
 					$('#spare-parts-append-count').val(`${ partsJson.length }`);

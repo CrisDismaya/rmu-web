@@ -221,7 +221,7 @@
 												</div>
 											</div>
 
-											<div class="col-sm-3">
+											<!-- <div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Description of unit <span class="text-danger">*</span></label>
 													<select id="unit-description" class="select-single-modal">
@@ -245,7 +245,7 @@
 														<option value="ID">Incomplete Documents</option>
 													</select>
 												</div>
-											</div>
+											</div> -->
 
 											<div class="col-sm-3">
 												<div class="mb-3">
