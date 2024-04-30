@@ -136,8 +136,8 @@
 									</div>
 									
 									<div class="col-12">
-										<label for="customer-name" class="col-form-label">First Sold Date</label>
-										<input type="text" class="form-control" id="date-sold" placeholder="Color" autocomplete="off" disabled>
+										<label for="customer-name" class="col-form-label">Date Sold</label>
+										<input type="text" class="form-control" id="date-sold" placeholder="Date Sold" autocomplete="off" disabled>
 									</div>
 									<div class="col-12">
 										<div class="row">
@@ -152,8 +152,8 @@
 										</div>
 									</div>
 									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Current SRP</label>
-										<input type="text" class="form-control" id="srp" placeholder="Current SRP" autocomplete="off" disabled>
+										<label for="customer-name" class="col-form-label">Current Price</label>
+										<input type="text" class="form-control" id="srp" placeholder="Current Price" autocomplete="off" disabled>
 									</div>
 							</div>
 
@@ -163,26 +163,25 @@
 									<input type="number" class="form-control" id="days"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Depriciation Cost</label>
+									<label for="customer-name" class="col-form-label">Depreciation Cost</label>
 									<input type="number" class="form-control" id="dc"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Estimated Cost of MD Parts</label>
+									<label for="customer-name" class="col-form-label">Missing and Damaged Parts Cost</label>
 									<input type="number" class="form-control" id="emdp"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Total Missing And Damage Parts</label>
+									<label for="customer-name" class="col-form-label">Total Depreciation</label>
 									<input type="number" class="form-control" id="mdp"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
-									<label for="customer-name" class="col-form-label">Suggested Price (This includes additional refurbishing cost if any)</label>
+									<label for="customer-name" class="col-form-label">Standard Matrix Value (SMV)</label>
 									<input type="number" class="form-control" id="suggested_price"  autocomplete="off" disabled>
 								</div>
 								<div class="col-12">
 									<label for="customer-name" class="col-form-label">New Price</label>&nbsp;<i style="color:blue;height:50px;cursor:pointer" title="update price" class="ri-edit-box-line" id="update_price" onclick="update_price()"></i>
 									<input type="number" class="form-control" id="approved_price"  autocomplete="off">
 								</div>
-								
 							</div>
 
 							<div class="col-12 note">
@@ -305,7 +304,7 @@
 					data : data,
 					dataType: 'json',
 					success: function (data) { 
-						console.log(data)
+						// console.log(data)
 						if(!data.success){
 							hideLoader()
 							toast(data.message, 'danger');
@@ -360,7 +359,7 @@
 					data : data,
 					dataType: 'json',
 					success: function (data) { 
-						console.log(data)
+						// console.log(data)
 						if(!data.success){
 							hideLoader()
 							toast(data.message, 'danger');
@@ -416,7 +415,7 @@
 					{ data: "color" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "standard_matrix_value", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
+					{ data: "current_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
@@ -425,7 +424,7 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','new','${ oData.color }','${ oData.standard_matrix_value }')">  
+										  '${ tableData.role }','new','${ oData.color }','${ oData.current_price }')">  
 									<i class="ri-edit-box-line"></i> Appraise
 								</button> 
 							`;
@@ -510,7 +509,6 @@
 							}
 
 							if(oData.status == 'PENDING' && tableData.role == 'Maker' && oData.approved_price != null){
-								console.log(oData.approved_price)
 								html = 'Waiting for approval';
 							}
 
@@ -539,6 +537,7 @@
 			edit_price = true
 			$('#approved_price').prop('disabled',false)
 		}
+		
 		function edit(id,branchid,branchname,brand,repo_id,modelname,chassis,engine,date_sold,role,categ,color,srp){
 			
 			if(categ == 'new'){
@@ -568,6 +567,7 @@
 				success: function (data) {
 					// console.log(data)
 					//let obJ = JSON.Parse(data)
+
 					$('#received_id').val(id)
 					$('#branch_id').val(branchid)
 					$('#branch_name').val(branchname)
@@ -587,6 +587,7 @@
 				}
 			});
 		}
+
 		function getModuleId(){
 			let page_url = window.location.href
 			let pagename = page_url.split('/').pop()
@@ -653,7 +654,7 @@
 					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
-			}
+		}
 
 		async function history(recid){
 			const tableData = await $.ajax({

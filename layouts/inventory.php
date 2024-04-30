@@ -251,7 +251,7 @@
 						data: "color"
 					},
 					{
-						data: "standard_matrix_value",
+						data: "current_price",
 						render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''),
 						className: "text-end"
 					},

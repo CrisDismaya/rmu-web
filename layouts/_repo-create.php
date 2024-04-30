@@ -650,7 +650,6 @@
 					}
 
 					var filterRedundant = checkRedundancy(requiredFiles, uploadedFiles);
-					console.log(filterRedundant)
 					if(filterRedundant != false){
 						toast(`Upload Files Tab: Please check the file have redundant file: ${ filterRedundant }`, 'warning');
 						return false;
