@@ -308,7 +308,6 @@
 					})
 				}
 				formData.append("spares", JSON.stringify(parts));
-				// console.log(parts)
 
 				showLoader()
 				$.ajax({
@@ -389,7 +388,6 @@
 				data: data,
 				dataType: 'json',
 				success: function(data) {
-					console.log(data)
 					if (!data.success) {
 						hideLoader()
 						toast(data.message, 'danger');
@@ -425,8 +423,6 @@
 			});
 
 			data = tableData.data
-
-			console.log(data)
 
 			if (tableData.role == 'Approver') {
 				$('#request').hide()

@@ -619,14 +619,14 @@
 							parts: data[i].id
 						})
 						tbl += `<tr>
-                                    <td>
-                                    <input type="hidden" class="form-control" id="received-id-${data[i].id}" value="${data[i].received_ids}" autocomplete="off" disabled>
-                                    <input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
-                                    </td>
-                                    <td>
-                                    <input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
-                                    </td>
-                                </tr>`
+								<td>
+									<input type="hidden" class="form-control" id="received-id-${data[i].id}" value="${data[i].received_ids}" autocomplete="off" disabled>
+									<input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
+								</td>
+								<td>
+									<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off" disabled>
+								</td>
+							</tr>`
 					}
 					tbl += `</table>`
 					$('#part-list').html(tbl)
@@ -731,7 +731,7 @@
 									<input type="text" class="form-control" id="${data[i].id}" value="${data[i].name}" autocomplete="off" disabled>
 								</td>
 								<td>
-									<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off">
+									<input type="number" class="form-control" id="parts-${data[i].id}" value="${data[i].price}"  autocomplete="off" disabled>
 								</td>
 							</tr>`
 					}

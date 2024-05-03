@@ -59,7 +59,6 @@
 												<th> Engine </th>
 												<th> Chassis </th>
 												<th style="text-align: left !important;">Current Price </th>
-												<th> Suggested Price </th>
 												<th> Request Selling Price </th>
 												<th> Status </th>
 												<th> Current Holder </th>
@@ -344,6 +343,7 @@
 					remarks:$('#remarks').val(),
 					status:status,
 					approved_price:$('#approved_price').val(),
+					old_price:$('#srp').val(),
 					edit_price:edit_price,
 					module_id:$('#mod').val()
 				}
@@ -473,8 +473,7 @@
 					{ data: "color" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
-					{ data: "principal_balance", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
-					{ data: "suggested_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
+					{ data: "current_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "approved_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "status" },
 					{ data: "current_holder" },
@@ -490,7 +489,7 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
+										  '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
 									</button> 
 								`;
@@ -502,7 +501,7 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
+										  '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
 									</button> 
 								`;
@@ -520,7 +519,7 @@
 									onclick="viewForApproval(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ oData.approved_price }', '${ tableData.role }','update','${ oData.color }','${ oData.principal_balance }')"> 
+										  '${ oData.approved_price }', '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-check-circle"></i> Approve
 									</button> 
 								`;

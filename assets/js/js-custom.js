@@ -18,9 +18,9 @@ $(document).ready(function(){
 	$('.number-format').keypress(function(event){
 		var charCode = (event.which) ? event.which : event.keyCode;
 		var number = $(this).val().split(".");
-		if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+		if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 8) {
 			return false;
-		}
+	  	}
 		// just one dot
 		if (number.length > 1 && charCode == 46) {
 			return false;
