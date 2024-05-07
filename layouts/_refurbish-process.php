@@ -667,20 +667,28 @@
 			$('#color').val(color)
 			$('#unit-classification').val(classification).trigger('change')
 
-
 			//get list of missing and damages parts
-			getPartsForRefurbish(receive_id, role)
+			getPartsForRefurbish(receive_id, role, refurbish_id)
 		}
 
-		function getPartsForRefurbish(receive_id, role) {
+		function getPartsForRefurbish(receive_id, role, refurbish_id) {
 			$('#part-list').html('')
+			
+			var fetch_id = (role == 'Maker' ? 0 : refurbish_id)
+			console.log(fetch_id, receive_id, role, refurbish_id)
+
 			$.ajax({
-				url: `${baseUrl}/getPartsForRefurbish/${receive_id}`,
+				url: `${baseUrl}/getPartsForRefurbish`,
 				type: 'GET',
 				headers: {
 					'Authorization': `Bearer ${ auth.token }`,
 				},
+				data: {
+					'received_id' : receive_id,
+					'fetch_id' : fetch_id
+				},
 				success: function(data) {
+					console.log(data)
 		
 					let tbl = `<table border="1" width="100%">
                                     <thead>
@@ -800,7 +808,7 @@
 			$('#unit-classification').val(classification).trigger('change')
 
 
-			getPartsForRefurbish(receive_id, role)
+			getPartsForRefurbish(receive_id, role, refurbish_id)
 
 		}
 

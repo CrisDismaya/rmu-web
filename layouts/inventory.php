@@ -290,16 +290,28 @@
 						data: null,
 						defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							//	
-							html = `
-								<select id="forms-${iRow}" class="select-single" onchange="generateForm(${ oData.repo_id },${iRow})">
-													<option value="">Please select form</option>`;
-							if (oData.approved_price != null) {
-								html += `<option value="RDAF">RDAF</option>`
-							}
 
-							html += ` <option value="MUISVA">MUISVA</option>
-												</select>`;
+							html = `
+								<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'MUISVA')">
+									<b>MUISVA</b>
+								</a>
+							`;
+							if (oData.approved_price != null) {
+								html += `
+									<b>|</b>
+									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'RDAF')">
+										<b>RDAF</b>
+									</a>
+								`;
+							}
+							if (oData.total_cost_parts != null) {
+								html += `
+									<b>|</b>
+									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'SMURF')">
+										<b>SMURF</b>
+									</a>
+								`;
+							}
 
 							$(nTd).html(html);
 						}
@@ -384,18 +396,12 @@
 			});
 		}
 
-		function generateForm(recordId, index) {
-
-			if ($('#forms-' + index).val() != '') {
-				$('#myExtraLargeModalLabel').html($('#forms-' + index).val() + ' Form')
+		function generateForm(recordId, index, forms) {
+				$('#myExtraLargeModalLabel').html(forms + ' Form')
 				$('#iframe-content').html(`
-				<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/${$('#forms-'+index).val()}/${recordId}/inventory" frameborder="0"></iframe>
+					<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/${ forms }/${ recordId }/inventory" frameborder="0"></iframe>
 				`)
-
 				$('#generateForm').modal('show')
-			}
-
-
 		}
 
 		function fetch_branch_data() {
