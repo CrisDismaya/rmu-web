@@ -122,10 +122,11 @@
 									<th> Model </th>
 									<th> Engine </th>
 									<th> Chassis </th>
-									<th> Color </th>
-									<th> Date Sold </th>
-									<th> Date Surrendered </th>
-									<!-- <th> Action </th> -->
+									<th> Date Inserted </th>
+									<th> Appraised </th>
+									<th> Refurbished </th>
+									<th> Transfered </th>
+									<th> Received </th>
 								</tr>
 							</thead>
 						</table>
@@ -218,7 +219,7 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
 							//	
 							html = `<a href="#" title="Click here to view customer history" 
-										onclick="getAllCustomer('${ oData.model_engine }','${ oData.model_chassis }')"><u><span>History</span></u></a>`;
+										onclick="getAllCustomer(${ oData.repo_id })"><u><span>History</span></u></a>`;
 
 							$(nTd).html(html);
 						}
@@ -333,14 +334,14 @@
 		// 	$('#chassis').val(chassis)
 		// }
 
-		function getAllCustomer(engine, chassis) {
-			getUnitHistory(engine, chassis)
+		function getAllCustomer(repo_id) {
+			getUnitHistory(repo_id)
 			$('#customerhistory').modal('show')
 		}
 
-		async function getUnitHistory(engine, chassis) {
+		async function getUnitHistory(repo_id) {
 			const tableData = await $.ajax({
-				url: `${baseUrl}/UnitHistory/${engine}/${chassis}`,
+				url: `${baseUrl}/UnitHistory/${repo_id}`,
 				method: 'GET',
 				dataType: 'json',
 				headers: {
@@ -361,35 +362,44 @@
 				// 	{ className: "text-end", targets: [ 4 ] },
 				// ],
 				columns: [
-
 					{
-						data: "branchname"
+						data: "branch"
 					},
 					{
-						data: "ex_owner"
+						data: "exOwner"
 					},
 					{
-						data: "brandname"
+						data: "brand"
 					},
 					{
-						data: "model_name"
+						data: "model"
 					},
 					{
-						data: "model_engine"
+						data: "engine"
 					},
 					{
-						data: "model_chassis"
+						data: "chassis"
 					},
 					{
-						data: "color"
+						className: "text-center",
+						data: "date_inserted"
 					},
 					{
-						data: "date_sold"
+						className: "text-center",
+						data: "date_appraised"
 					},
 					{
-						data: "date_surrender"
+						className: "text-center",
+						data: "date_refurbish"
 					},
-
+					{
+						className: "text-center",
+						data: "date_transfer"
+					},
+					{
+						className: "text-center",
+						data: "date_received"
+					},
 				],
 			});
 		}
