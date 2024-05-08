@@ -176,21 +176,21 @@
 			fetch_branch_data()
 			display_table()
 			$('#branch').change(function() {
-
-				if ($('#branch').val() != '') {
-					display_table()
-				}
-
+				const branchId = $(this).val() == 'all' ? 0 : $(this).val();
+				display_table(branchId)
 			})
 		})
 
-		async function display_table() {
+		async function display_table(branchId = 0) {
 			const tableData = await $.ajax({
 				url: `${baseUrl}/InventoryMasterList`,
 				method: 'GET',
 				dataType: 'json',
 				headers: {
 					'Authorization': `Bearer ${ auth.token }`,
+				},
+				data:{
+					'branchId': branchId
 				}
 			});
 
@@ -320,9 +320,7 @@
 				],
 				dom: 'Bfrtip',
 				buttons: [
-					'excelHtml5',
-					'csvHtml5',
-					'pdfHtml5'
+					'excelHtml5'
 				]
 			});
 		}
@@ -415,8 +413,7 @@
 					$('#branch').empty();
 
 					if (data.length > 0) {
-						$('#branch').append(`<option value="">Select Branch</option>`);
-						$('#branch').append(`<option value="all">All Branches</option>`);
+						$('#branch').append(`<option value="all" selected>All Branches</option>`);
 						for (let i = 0; i < data.length; i++) {
 							const el = data[i];
 							$('#branch').append(`<option value="${ el.id }">${ el.name }</option>`);

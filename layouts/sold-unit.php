@@ -53,23 +53,23 @@
 									<thead>
 											<tr>
 												<th>Branch</th>
-                                                <th>Invoice Reference #</th>
+												<th>Invoice Reference #</th>
 												<th> Brand </th>
 												<th> Model </th>
-                                                <th> Color </th>
+												<th> Color </th>
                                                 
 												<th style="text-align: left !important;">Price </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-                                                <th> Sale Type </th>
-                                                <th> Sold Date </th>
-                                                <th> Ex. Owner </th>
+												<th> Sale Type </th>
+												<th> Sold Date </th>
+												<th> Ex. Owner </th>
 												<th> Sold To </th>
-                                                <th> Downpayment </th>
-                                                <th> Monthly Amortization </th>
-                                                <th> Rebate </th>
-                                                <th> Terms </th>
-												<th> RDAF </th>
+												<th> Downpayment </th>
+												<th> Monthly Amortization </th>
+												<th> Rebate </th>
+												<th> Terms </th>
+												<th> Form </th>
 											</tr>
 										</thead>
 									</table>
@@ -138,18 +138,17 @@
 				// 	{ className: "text-end", targets: [ 4 ] },
 				// ],
 				columns: [
-					
 					{ data: "branchname" },
-                    { data: "invoice_reference_no" },
+					{ data: "invoice_reference_no" },
 					{ data: "brandname" },
 					{ data: "model_name" },
-                    { data: "color" },
+					{ data: "color" },
 					{ data: "approved_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
 					{ data: "model_engine" },
 					{ data: "model_chassis" },
 					{ data: "sale_type" },
-                    { data: "sold_date" },
-                    { data: null, defaultContent: '',
+					{ data: "sold_date" },
+					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
 						    html = `<span>${ oData.o_firstname } ${ oData.o_middlename } ${ oData.o_lastname }</span>`;
@@ -157,7 +156,7 @@
 							$(nTd).html(html);
 						}
 					},
-                    { data: null, defaultContent: '',
+					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
 						    html = `<span>${ oData.firstname } ${ oData.middlename } ${ oData.lastname }</span>`;
@@ -165,19 +164,20 @@
 							$(nTd).html(html);
 						}
 					},
-                    { data: "dp" },
-                    { data: "monthly_amo" },
-                    { data: "rebate" },
-                    { data: "terms" },
+					{ data: "dp" },
+					{ data: "monthly_amo" },
+					{ data: "rebate" },
+					{ data: "terms" },
 					{
 						data: null,
 						defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
 							//	
 							html = `
-								<button id="forms-${iRow}" class="btn btn-primary" onclick="generateForm(${ oData.repo_id },${iRow})">View</button>`;
-							
-							
+								<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'SOLD')">
+									<b>Delivered Receipt</b>
+								</a>
+							`;
 
 							$(nTd).html(html);
 						}
@@ -186,25 +186,17 @@
 				],
 				dom: 'Bfrtip',
 					buttons: [
-						'excelHtml5',
-						'csvHtml5',
-						'pdfHtml5'
+						'excelHtml5'
 					]
 			});
 		}
 
-		function generateForm(recordId, index) {
-
-			
-				$('#myExtraLargeModalLabel').html('RDAF FORM')
+		function generateForm(recordId, index, forms) {
+				$('#myExtraLargeModalLabel').html(forms + ' Form')
 				$('#iframe-content').html(`
-				<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/RDAF/${recordId}/sold" frameborder="0"></iframe>
+					<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/${ forms }/${ recordId }/inventory" frameborder="0"></iframe>
 				`)
-
 				$('#generateForm').modal('show')
-			
-
-
 		}
 	</script>
 </body>
