@@ -175,7 +175,7 @@
 							//	
 							html = `
 								<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'SOLD')">
-									<b>Delivered Receipt</b>
+									<b>Delivery Receipt</b>
 								</a>
 							`;
 
