@@ -69,29 +69,39 @@
 					<div class="card">
 						<div class="card-body checkout-tab">
 							<div class="step-arrow-nav mt-n3 mx-n3 mb-3">
-								<!-- <div class="alert alert-secondary text-dark" role="alert">
+								<div class="alert alert-secondary text-dark" role="alert">
 									Always click the last Tab to save the changes.
-								</div> -->
+								</div>
 
 								<ul class="nav nav-pills nav-justified custom-nav" role="tablist">
-									<li class="nav-item" role="presentation">
+									<li class="nav-item" role="presentation" >
 										<button class="nav-link fs-15 p-3 active" id="pills-bill-info-tab" data-bs-toggle="pill" data-bs-target="#pills-bill-info" type="button" role="tab" aria-controls="pills-bill-info" aria-selected="false" data-position="0" tabindex="-1">
-											<i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Owner's Info
+											<!-- <i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2 mb-2"></i> -->
+											<span> Owner's Information </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation">
 										<button class="nav-link fs-15 p-3 done" id="pills-unit-details-tab" data-bs-toggle="pill" data-bs-target="#pills-bill-address" type="button" role="tab" aria-controls="pills-bill-address" aria-selected="false" data-position="1" tabindex="-1">
-											<i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Unit Details
+											<!-- <i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Unit Details </span>
+ 										</button>
+									</li>
+									<li class="nav-item" role="presentation">
+										<button class="nav-link fs-15 p-3 done" id="pills-apprehension-record-tab" data-bs-toggle="pill" data-bs-target="#pills-apprehension-record" type="button" role="tab" aria-controls="pills-apprehension-record" aria-selected="false" data-position="1" tabindex="-1">
+											<!-- <i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Apprehension Record </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation">
 										<button class="nav-link fs-15 p-3 done" id="pills-upload-file-tab" data-bs-toggle="pill" data-bs-target="#pills-upload-file" type="button" role="tab" aria-controls="pills-upload-file" aria-selected="false" data-position="3" tabindex="-1">
-											<i class="ri-file-upload-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Upload Files
+											<!-- <i class="ri-file-upload-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Upload Files </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation">
 										<button class="nav-link fs-15 p-3 done" id="pills-spare-parts-tab" data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment" aria-selected="false" data-position="2" tabindex="-1">
-											<i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Missing & Damaged Parts
+											<!-- <i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Missing & Damaged </span>
 										</button>
 									</li>
 								</ul>
@@ -104,7 +114,7 @@
 										<div class="row">
 											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Acumatica Customer ID </label>
+													<label class="form-label"> Select Customer <span class="text-danger">*</span></label>
 													<select id="customer-acumatica-id" class="select-single-modal"></select>
 												</div>
 											</div>
@@ -208,7 +218,7 @@
 											</div>
 
 											<div class="col-sm-3">
-												<div class="mb-3">
+												<!-- <div class="mb-3">
 													<label class="form-label"> Classification <span class="text-danger">*</span></label>
 													<select id="unit-classification" class="select-single-modal">
 														<option value="">Select Classification</option>
@@ -217,6 +227,16 @@
 														<option value="C">C</option>
 														<option value="D">D</option>
 														<option value="E">E</option>
+													</select>
+												</div> -->
+												<div class="mb-3">
+													<label class="form-label"> ORCR Status <span class="text-danger">*</span></label>
+													<select id="unit-orcr-status" class="select-single-modal">
+														<option value="">Select Status</option>
+														<option value="On Hand">On Hand</option>
+														<option value="Unregistered">Unregistered</option>
+														<option value="Missing">Missing</option>
+														<option value="Not Available">Not Available</option>
 													</select>
 												</div>
 											</div>
@@ -234,6 +254,24 @@
 														<option value="Totally wrecked">Totally wrecked</option>
 													</select>
 												</div>
+											</div> -->
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
+													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
+												</div>
+											</div>
+											
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner's ID <span class="text-danger">*</span></label>
+													<select id="unit-original-owners-id" class="select-single-modal">
+														<option value="">Select </option>
+														<option value="With Copy">With Copy</option>
+														<option value="Without Copy">Without Copy</option>
+													</select>
+												</div>
 											</div>
 											
 											<div class="col-sm-3">
@@ -244,13 +282,6 @@
 														<option value="CD">Complete Documents</option>
 														<option value="ID">Incomplete Documents</option>
 													</select>
-												</div>
-											</div> -->
-
-											<div class="col-sm-3">
-												<div class="mb-3">
-													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
-													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
 												</div>
 											</div>
 
@@ -323,6 +354,54 @@
 													<select id="unit-location" class="select-single-modal"></select>
 												</div>
 											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Times Repossessed </label>
+													<input id="unit-times-repossessed" type="text" class="form-control text-right" value="" placeholder="0" onkeypress="" autocomplete="off" disabled>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- end tab pane -->
+
+								<div class="tab-pane fade" id="pills-apprehension-record" role="tabpanel" aria-labelledby="pills-apprehension-record-tab">
+									<div>
+										<div class="row">
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> With apprehension <span class="text-danger">*</span></label>
+													<select id="unit-apprehension" class="select-single-modal">
+														<option value="">Select Apprehension</option>
+														<option value="yes">Yes</option>
+														<option value="no">No</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> With apprehension <span class="apprehension-yes text-danger">*</span></label>
+													<select id="unit-apprehension-description" class="select-single-modal">
+														<option value="">Select Apprehension</option>
+														<option value="Involved in a drug related case">Involved in a drug related case</option>
+														<option value="Accessory of a crime">Accessory of a crime</option>
+														<option value="Carnapped">Carnapped</option>
+														<option value="With LTO Alarm/Violation">With LTO Alarm/Violation</option>
+														<option value="Altered Serials Numbers">Altered Serials Numbers</option>
+													</select>
+												</div>
+											</div>
+										</div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<div class="mb-3">
+													<label class="form-label">Summary <span class="apprehension-yes text-danger">*</span></label>
+													<textarea class="form-control" id="unit-apprehension-summary" placeholder="Enter Summary" rows="3" autocomplete="off" style="resize:none;"></textarea>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -331,6 +410,13 @@
 								<div class="tab-pane fade" id="pills-upload-file" role="tabpanel" aria-labelledby="pills-upload-file-tab">
 									<div>
 										<div class="row">
+											<div class="col-lg-12 text-end mb-2" id="div-button-add-upload">
+												<button type="button" id="append-new-upload" class="btn btn-sm btn-info btn-label">
+													<i class="ri-image-add-line label-icon align-middle fs-16 me-2"></i> 
+													Add upload
+												</button>
+											</div>
+
 											<input type="hidden" id="append-counter" value="1">
 											<div id="append-upload-section" class="row"></div>
 										</div>
@@ -363,9 +449,16 @@
 														<label class="form-label"> Price </label>
 													</div>
 
-													<div class="col-sm-4">
+													<div class="col-sm-3">
 														<label class="form-label"> Remarks </label>
 														<span class="text-muted">(Optional)</span>
+													</div>
+													
+													<div class="col-sm-1">
+														<input type="hidden" id="spare-parts-append-count" data-continue-count="0" data-row-count="0" value="0">
+														<button id="add-new-spare-parts" type="button" class="btn btn-secondary btn-sm">
+															<i class="ri-add-line align-bottom"></i>
+														</button>
 													</div>
 												</div>
 												<hr style="margin: .5rem 0;">
@@ -849,7 +942,6 @@
                $('#unit-color').val(data.repo.color_id).trigger('change').trigger('change').prop('disabled', true)
 					
                $('#unit-mv-file-number').val(data.repo.mv_file_number).trigger('change').prop('disabled', true)
-               $('#unit-classification').val(data.repo.classification).trigger('change').prop('disabled', true)
                $('#unit-year-model').val(data.repo.year_model).trigger('change').prop('disabled', true)
                $('#unit-price').val(roundOf(data.repo.original_srp)).trigger('change').prop('disabled', true)
                $('#unit-original-owner').val(data.received_details.original_owner).trigger('change').prop('disabled', true)
@@ -865,6 +957,13 @@
 					$('#unit-description').val(data.repo.unit_description).attr('disabled', true)
 					$('#unit-documents').val(data.repo.unit_documents).attr('disabled', true)
 					$('#unit-date-last-payment').val(data.repo.last_payment).attr('disabled', true)
+               $('#unit-original-owners-id').val(data.received_details.original_owner_id).trigger('change').attr('disabled', true)
+               $('#unit-orcr-status').val(data.repo.orcr_status).trigger('change').attr('disabled', true)
+					$('#unit-apprehension').val(data.repo.apprehension).trigger('change').attr('disabled', true)
+					$('#unit-apprehension-description').val(data.repo.apprehension_description).trigger('change').attr('disabled', true)
+					$('#unit-apprehension-summary').val(data.repo.apprehension_summary).attr('disabled', true)
+					$('#unit-times-repossessed').val(data.repo.times_repossessed).attr('disabled', true)
+					
 
 					var filesJson = data.picture_details;
 					$('#append-upload-section').empty()

@@ -184,10 +184,10 @@
 			<!-- Dark Logo-->
 			<a href="index.html" class="logo logo-dark">
 				<span class="logo-sm">
-					<img src="../assets/images/ciclo.jpg" alt="" height="30">
+					<img src="../assets/images/trans-asiatic.png" alt="" height="30">
 				</span>
 				<span class="logo-lg">
-					<img src="../assets/images/ciclo.jpg" alt="" height="70">
+					<img src="../assets/images/trans-asiatic-logo.png" alt="" height="70">
 				</span>
 			</a>
 			<!-- Light Logo-->

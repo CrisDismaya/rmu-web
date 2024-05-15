@@ -39,19 +39,32 @@
 					<div class="row">
 						<!-- table -->
 						<div class="col-lg-12">
+							
 							<div class="card">
-								<div class="card-header align-items-center d-flex">
+								<!-- <div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of  Units</h4>
 									<div class="flex-shrink-0">
-                                        Filter type
-                                        <select id="status" class="select-single">
-                                            <option value="ALL">ALL</option>
-                                            <option value="PENDING">PENDING</option>
-                                            <option value="APPROVED">APPROVED</option>
-                                            <option value="ON GOING REFURBISH">ON GOING REFURBISH</option>
-                                            <option value="DONE">DONE</option>
-                                            <option value="DISAPPROVED">DISAPPROVED</option>
-                                        </select>   
+										<select id="status" class="form-select form-select-sm">
+											<option value="ALL">ALL Status</option>
+											<option value="PENDING">PENDING</option>
+											<option value="APPROVED">APPROVED</option>
+											<option value="ON GOING REFURBISH">ON GOING REFURBISH</option>
+											<option value="DONE">DONE</option>
+											<option value="DISAPPROVED">DISAPPROVED</option>
+										</select>
+									</div>
+								</div> -->
+								<div class="card-header align-items-center d-flex">
+									<h4 class="card-title mb-0 flex-grow-1">List of Units</h4>
+									<div class="flex-shrink-0">
+										<select id="refurb-status" class="form-select form-select-sm">
+											<option value="ALL">ALL Status</option>
+											<option value="PENDING">PENDING</option>
+											<option value="APPROVED">APPROVED</option>
+											<option value="ON GOING REFURBISH">ON GOING REFURBISH</option>
+											<option value="DONE">DONE</option>
+											<option value="DISAPPROVED">DISAPPROVED</option>
+										</select>
 									</div>
 								</div>
 								<div class="card-body">
@@ -61,7 +74,7 @@
 												<th>Branch</th>
 												<th> Brand </th>
 												<th> Model </th>
-                                                <th> Color </th>
+														<th> Color </th>
 												<th> Engine </th>
 												<th> Chassis </th>
                                                 <th> Request Date </th>
@@ -88,7 +101,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="myExtraLargeModalLabel"> Missing and Damages Parts </h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
 				</div>
 				<div class="modal-body container">
 					<div class="card pa-2">
@@ -117,9 +130,9 @@
 
 			display_table('PRELOAD')
 
-            $('#status').change(function(){
-                display_table('CHANGE')
-            })
+			$('#refurb-status').change(function(){
+				display_table('CHANGE')
+			})
 			
 		})
 
@@ -135,7 +148,7 @@
 				}
 			});
 
-            let list = action == 'PRELOAD' ||  $('#status').val() == 'ALL' ? tableData: tableData.filter((d) => { return d.status == $('#status').val()})
+			let list = (action == 'PRELOAD' ||  $('#refurb-status').val() == 'ALL' ? tableData : tableData.filter((d) => { return d.status == $('#refurb-status').val()}))
 
 			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
@@ -176,7 +189,7 @@
 
 							html = `
 							<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="viewParts(${ oData.id })"> 
+									onclick="viewParts(${ oData.repo_id })"> 
 										<i class="ri-check-circle"></i> View Parts
 									</button>
 							`;

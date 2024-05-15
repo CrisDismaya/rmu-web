@@ -139,7 +139,7 @@
 								</div>
 								<div class="col-12">
 									<label for="customer-name" class="col-form-label">Classification</label>
-									<select id="unit-classification" class="select-single-modal">
+									<select id="unit-classification" class="select-single-modal" disabled>
 										<option value="">Select Classification</option>
 										<option value="A">A</option>
 										<option value="B">B</option>

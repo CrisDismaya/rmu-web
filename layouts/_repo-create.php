@@ -83,22 +83,32 @@
 								<ul class="nav nav-pills nav-justified custom-nav" role="tablist">
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-customer-tab')">
 										<button class="nav-link fs-15 p-3 active" id="pills-bill-info-tab" data-bs-toggle="pill" data-bs-target="#pills-bill-info" type="button" role="tab" aria-controls="pills-bill-info" aria-selected="false" data-position="0" tabindex="-1">
-											<i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Owner's Info
+											<!-- <i class="ri-user-2-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2 mb-2"></i> -->
+											<span> Owner's Information </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-unit-details-tab')">
 										<button class="nav-link fs-15 p-3 done" id="pills-unit-details-tab" data-bs-toggle="pill" data-bs-target="#pills-bill-address" type="button" role="tab" aria-controls="pills-bill-address" aria-selected="false" data-position="1" tabindex="-1">
-											<i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Unit Details
+											<!-- <i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Unit Details </span>
+ 										</button>
+									</li>
+									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-apprehension-record-tab')">
+										<button class="nav-link fs-15 p-3 done" id="pills-apprehension-record-tab" data-bs-toggle="pill" data-bs-target="#pills-apprehension-record" type="button" role="tab" aria-controls="pills-apprehension-record" aria-selected="false" data-position="1" tabindex="-1">
+											<!-- <i class="ri-motorbike-fill fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Apprehension Record </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-upload-file-tab')">
 										<button class="nav-link fs-15 p-3 done" id="pills-upload-file-tab" data-bs-toggle="pill" data-bs-target="#pills-upload-file" type="button" role="tab" aria-controls="pills-upload-file" aria-selected="false" data-position="3" tabindex="-1">
-											<i class="ri-file-upload-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Upload Files
+											<!-- <i class="ri-file-upload-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Upload Files </span>
 										</button>
 									</li>
 									<li class="nav-item" role="presentation" onclick="button_show_hide('pills-spare-parts-tab')">
 										<button class="nav-link fs-15 p-3 done" id="pills-spare-parts-tab" data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab" aria-controls="pills-payment" aria-selected="false" data-position="2" tabindex="-1">
-											<i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i> Missing & Damaged Parts
+											<!-- <i class="ri-bank-card-line fs-16 p-2 bg-soft-primary text-primary rounded-circle align-middle me-2"></i>  -->
+											<span> Missing & Damaged </span>
 										</button>
 									</li>
 								</ul>
@@ -215,7 +225,7 @@
 											</div>
 
 											<div class="col-sm-3">
-												<div class="mb-3">
+												<!-- <div class="mb-3">
 													<label class="form-label"> Classification <span class="text-danger">*</span></label>
 													<select id="unit-classification" class="select-single-modal">
 														<option value="">Select Classification</option>
@@ -225,10 +235,20 @@
 														<option value="D">D</option>
 														<option value="E">E</option>
 													</select>
+												</div> -->
+												<div class="mb-3">
+													<label class="form-label"> ORCR Status <span class="text-danger">*</span></label>
+													<select id="unit-orcr-status" class="select-single-modal">
+														<option value="">Select Status</option>
+														<option value="On Hand">On Hand</option>
+														<option value="Unregistered">Unregistered</option>
+														<option value="Missing">Missing</option>
+														<option value="Not Available">Not Available</option>
+													</select>
 												</div>
 											</div>
 
-											<div class="col-sm-3">
+											<!-- <div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Description of unit <span class="text-danger">*</span></label>
 													<select id="unit-description" class="select-single-modal">
@@ -241,6 +261,24 @@
 														<option value="Totally wrecked">Totally wrecked</option>
 													</select>
 												</div>
+											</div> -->
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
+													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
+												</div>
+											</div>
+											
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Original Owner's ID <span class="text-danger">*</span></label>
+													<select id="unit-original-owners-id" class="select-single-modal">
+														<option value="">Select </option>
+														<option value="With Copy">With Copy</option>
+														<option value="Without Copy">Without Copy</option>
+													</select>
+												</div>
 											</div>
 											
 											<div class="col-sm-3">
@@ -251,13 +289,6 @@
 														<option value="CD">Complete Documents</option>
 														<option value="ID">Incomplete Documents</option>
 													</select>
-												</div>
-											</div>
-
-											<div class="col-sm-3">
-												<div class="mb-3">
-													<label class="form-label"> Original Owner <span class="text-danger">*</span></label>
-													<input id="unit-original-owner" type="text" class="form-control" value="" placeholder="Original Owner" onkeypress="" autocomplete="off" >
 												</div>
 											</div>
 
@@ -328,6 +359,56 @@
 												<div class="mb-3">
 													<label class="form-label"> Location <span class="text-danger">*</span></label>
 													<select id="unit-location" class="select-single-modal"></select>
+												</div>
+											</div>
+
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> Times Repossessed </label>
+													<input id="unit-times-repossessed" type="text" class="form-control text-right" value="" placeholder="0" onkeypress="" autocomplete="off" disabled>
+												</div>
+											</div>
+											
+											<div class="col-sm-3" id="multiple-times-repos"></div>
+										</div>
+									</div>
+								</div>
+								<!-- end tab pane -->
+
+								<div class="tab-pane fade" id="pills-apprehension-record" role="tabpanel" aria-labelledby="pills-apprehension-record-tab">
+									<div>
+										<div class="row">
+											<div class="col-sm-3">
+												<div class="mb-3">
+													<label class="form-label"> With apprehension <span class="text-danger">*</span></label>
+													<select id="unit-apprehension" class="select-single-modal">
+														<option value="">Select Apprehension</option>
+														<option value="yes">Yes</option>
+														<option value="no">No</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="col-sm-4">
+												<div class="mb-3">
+													<label class="form-label"> With apprehension <span class="apprehension-yes text-danger">*</span></label>
+													<select id="unit-apprehension-description" class="select-single-modal">
+														<option value="">Select Apprehension</option>
+														<option value="Involved in a drug related case">Involved in a drug related case</option>
+														<option value="Accessory of a crime">Accessory of a crime</option>
+														<option value="Carnapped">Carnapped</option>
+														<option value="With LTO Alarm/Violation">With LTO Alarm/Violation</option>
+														<option value="Altered Serials Numbers">Altered Serials Numbers</option>
+													</select>
+												</div>
+											</div>
+										</div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<div class="mb-3">
+													<label class="form-label">Summary <span class="apprehension-yes text-danger">*</span></label>
+													<textarea class="form-control" id="unit-apprehension-summary" placeholder="Enter Summary" rows="3" autocomplete="off" style="resize:none;"></textarea>
 												</div>
 											</div>
 										</div>
@@ -489,6 +570,17 @@
 				}
 			});
 
+			$('#unit-apprehension').change(function(e){
+				e.preventDefault()
+				var answer = $(this).val();
+				if(answer == 'yes'){
+					$('.apprehension-yes').show()
+				} 
+				else {
+					$('.apprehension-yes').hide()
+				}
+			})
+
 			$('#append-new-upload').click(function(e){
 				e.preventDefault()
 				filesCounter++
@@ -605,14 +697,24 @@
 						return false;
 					}
 					else if(
-						$('#unit-brand').val() == '' || $('#unit-model').val() == '' || $('#unit-plate-number').val().trim() == '' || $('#unit-model-engine').val().trim() == '' || $('#unit-model-chassis').val().trim() == '' || 
-						$('#unit-color').val().trim() == '' || $('#unit-classification').val().trim() == '' || $('#unit-year-model').val().trim() == '' || $('#unit-price').val().trim() == '' || $('#unit-date-sold').val().trim() == '' || 
-						$('#unit-date-surrender').val().trim() == '' || $('#unit-loan-amount').val().trim() == ''  || $('#unit-loan-amount').val().trim() == '' ||
-						$('#unit-total-payment').val().trim() == '' || $('#unit-principal-balance').val().trim() == '' || $('#unit-original-owner').val().trim() == '' || $('#unit-location').val().trim() == '' || 
-						$('#unit-loan-number').val().trim() == '' || $('#unit-odo-meter').val().trim() == ''
+						$('#unit-brand').val() == '' || $('#unit-model').val() == '' || $('#unit-model-engine').val().trim() == '' || $('#unit-model-chassis').val().trim() == '' || $('#unit-color').val().trim() == '' ||
+						$('#unit-plate-number').val().trim() == '' || $('#unit-year-model').val().trim() == '' || $('#unit-orcr-status').val().trim() == '' || 
+						$('#unit-original-owner').val().trim() == '' || $('#unit-original-owners-id').val().trim() == '' || $('#unit-documents').val().trim() == '' || $('#unit-date-sold').val().trim() == '' || 
+						$('#unit-date-surrender').val().trim() == '' ||  $('#unit-price').val().trim() == '' || $('#unit-loan-amount').val().trim() == '' || $('#unit-principal-balance').val().trim() == '' || 
+						$('#unit-total-payment').val().trim() == '' || $('#unit-loan-number').val().trim() == '' || $('#unit-odo-meter').val().trim() == '' || $('#unit-location').val().trim() == ''
 					){
 						toast('Unit Details Tab: Please fill-up the red mark asterisk (*)', 'warning');
 						return false;
+					}
+					else if($('#unit-apprehension').val().trim() == ""){
+						toast('Apprehension Record Tab: Please fill-up the red mark asterisk (*)', 'warning');
+						return false;
+					}
+					else if($('#unit-apprehension').val().trim().toLowerCase() == "yes"){
+						if($('#unit-apprehension-description').val().trim() == "" || $('#unit-apprehension-summary').val().trim() == ""){
+							toast('Apprehension Record Tab: Please fill-up the red mark asterisk (*)', 'warning');
+							return false;
+						}
 					}
 				}
 
@@ -684,35 +786,38 @@
 
 				// console.log(`${ id } - ${ url }`)
 				var from_data = new FormData();
+				
 				from_data.append('repo_id', $(this).data('repo-id'));
 				from_data.append('customer_acumatica_id', $('#customer-acumatica-id').val());
 				from_data.append('brand_id', $('#unit-brand').val());
 				from_data.append('model_id', $('#unit-model').val());
-				from_data.append('plate_number', $('#unit-plate-number').val().trim().toUpperCase());
 				from_data.append('model_engine', $('#unit-model-engine').val().trim().toUpperCase());
 				from_data.append('model_chassis', $('#unit-model-chassis').val().trim().toUpperCase());
 				from_data.append('color_id', $('#unit-color').val());
+				from_data.append('plate_number', $('#unit-plate-number').val().trim().toUpperCase());
 				from_data.append('mv_file_number', $('#unit-mv-file-number').val().trim());
-				from_data.append('classification', $('#unit-classification').val().trim().toUpperCase());
 				from_data.append('year_model', $('#unit-year-model').val().trim());
-				from_data.append('original_srp', $('#unit-price').val().trim());
-				from_data.append('date_sold', $('#unit-date-sold').val());
+				from_data.append('orcr_status', $('#unit-orcr-status').val().trim());
 				from_data.append('original_owner', $('#unit-original-owner').val());
-				from_data.append('unit_loan_amount', $('#unit-loan-amount').val());
-				from_data.append('unit_total_payment', $('#unit-total-payment').val());
-				from_data.append('unit_principal_balance', $('#unit-principal-balance').val());
-				// from_data.append('msuisva_form_no', $('#unit-msuisva-form').val().trim());
+				from_data.append('original_owner_id', $('#unit-original-owners-id').val());
+				from_data.append('unit_documents', $('#unit-documents').val().trim());
+				from_data.append('date_sold', $('#unit-date-sold').val());
 				from_data.append('date_surrender', $('#unit-date-surrender').val());
+				from_data.append('original_srp', $('#unit-price').val().trim());
+				from_data.append('unit_loan_amount', $('#unit-loan-amount').val());
+				from_data.append('unit_principal_balance', $('#unit-principal-balance').val());
+				from_data.append('unit_total_payment', $('#unit-total-payment').val());
+				from_data.append('last_payment', $('#unit-date-last-payment').val().trim());
+				from_data.append('loan_number', $('#unit-loan-number').val().trim());
+				from_data.append('odo_meter', $('#unit-odo-meter').val().trim());
 				from_data.append('location', $('#unit-location').val());
+				from_data.append('apprehension', $('#unit-apprehension').val().toLowerCase());
+				from_data.append('apprehension_description', $('#unit-apprehension-description').val());
+				from_data.append('apprehension_summary', $('#unit-apprehension-summary').val().trim());
 				from_data.append('certify_no_missing_and_damaged_parts', $('#certifying-unit').is(':Checked'));
 				from_data.append('append_count', parseInt($('#append-counter').val()));
 				from_data.append('spare_parts_count', parseInt($('#spare-parts-append-count').val()));
 				from_data.append('module_id', parseInt($('#moduleid').val()));
-				from_data.append('loan_number', $('#unit-loan-number').val().trim());
-				from_data.append('odo_meter', $('#unit-odo-meter').val().trim());
-				from_data.append('unit_description', $('#unit-description').val().trim());
-				from_data.append('unit_documents', $('#unit-documents').val().trim());
-				from_data.append('last_payment', $('#unit-date-last-payment').val().trim());
 
 				$('#save-details').prop('disabled', false);
 				for (let i = 1; i <= append_count; i++) {
@@ -839,6 +944,7 @@
 			$('#save-details').show()
 			$('#save-details').data('repo-id', 0);
 			$('.btn-save-footer').hide()
+			$('.apprehension-yes').hide()
 			
 			$('#customer-acumatica-id').val('').trigger('change').attr('disabled', false)
 			$('#customer-first-name').val('')
@@ -867,6 +973,14 @@
 			$('#unit-description').val('').attr('disabled', false)
 			$('#unit-documents').val('').attr('disabled', false)
 			$('#unit-date-last-payment').val('').attr('disabled', false)
+			
+			$('#unit-original-owners-id').val('').trigger('change').attr('disabled', false)
+			$('#unit-orcr-status').val('').trigger('change').attr('disabled', false)
+			
+			$('#unit-apprehension').val('').trigger('change').attr('disabled', false)
+			$('#unit-apprehension-description').val('').trigger('change').attr('disabled', false)
+			$('#unit-apprehension-summary').val('').attr('disabled', false)
+			$('#unit-times-repossessed').val('0').attr('disabled', true)
 
 			$('#append-counter').val(0)
 			counter = 0;
@@ -1336,10 +1450,11 @@
                $('#unit-color').val(data.repo.color_id).trigger('change').attr('disabled', attrValue)
 					
                $('#unit-mv-file-number').val(data.repo.mv_file_number).attr('disabled', attrValue)
-               $('#unit-classification').val(data.repo.classification).attr('disabled', attrValue)
+               $('#unit-orcr-status').val(data.repo.orcr_status).trigger('change').attr('disabled', attrValue)
                $('#unit-year-model').val(data.repo.year_model).attr('disabled', attrValue)
                $('#unit-price').val(roundOf(data.repo.original_srp)).attr('disabled', attrValue)
                $('#unit-original-owner').val(data.received_details.original_owner).attr('disabled', attrValue)
+               $('#unit-original-owners-id').val(data.received_details.original_owner_id).trigger('change').attr('disabled', attrValue)
                $('#unit-loan-amount').val(roundOf(data.received_details.loan_amount)).attr('disabled', attrValue)
                $('#unit-total-payment').val(roundOf(data.received_details.total_payments)).attr('disabled', attrValue)
                $('#unit-principal-balance').val(roundOf(data.received_details.principal_balance)).attr('disabled', attrValue)
@@ -1349,9 +1464,29 @@
 					$('#unit-location').val(data.repo.location).trigger('change').attr('disabled', attrValue)
 					$('#unit-loan-number').val(data.repo.loan_number).attr('disabled', attrValue)
 					$('#unit-odo-meter').val(data.repo.odo_meter).attr('disabled', attrValue)
-					$('#unit-description').val(data.repo.unit_description).attr('disabled', attrValue)
 					$('#unit-documents').val(data.repo.unit_documents).attr('disabled', attrValue)
 					$('#unit-date-last-payment').val(data.repo.last_payment).attr('disabled', attrValue)
+
+					$('#unit-apprehension').val(data.repo.apprehension).trigger('change').attr('disabled', attrValue)
+					$('#unit-apprehension-description').val(data.repo.apprehension_description).trigger('change').attr('disabled', attrValue)
+					$('#unit-apprehension-summary').val(data.repo.apprehension_summary).attr('disabled', attrValue)
+					$('#unit-times-repossessed').val(data.repo.times_repossessed).attr('disabled', true)
+
+					const countPerConsole = {};
+					const owners = JSON.parse(data.repo.owners);
+					if(owners != null){
+						owners.forEach(item => {
+							const exOwner = item.exOwner;
+							countPerConsole[exOwner] = (countPerConsole[exOwner] || 0) + 1;
+
+							$('#multiple-times-repos').prepend(`
+								<div class="mb-3">
+									<label class="form-label"> Previous Owner ${ countPerConsole[exOwner] } </label>
+									<input type="text" class="form-control" value="${ exOwner }"  disabled>
+								</div>
+							`);
+						});
+					}
 
 					var filesJson = data.picture_details;
 
