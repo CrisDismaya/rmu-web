@@ -364,12 +364,13 @@
 
 											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Times Repossessed </label>
-													<input id="unit-times-repossessed" type="text" class="form-control text-right" value="" placeholder="0" onkeypress="" autocomplete="off" disabled>
+													<label class="form-label"> Times Repossessed <span class="text-danger">*</span></label>
+													<input id="unit-times-repossessed" type="text" class="form-control number-format text-end" value="" placeholder="0" pattern="\d*" maxlength="2" onkeypress="" autocomplete="off">
 												</div>
 											</div>
 											
-											<div class="col-sm-3" id="multiple-times-repos"></div>
+											<div class="row" id="multiple-times-repos"></div>
+											<div class="row" id="multiple-times-repos-fetch"></div>
 										</div>
 									</div>
 								</div>
@@ -513,7 +514,7 @@
 
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
-		var color_id = '', counter = 0, filesCounter = 0, partsCounter = 0;
+		var color_id = '', counter = 0, filesCounter = 0, partsCounter = 0, timesRepoCounter = 1;
 		var attrValue = auth.role.toLowerCase() === 'warehouse custodian' ? true : false;
 		var requiredFiles = [];
 
@@ -685,6 +686,27 @@
 				append_number_format_keyup()
 			});
 
+			$('#unit-times-repossessed').keyup(function(){
+				const init_value = parseInt($(this).val());
+				timesRepoCounter = init_value;
+
+				$('#multiple-times-repos').empty()
+				if(init_value > 1){
+					for (let index = 1; index < init_value; index++) {
+						const counter = index + 1;
+
+						$('#multiple-times-repos').append(`
+							<div class="col-sm-3" id="container-ex-onwers-${ counter }">
+								<div class="mb-3">
+									<label class="form-label"> Previous Owner No.${ counter } </label>
+									<input id="unit-exOwner-${ counter }" type="text" class="form-control" placeholder="Previous Owner No.${ counter }" value="">
+								</div>
+							</div>
+						`);
+					}
+				}
+			});
+
 			$('#save-details').click(function(event){
 				event.preventDefault();
 
@@ -706,6 +728,10 @@
 						toast('Unit Details Tab: Please fill-up the red mark asterisk (*)', 'warning');
 						return false;
 					}
+					else if($('#unit-times-repossessed').val().trim() == '' || $('#unit-times-repossessed').val().trim() < 1){
+						toast('Unit Details Tab: Please fill-up the red mark asterisk (*)', 'warning');
+						return false;
+					}
 					else if($('#unit-apprehension').val().trim() == ""){
 						toast('Apprehension Record Tab: Please fill-up the red mark asterisk (*)', 'warning');
 						return false;
@@ -713,6 +739,17 @@
 					else if($('#unit-apprehension').val().trim().toLowerCase() == "yes"){
 						if($('#unit-apprehension-description').val().trim() == "" || $('#unit-apprehension-summary').val().trim() == ""){
 							toast('Apprehension Record Tab: Please fill-up the red mark asterisk (*)', 'warning');
+							return false;
+						}
+					}
+				}
+
+				if(timesRepoCounter > 1){
+					for (let index = 1; index < timesRepoCounter; index++) {
+						var names = $(`#unit-exOwner-${ index }`).val();
+
+						if (names === '') {
+							toast(`Check the Previous Owner No.${ index }`, 'warning');
 							return false;
 						}
 					}
@@ -820,6 +857,18 @@
 				from_data.append('module_id', parseInt($('#moduleid').val()));
 
 				$('#save-details').prop('disabled', false);
+
+				const exOnwers = [];
+				for (let index = 1; index <= timesRepoCounter; index++) {
+					var container = $(`#container-ex-onwers-${ index }`).length;
+
+					if (container == 1) {
+						exOnwers.push({'exOwner' : $(`#unit-exOwner-${ index }`).val() })
+					}
+				}
+				from_data.append('times_repossessed', parseInt($('#unit-times-repossessed').val()));
+				from_data.append('repossessed_exowner', JSON.stringify(exOnwers));
+
 				for (let i = 1; i <= append_count; i++) {
 					var append_id_if_exists = $(`#append-item-${ i }`).length;
 					if(append_id_if_exists == 1){
@@ -980,7 +1029,9 @@
 			$('#unit-apprehension').val('').trigger('change').attr('disabled', false)
 			$('#unit-apprehension-description').val('').trigger('change').attr('disabled', false)
 			$('#unit-apprehension-summary').val('').attr('disabled', false)
-			$('#unit-times-repossessed').val('0').attr('disabled', true)
+			$('#unit-times-repossessed').val('0').attr('disabled', false)
+			$('#multiple-times-repos').empty()
+			$('#multiple-times-repos-fetch').empty()
 
 			$('#append-counter').val(0)
 			counter = 0;
@@ -1470,22 +1521,27 @@
 					$('#unit-apprehension').val(data.repo.apprehension).trigger('change').attr('disabled', attrValue)
 					$('#unit-apprehension-description').val(data.repo.apprehension_description).trigger('change').attr('disabled', attrValue)
 					$('#unit-apprehension-summary').val(data.repo.apprehension_summary).attr('disabled', attrValue)
-					$('#unit-times-repossessed').val(data.repo.times_repossessed).attr('disabled', true)
+					$('#unit-times-repossessed').val(data.repo.times_repossessed).attr('disabled', attrValue)
 
-					const countPerConsole = {};
-					const owners = JSON.parse(data.repo.owners);
+					$('#multiple-times-repos').empty()
+					$('#multiple-times-repos-fetch').empty()
+					const owners = JSON.parse(data.repo.repossessed_exowner);
 					if(owners != null){
-						owners.forEach(item => {
-							const exOwner = item.exOwner;
-							countPerConsole[exOwner] = (countPerConsole[exOwner] || 0) + 1;
+						const exOwnerCounter = 1;
+						for (let index = 0; index < owners.length; index++) {
+							const element = owners[index];
+							const count = exOwnerCounter + index + 1;
 
-							$('#multiple-times-repos').prepend(`
-								<div class="mb-3">
-									<label class="form-label"> Previous Owner ${ countPerConsole[exOwner] } </label>
-									<input type="text" class="form-control" value="${ exOwner }"  disabled>
+							$('#multiple-times-repos').append(`
+								<div class="col-sm-3">
+									<div class="mb-3">
+										<label class="form-label"> Previous Owner ${ count } </label>
+										<input type="text" id="unit-exOwner-${ count }" type="text" class="form-control" placeholder="Previous Owner No.${ count }" value="${ element.exOwner }">
+									</div>
 								</div>
 							`);
-						});
+							$(`#unit-exOwner-${ count }`).attr('disabled', attrValue)
+						}
 					}
 
 					var filesJson = data.picture_details;

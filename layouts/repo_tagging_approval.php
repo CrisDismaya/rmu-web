@@ -361,6 +361,8 @@
 													<input id="unit-times-repossessed" type="text" class="form-control text-right" value="" placeholder="0" onkeypress="" autocomplete="off" disabled>
 												</div>
 											</div>
+
+											<div class="row" id="multiple-times-repos"></div>
 										</div>
 									</div>
 								</div>
@@ -963,6 +965,25 @@
 					$('#unit-apprehension-description').val(data.repo.apprehension_description).trigger('change').attr('disabled', true)
 					$('#unit-apprehension-summary').val(data.repo.apprehension_summary).attr('disabled', true)
 					$('#unit-times-repossessed').val(data.repo.times_repossessed).attr('disabled', true)
+
+					$('#multiple-times-repos').empty()
+					const owners = JSON.parse(data.repo.repossessed_exowner);
+					if(owners != null){
+						const exOwnerCounter = 1;
+						for (let index = 0; index < owners.length; index++) {
+							const element = owners[index];
+							const count = exOwnerCounter + index + 1;
+
+							$('#multiple-times-repos').append(`
+								<div class="col-sm-3">
+									<div class="mb-3">
+										<label class="form-label"> Previous Owner ${ count } </label>
+										<input type="text" class="form-control" value="${ element.exOwner }"  disabled>
+									</div>
+								</div>
+							`);
+						}
+					}
 					
 
 					var filesJson = data.picture_details;
