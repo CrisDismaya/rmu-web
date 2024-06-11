@@ -236,10 +236,12 @@
 		document.getElementById('user').innerHTML = user.name
 		document.getElementById('role').innerHTML = user.role
 		
-		function route(link,name){
-			localStorage.setItem('navbar',name)
+		function route(link, name, current_module){
+			localStorage.setItem('current_module_id', current_module)
+			localStorage.setItem('navbar', name)
 			if(link == '/rmu_web/index.php'){
 				localStorage.removeItem('data')
+				sessionStorage.removeItem("sidebar")
 				link =  location.protocol == "https:" ? '/index.php' : link
 			}
 			window.location.replace(link)
@@ -334,8 +336,8 @@
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
-					}
-				});
+				}
+			});
 			
 			if(result.length > 0){
 				$('#notif-counter').html(result.length)
@@ -346,23 +348,22 @@
 				for(let i = 0; i < result.length; i++){
 					let data = result[i]
 					html += `
-								<div class="text-reset notification-item d-block dropdown-item position-relative">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-soft-info text-info rounded-circle fs-16">
-                                                    <i class="bx bx-badge-check"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1" onclick="route('${data.link}','${data.module}')">
-                                                <a href="javascript: void(0);" class="stretched-link">
-                                                    <h6 class="mt-0 mb-2 lh-base">You have a ${data.status == 2 ? 'disapproved' : 'pending'}  approval request from <b>${data.requestor}
-													</b> for module <b>${data.module}</b>.
-                                                    </h6>
-                                                </a>
-                                            </div>
-                                           
-                                        </div>
-                                    </div>
+						<div class="text-reset notification-item d-block dropdown-item position-relative">
+							<div class="d-flex">
+								<div class="avatar-xs me-3">
+									<span class="avatar-title bg-soft-info text-info rounded-circle fs-16">
+										<i class="bx bx-badge-check"></i>
+									</span>
+								</div>
+								<div class="flex-1" onclick="route('${data.link}','${data.module}')">
+									<a href="javascript: void(0);" class="stretched-link">
+										<h6 class="mt-0 mb-2 lh-base">You have a ${data.status == 2 ? 'disapproved' : 'pending'}  approval request from <b>${data.requestor}
+											</b> for module <b>${data.module}</b>.
+										</h6>
+									</a>
+								</div>
+							</div>
+						</div>
 					`
 				}
 
@@ -374,145 +375,114 @@
 			}
 		}
 
-		async function getModuleByUser(){
-			
-			// const result = await $.ajax({
-			// 	url: `${baseUrl}/getMyModules`, 
-			// 	type: 'GET', 
-			// 	headers:{
-			// 		'Authorization':`Bearer ${ auth.token }`,
-			// 		}
-			// 	});
+		function getModuleByUser() {
+			let sidebar = sessionStorage.getItem("sidebar");
+			let json_sidebar = JSON.parse(sidebar);
 
+			if(sidebar === null){
 				$.ajax({
-				url: `${baseUrl}/getMyModules`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) { 
-					 treeJson(data)
-				},
-				error: function(response) {
-					if(typeof response.responseJSON == 'undefined'){
-						alert('Your token session is expired.! Please relogin')
-						let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
-						localStorage.removeItem('data')
-						window.location.replace(link)
+					url: `${baseUrl}/getMyModules`, 
+					type: 'GET', 
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					success: function (data) { 
+						sessionStorage.setItem("sidebar", JSON.stringify(data));
+						formatTreeJson(data);
+					},
+					error: function(response) {
+						if(typeof response.responseJSON == 'undefined'){
+							alert('Your token session is expired.! Please relogin')
+							let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
+							localStorage.removeItem('data')
+							window.location.replace(link)
+						}
+					
 					}
-				
+				});
+			}
+
+			formatTreeJson(json_sidebar);
+		}
+
+		function formatTreeJson(data){
+			// Step 1: Create a lookup object
+			const lookup = {};
+			data.forEach(item => lookup[item.id] = { ...item, children: [] });
+
+			// Step 2: Construct the tree
+			const tree = [];
+			data.forEach(item => {
+				if (item.parent_id === "0") {
+					tree.push(lookup[item.id]);
+				} 
+				else if (lookup[item.parent_id]) {
+					lookup[item.parent_id].children.push(lookup[item.id]);
 				}
 			});
 
+			buildMenu(tree);
 		}
 
-		function treeJson(val) {
-			let arrMap = new Map(val.map(item => [item.id, item]));
-			let tree = [];
-			let arr_men = []
-			let sidebar = ''
-			for (let i = 0; i < val.length; i++) {
-				
-				let item = val[i];
-				
-				if (item.parent_id != '0') {
-					let parentItem = arrMap.get(item.parent_id);
+		function buildMenu(tree){
+			$('#sidebar-container').empty()
 
-					if (parentItem) {
-						let { children } = parentItem;
+			for (let index = 0; index < tree.length; index++) {
+				const details = tree[index];
 
-						if (children) {
-							parentItem.children.push(item);
-						} else {
-							parentItem.children = [item];
-						}
-					}
-				} else {
-					tree.push(item);
+				if(details.children.length > 0) {
+					$('#sidebar-container').append(`
+						<li class="nav-item">
+							<a class="nav-link menu-link" href="#${ details.menu_name }" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="${ details.menu_name }">
+								<i class=" ri-settings-3-line"></i> <span data-key="t-maintenance">${ details.menu_name }</span>
+							</a>
+
+							<div class="collapse menu-dropdown" id="${ details.menu_name }">
+								<ul class="nav nav-sm flex-column ${ details.menu_name }"></ul>
+							</div>
+						</li>
+					`);
+					appendChild(details.menu_name, details.children)
+				}
+				else {
+					$('#sidebar-container').append(`
+						<li class="nav-item" onclick="route('${ details.file_path }','${ details.menu_name }', ${ details.id })">
+							<a class="nav-link menu-link" href="javascript: void(0);">
+								<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> ${ details.menu_name } </span>
+							</a>
+						</li>
+					`);
 				}
 			}
-			// console.log(tree)
-			
+		}
+
+		function appendChild(menu_name, children){
+			for (let index = 0; index < children.length; index++) {
+				const details = children[index];
 				
-				tree.map((details)=>{
-					
-					if(typeof details.children != 'undefined'){
-						sidebar +=`<li class="nav-item">
-									<a class="nav-link menu-link" href="#${details.menu_name}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="${details.menu_name}">
-										<i class=" ri-settings-3-line"></i> <span data-key="t-maintenance"> ${details.menu_name} </span>
-									</a>
+				if(details.children.length > 0) {
+					let class_id = details.menu_name.includes(' ') ? details.menu_name.replace(' ','-') : details.menu_name;
 
-									<div class="collapse menu-dropdown" id="${details.menu_name}">
-										<ul class="nav nav-sm flex-column ${details.menu_name}">
-											
-										</ul>
-									</div>
-									</li>`
-						//call function to loop
-
-						appendChild(details.children,details.menu_name)
-					}else{
-						var notification_id = details.menu_name.replaceAll(' ', '_').toLowerCase();
-						// console.log(notification_id)
-						// <span id="for_stock_transfer_received" class="badge badge-pill bg-danger" data-key="t-hot"><span class="notif_stock_transfer_received"></span></span>
-
-						sidebar +=`<li class="nav-item" onclick="route('${details.file_path}','${details.menu_name}')">
-									<a class="nav-link menu-link" href="javascript: void(0);">
-										<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> ${details.menu_name} </span>
-									</a>
-								</li>`
-					}
-				
-				})
-
-				$('#sidebar-container').html(sidebar)
-			
-				//return arr_men.sort(function(a, b){ return a.sortOdrer - b.sortOdrer ;})
+					$(`.${ menu_name }`).append(`
+						<li class="nav-item">
+							<a class="nav-link menu-link" href="#${ class_id }" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="${ class_id }">
+								<span data-key="t-maintenance"> ${ details.menu_name }</span>
+							</a>
+							<div class="collapse menu-dropdown" id="${ class_id }">
+								<ul class="nav nav-sm flex-column ${ class_id }"></ul>
+							</div>
+						</li>
+					`)
+					appendChild(details.menu_name, details.children)
+				}
+				else {
+					let class_id = menu_name.includes(' ') ? menu_name.replace(' ','-') : menu_name
+					$(`.${ class_id }`).append(`
+						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id })">
+							<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> ${ details.menu_name } </a>
+						</li>
+					`)
+				}
 			}
-
-			function appendChild(menus,menu_name){
-			
-				menus.map((details)=>{
-					
-					if(typeof details.children != 'undefined'){
-						setTimeout(() => {
-							
-							let class_id = details.menu_name.includes(' ') ? details.menu_name.replace(' ','-') : details.menu_name
-							
-							$('.'+menu_name).append(`<li class="nav-item">
-										<a class="nav-link menu-link" href="#${class_id}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="${class_id}">
-											<span data-key="t-maintenance"> ${details.menu_name}</span>
-										</a>
-
-										<div class="collapse menu-dropdown" id="${class_id}">
-											<ul class="nav nav-sm flex-column ${class_id}">
-												
-											</ul>
-										</div>
-									</li>`)
-							//call function to loop
-
-							
-						}, 300);
-						appendChild(details.children,details.menu_name)
-					}else{
-						
-						setTimeout(() => {
-							
-							let class_id = menu_name.includes(' ') ? menu_name.replace(' ','-') : menu_name
-
-							$('.'+class_id).append(`<li class="nav-item" onclick="route('${details.file_path}','${details.menu_name}')">
-						 			<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> ${details.menu_name} </a>
-						 		</li>`)
-						}, 300);
-								 
-						
-					}
-
-
-				})
-
-				
-				//$('#'+menu_name).html($('.'+menu_name).html())
-			}
+		}
 	</script>

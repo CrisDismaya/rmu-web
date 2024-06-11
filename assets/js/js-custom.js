@@ -1,7 +1,8 @@
 
 
 var auth = JSON.parse(localStorage.getItem('data'))
-var baseUrl =  location.protocol == "https:" ? 'https://rmu-api-dev.suertemotoplaza.com/api' : 'http://127.0.0.1:8000/api'
+var baseUrl =  location.protocol == "https:" ? 'https://rmu-api-dev.suertemotoplaza.com/api' : 'http://127.0.0.1:8000/api';
+let current_module_id = localStorage.getItem('current_module_id') ?? 0;
 
 $(document).ready(function(){
 	$.ajaxSetup({ 
