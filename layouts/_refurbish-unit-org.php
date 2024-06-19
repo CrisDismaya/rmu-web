@@ -215,6 +215,7 @@
 		var qoute3 = null
 		var spares = []
 		var qoute_data = []
+		// note: current_module_id is global variable to see in assets > js > js-custom.js
 
 		function Request_reprice() {
 			getListOfUnits()
@@ -247,7 +248,7 @@
 		$(document).ready(function() {
 			$('#details').hide()
 			$('#qoute-list').hide()
-			getModuleId()
+			display_table(current_module_id)
 
 			$('#save-details').click(function(event) {
 				event.preventDefault();
@@ -275,43 +276,41 @@
 				}
 				formData.append("spares", JSON.stringify(parts));
 
-				console.log(parts)
-
-				// showLoader()
-				// $.ajax({
-				// 	url: url, 
-				// 	type: 'POST', 
-				// 	headers:{
-				// 		'Authorization':`Bearer ${ auth.token }`,
-				// 	},
-				// 	data : formData,
-				// 	processData: false,
-				// 	contentType: false,
-				// 	enctype: 'multipart/form-data',
-				// 	success: function (data) { 
-				// 		console.log(data)
-				// 		if(!data.success){
-				// 			hideLoader()
-				// 			toast(data.message, 'danger');
-				// 		}
-				// 		else{
-				// 			hideLoader()
-				// 			let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
-				// 			toast(msg, 'success');
-				// 			$('#staticBackdrop').modal('hide')
-				// 			display_table($('#mod').val())
-				// 			 qoute1 = null
-				// 			 qoute2 = null
-				// 			 qoute3 = null
-				// 			 data_id = null
-				// 		}
-				// 	},
-				// 	error: function(response) {
-				// 		hideLoader()
-				// 		toast(response.responseJSON.message, 'danger');
-				// 		forceLogout(response.responseJSON) //if token is expired
-				// 	}
-				// });
+				showLoader()
+				$.ajax({
+					url: url, 
+					type: 'POST', 
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					data : formData,
+					processData: false,
+					contentType: false,
+					enctype: 'multipart/form-data',
+					success: function (data) { 
+						console.log(data)
+						if(!data.success){
+							hideLoader()
+							toast(data.message, 'danger');
+						}
+						else{
+							hideLoader()
+							let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
+							toast(msg, 'success');
+							$('#staticBackdrop').modal('hide')
+							display_table(current_module_id)
+							 qoute1 = null
+							 qoute2 = null
+							 qoute3 = null
+							 data_id = null
+						}
+					},
+					error: function(response) {
+						hideLoader()
+						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
+					}
+				});
 
 			});
 
@@ -367,7 +366,7 @@
 
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
-						display_table($('#mod').val())
+						display_table(current_module_id)
 						getAllForApproval()
 						data_id = null
 					}
@@ -448,10 +447,10 @@
 			});
 		}
 
-		async function display_table(modid) {
+		async function display_table(current_module_id) {
 			let data = null
 			const tableData = await $.ajax({
-				url: `${baseUrl}/getListForApprovalRefurbish/${modid}`,
+				url: `${baseUrl}/getListForApprovalRefurbish/${current_module_id}`,
 				method: 'GET',
 				dataType: 'json',
 				headers: {
@@ -642,27 +641,6 @@
 
 
 
-		}
-
-		function getModuleId() {
-			let page_url = window.location.href
-			let pagename = page_url.split('/').pop()
-
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`,
-				type: 'GET',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				},
-				success: function(data) {
-					display_table(data)
-					$('#mod').val(data)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
 		}
 
 		function viewForApproval(repo_id, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, categ, color) {

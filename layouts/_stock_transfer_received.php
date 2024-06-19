@@ -102,24 +102,24 @@
 		});
 
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/getAllReceiveStockTransfer`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-			$("#list-for-receive-transfer-table").DataTable().destroy();
+			
+			if ($.fn.DataTable.isDataTable("#list-for-receive-transfer-table")) {
+				$('#list-for-receive-transfer-table').DataTable().clear().destroy();
+			}
+			
 			$("#list-for-receive-transfer-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/getAllReceiveStockTransfer`,
+					type: 'GET',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					{ data: "reference_code", className: 'text-center' },
 					{ data: "branch_name" },

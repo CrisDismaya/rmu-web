@@ -104,24 +104,23 @@
       })
 
       async function display_table(){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/settledRefurbishAccounting`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#refurbish-accounting")) {
+				$('#refurbish-accounting').DataTable().clear().destroy();
+			}
 
-			$("#refurbish-accounting").DataTable().destroy();
 			$("#refurbish-accounting").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/settledRefurbishAccounting`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData.data,
 				columns: [
 					{ data: "branchName" },
 					{ data: "brand" },

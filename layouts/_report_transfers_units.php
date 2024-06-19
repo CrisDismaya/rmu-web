@@ -108,24 +108,23 @@
 		});
 
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/getTransferredUnits`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#report-of-transferred-units-table")) {
+				$('#report-of-transferred-units-table').DataTable().clear().destroy();
+			}
 
-			$("#report-of-transferred-units-table").DataTable().destroy();
 			$("#report-of-transferred-units-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/getTransferredUnits`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					{ data: "acumatica_id", className: "text-center" },
 					{ data: "customer_name", className: "fw-semibold" },

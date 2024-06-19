@@ -74,13 +74,13 @@
 												<th>Branch</th>
 												<th> Brand </th>
 												<th> Model </th>
-														<th> Color </th>
+												<th> Color </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-                                                <th> Request Date </th>
-                                                <th> Ex. Owner </th>
-                                                <th> Status </th>
-                                                <th> Action </th>
+												<th> Request Date </th>
+												<th> Ex. Owner </th>
+												<th> Status </th>
+												<th> Action </th>
 											</tr>
 										</thead>
 									</table>

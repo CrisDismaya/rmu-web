@@ -933,24 +933,23 @@
 		});
 
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${ baseUrl }/repo`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
 
-			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/repo`,
+					type: 'GET',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${ auth.token }`,
+					},
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					{ data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -1160,7 +1159,7 @@
 
 		function fetch_customer_profile_list(){
 			$.ajax({
-				url: `${ baseUrl }/customerProfile`, 
+				url: `${ baseUrl }/listOfCustomer`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
@@ -1476,9 +1475,9 @@
 		function edit(id){
 			$('#save-details').prop('disabled', true);
 			$('#save-details').data('repo-id', id);
-			var moduleid = parseInt($('#moduleid').val());
+			
 			$.ajax({
-				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ moduleid }`, 
+				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ current_module_id }`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,

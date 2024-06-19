@@ -48,6 +48,7 @@
 										</tr>
 									</thead>
 								</table>
+
 							</div>
 						</div>
 					</div>
@@ -246,7 +247,6 @@
 	<script>
 		var brgy_id = '';
 		$(document).ready(function(){
-			
 			display_table();
 			getAllProvince();
 			fetch_source_of_income()
@@ -334,24 +334,23 @@
 		});
 
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${ baseUrl }/customerProfile`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#customer-profile-table")) {
+				$('#customer-profile-table').DataTable().clear().destroy();
+			}
 
-			$("#customer-profile-table").DataTable().destroy();
 			$("#customer-profile-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${ baseUrl }/customerProfile`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					{ data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -368,9 +367,7 @@
 							const day = new Date(oData.date_birth);
 							const m = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 							const str_op = m[day.getMonth()] + ' ' + day.getDate() + ', ' +  day.getFullYear();
-							html = `
-								${ str_op }
-							`;
+							html = `${ str_op }`;
 							$(nTd).html(html);
 						}
 					},

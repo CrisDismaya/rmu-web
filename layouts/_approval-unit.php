@@ -43,7 +43,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of  Units</h4>
 									<div class="flex-shrink-0">
-										<button id="request" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="Request_reprice()">
+										<button id="request" type="button" class="btn btn-soft-primary btn-sm" onclick="Request_reprice()">
 											Create Request 
 										</button>
 									</div>
@@ -87,7 +87,6 @@
 				</div>
 				<div class="modal-body container">
 					
-					<div class="card pa-2">
 						<div class="row" id="list">
 								<table id="list-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
@@ -206,7 +205,6 @@
 							</div>
 						</div>
 
-					</div>
 				</div>
 				
 			</div>
@@ -256,14 +254,13 @@
 		
 		var data_id = null
 		var edit_price = false
-		
+		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
 
 		function Request_reprice(){
 			getListOfUnits()
 		}
 
 		function closeModal(){
-			
 			$('#details').hide()
 			$('#list').show()
 		}
@@ -271,7 +268,7 @@
 		$(document).ready(function(){
 			$('#details').hide()
 			$('#update_price').hide()
-			getModuleId()
+			display_table(current_module_id)
 			
 			$('#save-details').click(function(event){
 				event.preventDefault();
@@ -289,7 +286,7 @@
 					total_missing_dmg_parts: 		$('#mdp').val(),
 					suggested_price:				$('#suggested_price').val(),
 					approved_price:					$('#approved_price').val(),
-					module_id:						$('#mod').val()
+					module_id:						current_module_id
 				}
 
 				showLoader()
@@ -313,7 +310,7 @@
 							let msg = id == 0 ? 'New Unit Price Succesfully submit!' : 'New Unit Price Succesfully updated!'
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
-							display_table($('#mod').val())
+							display_table(current_module_id)
 						}
 					},
 					error: function(response) {
@@ -345,7 +342,7 @@
 					approved_price:$('#approved_price').val(),
 					old_price:$('#srp').val(),
 					edit_price:edit_price,
-					module_id:$('#mod').val()
+					module_id:current_module_id
 				}
 
 				showLoader()
@@ -369,7 +366,7 @@
 							let msg = status == 1 ? 'New Unit Price Succesfully approved!' : 'New Unit Price disapproved!'
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
-							display_table($('#mod').val())
+							display_table(current_module_id)
 							getAllForApproval()
 							data_id = null
 						}
@@ -382,33 +379,26 @@
 				});
 		}
 
-		async function getListOfUnits(){
-		
-			let data = null
-			const tableData = await $.ajax({
-				url: `${baseUrl}/listReceivedUnit`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-			data = tableData.data
-		
-			$("#list-table").DataTable().destroy();
+		function getListOfUnits(){
+
+			if ($.fn.DataTable.isDataTable("#list-table")) {
+				$('#list-table').DataTable().clear().destroy();
+			}
+
 			$("#list-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/listReceivedUnit`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
-					
 					{ data: "branchname" },
 					{ data: "brandname" },
 					{ data: "model_name" },
@@ -424,47 +414,45 @@
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','new','${ oData.color }','${ oData.current_price }')">  
+										  '${ current_roles }','new','${ oData.color }','${ oData.current_price }')">  
 									<i class="ri-edit-box-line"></i> Appraise
 								</button> 
 							`;
-							
 							
 							$(nTd).html(html);
 						}
 					},
 				]
 			});
+
+
+			$('#staticBackdrop').modal('show');
 		}
 
-		async function display_table(modid){
-			let data = null
-			const tableData = await $.ajax({
-				url: `${baseUrl}/allReceivedUnit/${modid}`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+		async function display_table(current_module_id){		
+			var moduleid = current_module_id;
 
-			data = tableData.data
-			
-			if(tableData.role == 'Approver'){
+			if(current_roles == 'Approver'){
 				$('#request').hide()
 			}
-			$("#received-unit-table").DataTable().destroy();
+
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
+
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/allReceivedUnit/${ moduleid }`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 					
 					{ data: "branchname" },
@@ -483,35 +471,35 @@
 						//	
 
 						html = 'No action available';
-							if(oData.status == 'PENDING' && tableData.role == 'Maker' && oData.approved_price == null){
+							if(oData.status == 'PENDING' && current_roles == 'Maker' && oData.approved_price == null){
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
+										  '${ current_roles }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
 									</button> 
 								`;
 							}
 
-							if(oData.status == 'DISAPPROVED' && tableData.role == 'Maker' && oData.approved_price != null){
+							if(oData.status == 'DISAPPROVED' && current_roles == 'Maker' && oData.approved_price != null){
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
 									onclick="edit(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
+										  '${ current_roles }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-edit-box-line"></i> Review Unit
 									</button> 
 								`;
 							}
 
-							if(oData.status == 'PENDING' && tableData.role == 'Maker' && oData.approved_price != null){
+							if(oData.status == 'PENDING' && current_roles == 'Maker' && oData.approved_price != null){
 								html = 'Waiting for approval';
 							}
 
-							if(oData.status == 'PENDING' && tableData.role == 'Approver'){
+							if(oData.status == 'PENDING' && current_roles == 'Approver'){
 								$('#update_price').show()
 								
 								html = `
@@ -519,7 +507,7 @@
 									onclick="viewForApproval(${ oData.id }, '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }','${ oData.date_sold }',
-										  '${ oData.approved_price }', '${ tableData.role }','update','${ oData.color }','${ oData.current_price }')"> 
+										  '${ oData.approved_price }', '${ current_roles }','update','${ oData.color }','${ oData.current_price }')"> 
 										<i class="ri-check-circle"></i> Approve
 									</button> 
 								`;
@@ -583,27 +571,6 @@
 					$('#emdp').val(data.emdp)
 					$('#mdp').val(data.t_mdp)
 					$('#suggested_price').val(data.sp)
-				}
-			});
-		}
-
-		function getModuleId(){
-			let page_url = window.location.href
-			let pagename = page_url.split('/').pop()
-
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					display_table(data)
-					$('#mod').val(data)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
 				}
 			});
 		}

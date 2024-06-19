@@ -30,28 +30,6 @@
 		var page_url = window.location.href
 		var page_name = page_url.split('/').pop()
    		
-		$(document).ready(function(){
-			getModuleId(page_name)
-		})
-
-		function getModuleId(pagename){
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					
-					$('#moduleid').val(data)
-					return data
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-				}
-			});
-		}
-
 		function showLoader(){
 			let overlay = document.getElementById('loading-overlay')
 			overlay.style.display = 'block'

@@ -106,8 +106,10 @@
 	<script>
 		$('#auth-login').click(function(event) {
 			event.preventDefault();
-			isInputValid('input', 'email')
-			isInputValid('input', 'password')
+			sessionStorage.removeItem("sidebar")
+			localStorage.removeItem('current_module_id')
+			localStorage.removeItem('current_roles')
+
 			$('#auth-login').text('').prop('disabled', true).html(`<i class="bx bx-hourglass bx-spin font-size-16 align-middle me-2"></i>`);
 			let newURL = baseUrl.replace('/api','')
 		

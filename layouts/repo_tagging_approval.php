@@ -511,9 +511,10 @@
 	<script>
 		var moduleid = 0;
 		var color_id = '', counter = 0, filesCounter = 0, partsCounter = 0;
+		// note: current_module_id is global variable to see in assets > js > js-custom.js
+		
 		$(document).ready(function(){
-			getModuleId()
-			
+			display_table(current_module_id)
 			fetch_brand_list()
          fetch_customer_profile_list()
 			fetch_locations_list()
@@ -563,51 +564,24 @@
 			});
 		});
 
-		function getModuleId(){
-			let page_url = window.location.href
-			let pagename = page_url.split('/').pop()
+		async function display_table(current_module_id){
+			if ($.fn.DataTable.isDataTable("#repo-tagging-table")) {
+				$('#repo-tagging-table').DataTable().clear().destroy();
+			}
 
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					moduleid = data // 25
-					display_table(data)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
-		}
-
-		async function display_table(moduleid){
-
-			let data = null
-
-			const tableData = await $.ajax({
-				url: `${ baseUrl }/fetch_repo_approval/${ moduleid }`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-			data = tableData.data
-
-			$("#repo-tagging-table").DataTable().destroy();
 			$("#repo-tagging-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/fetch_repo_approval/${ current_module_id }`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: data,
 				columns: [
 					{ data: "branch_name" },
 					{ data: "acumatica_id",
@@ -627,7 +601,7 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<button class="btn btn-sm btn-warning waves-effect approver"  data-bs-toggle="modal" data-bs-target="#staticBackdrop" 
-									onclick="view_details(${ oData.id }, 3)"> 
+									onclick="view_details(${ oData.id }, ${ current_module_id })"> 
 									<i class="ri-edit-line me-1 align-middle"></i> Edit 
 								</button> 
 							`;
@@ -920,11 +894,11 @@
 				}
 			});
 		}
-
-		function view_details(id, moduleid){
+		
+		function view_details(id, current_module_id){
 			$('#approver-decision').prop('disabled', true);
 			$.ajax({
-				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ moduleid }`, 
+				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ current_module_id }`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
@@ -1110,7 +1084,7 @@
 					'Authorization':`Bearer ${ auth.token }`,
 				},
 				data: {
-					moduleid: moduleid,
+					moduleid: current_module_id,
 					recordid: repoid,
 					status: status,
 					loanAmount: $('#unit-loan-amount').val(),
@@ -1125,7 +1099,7 @@
 					else{
 						toast(data.message, 'success');
 						$('#staticBackdrop').modal('hide')
-						getModuleId()
+						display_table(current_module_id)
 					}
 					hideLoader()
 				},

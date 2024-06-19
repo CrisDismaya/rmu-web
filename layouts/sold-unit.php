@@ -84,6 +84,7 @@
 
 		</div>
 	</div>
+
 	<div class="modal fade" id="generateForm" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
@@ -108,35 +109,27 @@
 
 	
 		$(document).ready(function(){
-
 			display_table()
-			
 		})
 
-
-
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/SoldMasterList`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
 
-			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/SoldMasterList`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 					{ data: "branchname" },
 					{ data: "invoice_reference_no" },

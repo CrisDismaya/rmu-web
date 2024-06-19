@@ -236,9 +236,11 @@
 		document.getElementById('user').innerHTML = user.name
 		document.getElementById('role').innerHTML = user.role
 		
-		function route(link, name, current_module){
+		function route(link, name, current_module, current_roles){
 			localStorage.setItem('current_module_id', current_module)
+			localStorage.setItem('current_roles', current_roles)
 			localStorage.setItem('navbar', name)
+			
 			if(link == '/rmu_web/index.php'){
 				localStorage.removeItem('data')
 				sessionStorage.removeItem("sidebar")
@@ -355,7 +357,7 @@
 										<i class="bx bx-badge-check"></i>
 									</span>
 								</div>
-								<div class="flex-1" onclick="route('${data.link}','${data.module}')">
+								<div class="flex-1" onclick="route('${ data.link }', '${ data.module }', ${ data.module_id }, '${ data.roles }')">
 									<a href="javascript: void(0);" class="stretched-link">
 										<h6 class="mt-0 mb-2 lh-base">You have a ${data.status == 2 ? 'disapproved' : 'pending'}  approval request from <b>${data.requestor}
 											</b> for module <b>${data.module}</b>.
@@ -420,7 +422,6 @@
 					lookup[item.parent_id].children.push(lookup[item.id]);
 				}
 			});
-
 			buildMenu(tree);
 		}
 
@@ -446,7 +447,7 @@
 				}
 				else {
 					$('#sidebar-container').append(`
-						<li class="nav-item" onclick="route('${ details.file_path }','${ details.menu_name }', ${ details.id })">
+						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }')">
 							<a class="nav-link menu-link" href="javascript: void(0);">
 								<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> ${ details.menu_name } </span>
 							</a>
@@ -478,7 +479,7 @@
 				else {
 					let class_id = menu_name.includes(' ') ? menu_name.replace(' ','-') : menu_name
 					$(`.${ class_id }`).append(`
-						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id })">
+						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }')">
 							<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> ${ details.menu_name } </a>
 						</li>
 					`)

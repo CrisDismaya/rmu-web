@@ -193,11 +193,15 @@
 	<script>
 
 		var selected_unit = [], record_id = '', moduleid = 0;
+		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
+
 		$(document).ready(function(){
+			
 			$('#stock-transfer-button').hide();
 			$('.approver').hide();
 			get_branches();
 			// get_list_of_model();
+			display_table(current_module_id);
 
 			$('#select-all').on('click',function(){
 				if(this.checked){
@@ -264,7 +268,7 @@
 							$('#branches').val('').trigger('change')
 							$('#select-all').attr('checked', false)
 							$('#stock-transfer-reason').val('')
-							getModuleId();
+							display_table(current_module_id)
 							get_list_of_model();
 							selected_unit = [];
 							hideLoader()
@@ -278,39 +282,9 @@
 				});
 			});
 		});
-
-		function getModuleId(){
-			let page_url = window.location.href
-			let pagename = page_url.split('/').pop()
-
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					moduleid = data // 25
-					display_table(data)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
-		}
 		
-		async function display_table(moduleid){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/getAllForApprovals/${ moduleid }`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-			if(tableData.role == 'Maker'){
+		async function display_table(current_module_id){
+			if(current_roles == 'Maker'){
 				$('#stock-transfer-button').show()
 				$('#comment-section').hide()
 			}
@@ -319,15 +293,23 @@
 				$('#comment-section').show()
 			}
 
-			$("#list-for-transfer-table").DataTable().destroy();
+			if ($.fn.DataTable.isDataTable("#list-for-transfer-table")) {
+				$('#list-for-transfer-table').DataTable().clear().destroy();
+			}
+
 			$("#list-for-transfer-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/getAllForApprovals/${ current_module_id }`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData.data,
 				columns: [
 					{ data: "reference_code" },
 					{ data: "created_by" },
@@ -375,9 +357,7 @@
 				]
 			});
 		}
-
 		
-
 		async function get_list_of_model(){
 			$('#staticBackdrop').modal('show')
 
@@ -574,7 +554,7 @@
 						let msg = status == 1 ? 'Stock Transfer Approved' : 'Stock Transfer Disapproved'
 						toast(msg, 'success');
 						$('#view-units-details').modal('hide');
-						getModuleId()
+						display_table(current_module_id)
 						record_id = null
 					}
 				},

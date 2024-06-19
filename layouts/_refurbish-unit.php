@@ -213,6 +213,7 @@
 		var qoute3 = null
 		var spares = []
 		var qoute_data = []
+		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
 
 		function Request_reprice() {
 			getListOfUnits()
@@ -245,7 +246,7 @@
 		$(document).ready(function() {
 			$('#details').hide()
 			$('#qoute-list').hide()
-			getModuleId()
+			display_table(current_module_id)
 
 			$('#save-details').click(function(event) {
 				event.preventDefault();
@@ -260,7 +261,7 @@
 				formData.append("q2", $('#q2')[0].files[0]);
 				formData.append("q3", $('#q3')[0].files[0]);
 				formData.append("repo_id", $('#repo_id').val());
-				formData.append("module_id", $('#mod').val());
+				formData.append("module_id", current_module_id);
 
 				let parts = []
 
@@ -295,7 +296,7 @@
 							let msg = data_id == 0 ? 'New Refurbish Request Succesfully submit!' : 'Refurbish Request Succesfully updated!'
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
-							display_table($('#mod').val())
+							display_table(current_module_id)
 							 qoute1 = null
 							 qoute2 = null
 							 qoute3 = null
@@ -364,7 +365,7 @@
 
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
-						display_table($('#mod').val())
+						display_table(current_module_id)
 						getAllForApproval()
 						data_id = null
 					}
@@ -378,30 +379,19 @@
 		}
 
 		async function getListOfUnits() {
-
-			let data = null
-			const tableData = await $.ajax({
-				url: `${baseUrl}/listOfForRefurbish`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				}
-			});
-			data = tableData.data
-
-			$("#list-table").DataTable().destroy();
 			$("#list-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-				scrollX: true,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/listOfForRefurbish`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
+		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 
 					{
@@ -432,7 +422,7 @@
 									onclick="edit(${ oData.repoid },'${ oData.receive_id }', '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','new','${ oData.color }')">  
+										  '${ current_roles }','new','${ oData.color }')">  
 									<i class="ri-edit-box-line"></i> Refurbish
 								</button> 
 							`;
@@ -445,34 +435,28 @@
 			});
 		}
 
-		async function display_table(modid) {
-			let data = null
-			const tableData = await $.ajax({
-				url: `${baseUrl}/getListForApprovalRefurbish/${modid}`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				}
-			});
-
-			data = tableData.data
-
-			if (tableData.role == 'Approver') {
+		async function display_table(current_module_id) {
+			if (current_roles == 'Approver') {
 				$('#request').hide()
 			}
-			$("#received-unit-table").DataTable().destroy();
+			
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
+			
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-				scrollX: true,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/getListForApprovalRefurbish/${ current_module_id }`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
+		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 
 					{
@@ -509,30 +493,30 @@
 							//	
 
 							html = 'No action available';
-							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Maker') {
+							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Maker') {
 								html = `
 									No Action Available
 								`;
 							}
 
-							if (oData.status == 'DISAPPROVED' && tableData.role == 'Maker') {
+							if (oData.status == 'DISAPPROVED' && current_roles == 'Maker') {
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
 									onclick="edit(${ oData.repo_id },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','update','${ oData.color }')"> 
+										  '${ current_roles }','update','${ oData.color }')"> 
 										<i class="ri-edit-box-line"></i> Review Request
 									</button> 
 								`;
 							}
 
-							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Maker') {
+							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Maker') {
 								// console.log(oData.approved_price)
 								html = 'Waiting for approval';
 							}
 
-							if (oData.status == 'WAITING FOR APPROVAL' && tableData.role == 'Approver') {
+							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Approver') {
 
 								qoute_data.push({
 									"qoute_id": oData.refurbish_id,
@@ -544,7 +528,7 @@
 									onclick="viewForApproval(${ oData.repo_id },'${ oData.refurbish_id }', '${ oData.branch }', '${ oData.branchname }', 
 										'${ oData.brandname }', '${ oData.repo_id }', '${ oData.model_name }',
 										 '${ oData.model_chassis }', '${ oData.model_engine }',
-										  '${ tableData.role }','new','${ oData.color }')"> 
+										  '${ current_roles }','new','${ oData.color }')"> 
 										<i class="ri-check-circle"></i> Approve
 									</button> 
 								`;
@@ -630,27 +614,6 @@
 					}
 					tbl += `</table>`
 					$('#part-list').html(tbl)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
-		}
-
-		function getModuleId() {
-			let page_url = window.location.href
-			let pagename = page_url.split('/').pop()
-
-			$.ajax({
-				url: `${baseUrl}/getCurrentModule/${pagename}`,
-				type: 'GET',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				},
-				success: function(data) {
-					display_table(data)
-					$('#mod').val(data)
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');

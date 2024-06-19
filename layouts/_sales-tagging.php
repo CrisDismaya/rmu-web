@@ -45,7 +45,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of Units</h4>
 									<div class="flex-shrink-0">
-										<button type="button" id="tagunit" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+										<button type="button" id="tagunit" class="btn btn-soft-primary btn-sm">
 											+ Tag Unit
 										</button>
 									</div>
@@ -284,6 +284,7 @@
 				</div>
 			</div>
 		</div>
+		
 		<div class="modal fade" id="approvalModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-xl" role="document">
 				<div class="modal-content">
@@ -485,9 +486,11 @@
 		<script>
 			var role = null
 			var new_uplod = false
+			// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
+
 			$(document).ready(function() {
 
-				getModuleId()
+				display_table(current_module_id)
 				//if(auth.role != 'Warehouse Custodian'){
 
 				// listForTagging()
@@ -635,7 +638,7 @@
 					formData.append("amount_finance", $('#amount_finance').val());
 					formData.append("interest_rate", $('#interest-rate').val());
 					formData.append("rate", $('#type').val() == 'I' ? $('#rate').val() : '');
-					formData.append("module_id", $('#mod').val());
+					formData.append("module_id", current_module_id);
 					formData.append("rnr", $('#rnr-uploader')[0].files[0]);
 					$.ajax({
 						url: `${baseUrl}/tagUnit`,
@@ -659,8 +662,7 @@
 								hideLoader() //function hide loader
 								toast(data.message, 'success');
 								$('#staticBackdrop').modal('hide')
-								display_table($('#mod').val())
-
+								display_table(current_module_id)
 							}
 						},
 						error: function(response) {
@@ -671,10 +673,7 @@
 					});
 
 				});
-
-
 			})
-
 
 			function decision(status) {
 				const data = {
@@ -711,7 +710,7 @@
 							toast(data.message, 'success');
 							$('#remarks').val('')
 							$('#approvalModal').modal('hide')
-							display_table($('#mod').val())
+							display_table(current_module_id)
 						}
 					},
 					error: function(response) {
@@ -887,7 +886,7 @@
 							toast(data.message, 'success');
 							new_uplod = false
 							$('#approvalModal').modal('hide')
-							display_table($('#mod').val())
+							display_table(current_module_id)
 						}
 					},
 					error: function(response) {
@@ -899,30 +898,24 @@
 
 			}
 
-			async function display_table(modid) {
-				const tableData = await $.ajax({
-					url: `${baseUrl}/getListForApproval/${modid}`,
-					method: 'GET',
-					dataType: 'json',
-					headers: {
-						'Authorization': `Bearer ${ auth.token }`,
-					}
-				});
+			async function display_table(current_module_id) {
+				if ($.fn.DataTable.isDataTable("#sales-tagging-table")) {
+					$('#sales-tagging-table').DataTable().clear().destroy();
+				}
 
-				data = tableData.data
-
-				$("#sales-tagging-table").DataTable().destroy();
 				$("#sales-tagging-table").DataTable({
-					deferRender: true,
-					searching: true,
-					scrollY: 400,
+					processing: true,
+					serverSide: true,
+					ajax: {
+						url: `${baseUrl}/getListForApproval/${ current_module_id }`,
+						type: 'GET',
+						dataType: 'json',
+						headers:{
+							'Authorization':`Bearer ${ auth.token }`,
+						}
+					},
 					scrollX: true,
 					scrollCollapse: true,
-					paging: false,
-					data: data,
-					// aoColumnDefs: [
-					// 	{ className: "text-end", targets: [ 4 ] },
-					// ],
 					columns: [
 
 						{
@@ -990,7 +983,13 @@
 							data: "dp"
 						},
 						{
-							data: "monthly_amo"
+							data: null,
+							defaultContent: '',
+							fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
+								html = `${ Math.ceil(oData.monthly_amo) }`;
+
+								$(nTd).html(html);
+							}
 						},
 						{
 							data: "rebate"
@@ -1033,12 +1032,12 @@
 								//	
 
 								html = 'No action available';
-								if (oData.status == '0' && tableData.role == 'Maker') {
+								if (oData.status == '0' && current_roles == 'Maker') {
 									role = 'maker'
 									html = `<span>Waiting for approval</span>`;
 								}
 
-								if (oData.status == '2' && tableData.role == 'Maker') {
+								if (oData.status == '2' && current_roles == 'Maker') {
 									role = 'maker'
 									$('#remarks').hide()
 									$('.maker').show()
@@ -1064,7 +1063,7 @@
                                         `;
 								}
 
-								if (oData.status == '0' && tableData.role == 'Approver') {
+								if (oData.status == '0' && current_roles == 'Approver') {
 									role = 'approver'
 									$('#tagunit').hide()
 									$('#remarks').show()
@@ -1092,7 +1091,6 @@
 							}
 						},
 					],
-
 				});
 			}
 
@@ -1119,7 +1117,7 @@
 								hideLoader()
 
 								toast('Transaction successfully cancelled', 'success');
-								display_table($('#mod').val())
+								display_table(current_module_id)
 
 							}
 						},
@@ -1277,31 +1275,19 @@
 				$('#uploaded_rnr').html(`<input type="file" id="v_rnr-uploader"></input>`)
 			}
 			async function listForTagging() {
-				const tableData = await $.ajax({
-					url: `${baseUrl}/listForSalesTagging`,
-					method: 'GET',
-					dataType: 'json',
-					headers: {
-						'Authorization': `Bearer ${ auth.token }`,
-					}
-				});
-
-				let listing = tableData.filter(d => {
-					return d.is_sold == 'N'
-				})
-
-				$("#received-unit-table").DataTable().destroy();
 				$("#received-unit-table").DataTable({
-					deferRender: true,
-					searching: true,
-					scrollY: 400,
+					processing: true,
+					serverSide: true,
+					ajax: {
+						url: `${baseUrl}/listForSalesTagging`,
+						type: 'GET',
+						dataType: 'json',
+						headers:{
+							'Authorization':`Bearer ${ auth.token }`,
+						}
+					},
 					scrollX: true,
 					scrollCollapse: true,
-					paging: false,
-					data: listing,
-					// aoColumnDefs: [
-					// 	{ className: "text-end", targets: [ 4 ] },
-					// ],
 					columns: [
 
 						{
@@ -1349,6 +1335,8 @@
 					],
 
 				});
+
+				$('#staticBackdrop').modal('show');
 			}
 
 			function tag(id, repo_id, brand, model, engine, chassis, exowner, color, branchname, price) {
@@ -1414,27 +1402,6 @@
 				$('#terms').val('').trigger('change');
 			}
 
-			function getModuleId() {
-				let page_url = window.location.href
-				let pagename = page_url.split('/').pop()
-
-				$.ajax({
-					url: `${baseUrl}/getCurrentModule/${pagename}`,
-					type: 'GET',
-					headers: {
-						'Authorization': `Bearer ${ auth.token }`,
-					},
-					success: function(data) {
-						display_table(data)
-						$('#mod').val(data)
-					},
-					error: function(response) {
-						toast(response.responseJSON.message, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
-					}
-				});
-			}
-
 			function calculateAmountFinance() {
 				let result = parseFloat($('#price').val() - $('#dp').val())
 				$('#amount_finance').val(result)
@@ -1458,15 +1425,15 @@
 			function calculateAmortization() {
 
 				let result = parseFloat(($('#amount_finance').val() * $('#interest-rate').val()))
-				$('#monthly').val(parseFloat(result / $('#terms').val()))
+				$('#monthly').val(Math.ceil(parseFloat(result / $('#terms').val())))
 
 				let result1 = parseFloat(($('#v_amount_finance').val() * $('#v_interest-rate').val()))
-				$('#v_monthly').val(parseFloat(result1 / $('#v_terms').val()))
+				$('#v_monthly').val(Math.ceil(parseFloat(result1 / $('#v_terms').val())))
 			}
 
 			function fetch_customer_profile_list(action, customer) {
 				$.ajax({
-					url: `${ baseUrl }/customerProfile`,
+					url: `${ baseUrl }/listOfCustomer`,
 					type: 'GET',
 					headers: {
 						'Authorization': `Bearer ${ auth.token }`,

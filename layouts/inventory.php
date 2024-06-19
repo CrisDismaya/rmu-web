@@ -39,13 +39,12 @@
 					</div>
 
 					<div class="row">
-						<!-- table -->
 						<div class="col-lg-12">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of Units</h4>
-									<div class="flex-shrink-0" id="branches-selection">
-										<select id="branch" class="select-single"></select>
+									<div class="flex-shrink-0 col-md-3" id="branches-selection">
+										<select id="branch" class="form-select form-select-sm select-single"></select>
 									</div>
 								</div>
 								<div class="card-body">
@@ -63,15 +62,12 @@
 												<th> Chassis </th>
 												<th> Color </th>
 												<th style="text-align: left !important;">Price</th>
-												<!-- <th> Appraised SRP </th> -->
 												<th> Aging </th>
 												<th> Quantity </th>
 												<th> On Hand </th>
 												<th> Status </th>
 												<th> Pictures </th>
 												<th> Forms </th>
-
-												<!-- <th> Action </th> -->
 											</tr>
 										</thead>
 									</table>
@@ -112,7 +108,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body container">
-					<div class="card pa-2">
+					<div class="table-responsive">
 						<table id="history-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 							<thead>
 								<tr>
@@ -176,6 +172,7 @@
 		$(document).ready(function() {
 			fetch_branch_data()
 			display_table()
+			
 			$('#branch').change(function() {
 				const branchId = $(this).val() == 'all' ? 0 : $(this).val();
 				display_table(branchId)
@@ -183,36 +180,28 @@
 		})
 
 		async function display_table(branchId = 0) {
-			const tableData = await $.ajax({
-				url: `${baseUrl}/InventoryMasterList`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				},
-				data:{
-					'branchId': branchId
-				}
-			});
-
-			(tableData.role == 'Warehouse Custodian' ? $('#branches-selection').hide() : $('#branches-selection').show())
+			(auth.role == 'Warehouse Custodian' ? $('#branches-selection').hide() : $('#branches-selection').show())
 			
-			// let data = ($('#branch').val() == '' || $('#branch').val() == 'all') ? tableData.data : tableData.data.filter(d => {
-			// 	return d.branch_id == $('#branch').val()
-			// })
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
 
-			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-				scrollX: true,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/InventoryMasterList`,
+					type: 'GET',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${ auth.token }`,
+					},
+					data:{
+						'branchId': branchId
+					}
+				},
+		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData.data,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [{
 						data: null,
 						defaultContent: '',
@@ -256,11 +245,6 @@
 						render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''),
 						className: "text-end"
 					},
-					// {
-					// 	data: "current_appraised",
-					// 	render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''),
-					// 	className: "text-end"
-					// },
 					{
 						data: "aging"
 					},
@@ -326,20 +310,7 @@
 			});
 		}
 
-		// function tag(id,brand,model,engine,chassis){
-		// 	$('#received_id').val(id)
-		// 	$('#brand').val(brand)
-		// 	$('#model').val(model)
-		// 	$('#engine').val(engine)
-		// 	$('#chassis').val(chassis)
-		// }
-
-		function getAllCustomer(repo_id) {
-			getUnitHistory(repo_id)
-			$('#customerhistory').modal('show')
-		}
-
-		async function getUnitHistory(repo_id) {
+		async function getAllCustomer(repo_id) {
 			const tableData = await $.ajax({
 				url: `${baseUrl}/UnitHistory/${repo_id}`,
 				method: 'GET',
@@ -351,16 +322,7 @@
 
 			$("#history-unit-table").DataTable().destroy();
 			$("#history-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-				scrollX: true,
-				scrollCollapse: true,
-				paging: false,
 				data: tableData,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 					{
 						data: "branch"
@@ -402,6 +364,8 @@
 					},
 				],
 			});
+
+			$('#customerhistory').modal('show')
 		}
 
 		function generateForm(recordId, index, forms) {
