@@ -525,7 +525,7 @@
          fetch_customer_profile_list()
 			fetch_locations_list();
 			fetch_list_of_image('0')
-			// fetch_color_list()
+			fetch_color_list('')
 		 
 			$('#customer-acumatica-id').change(function(e){
 				e.preventDefault();
@@ -558,18 +558,18 @@
 				}
 			});
 
-			$('#unit-model').change(function(e){
-				e.preventDefault()
-				var model_id = $(this).val();
-				if(model_id != ''){
-					fetch_color_list(model_id, color_id)
-					$('#unit-color').prop('disabled', parseInt($('#save-details').data('repo-id')) == 0 || attrValue === false ? false : true);
-				}
-				else{
-					$('#unit-color').empty();
-					// $('#unit-color').prop('disabled', true);
-				}
-			});
+			// $('#unit-model').change(function(e){
+			// 	e.preventDefault()
+			// 	var model_id = $(this).val();
+			// 	if(model_id != ''){
+			// 		fetch_color_list(model_id, color_id)
+			// 		$('#unit-color').prop('disabled', parseInt($('#save-details').data('repo-id')) == 0 || attrValue === false ? false : true);
+			// 	}
+			// 	else{
+			// 		$('#unit-color').empty();
+			// 		// $('#unit-color').prop('disabled', true);
+			// 	}
+			// });
 
 			$('#unit-apprehension').change(function(e){
 				e.preventDefault()
@@ -988,7 +988,7 @@
 		}
 
 		function add_receive_units(){
-			fetch_color_list(0)
+			fetch_color_list('')
 			$('#save-details').show()
 			$('#save-details').data('repo-id', 0);
 			$('.btn-save-footer').hide()
@@ -1006,7 +1006,7 @@
          $('#unit-plate-number').val('').attr('disabled', false)
 			$('#unit-model-engine').val('').attr('disabled', false)
 			$('#unit-model-chassis').val('').attr('disabled', false)
-         $('#unit-color').val('').trigger('change').attr('disabled', true)
+         $('#unit-color').val('').trigger('change').attr('disabled', false)
          $('#unit-mv-file-number').val('').attr('disabled', false)
          $('#unit-classification').val('').trigger('change').attr('disabled', false)
          $('#unit-year-model').val('').attr('disabled', false)
@@ -1328,9 +1328,9 @@
 			});
 		}
 
-		function fetch_color_list(model_id, color_id = ''){
+		function fetch_color_list(color_id = ''){
 			$.ajax({
-				url: `${ baseUrl }/getMapColor/${model_id}`, 
+				url: `${ baseUrl }/getMapColor`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
