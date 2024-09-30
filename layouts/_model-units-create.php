@@ -52,12 +52,12 @@
 										<input id="brand-name" type="text" class="form-control" id="placeholderInput" placeholder="Brand Name" autocomplete="off">
 									</div>
 									<hr />
-									<div class="col-md-12 mb-3">
+									<!-- <div class="col-md-12 mb-3">
 										<label class="form-label">Available Colors | <a href='#' data-bs-toggle="modal" data-bs-target="#staticBackdrop">+ Add</a></label>
 										<ul id="color-list">
 
 										</ul>
-									</div>
+									</div> -->
 									<div class="col-md-12">
 										<div class="d-grid gap-2" >
 											<button id="save-model" type="button" class="btn btn-primary" data-id="0">
@@ -83,7 +83,7 @@
 												<th> Inventory Code </th>
 												<th> Brand </th>
 												<th> Model </th>
-												<th> Color </th>
+												<!-- <th> Color </th> -->
 												<th> Action </th>
 											</tr>
 										</thead>
@@ -134,7 +134,7 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
 		fetch_brand_data();
-		fetch_color_data();
+		// fetch_color_data();
 		display_table();
 
 		var available_colors = []
@@ -190,10 +190,10 @@
 				return false
 			}
 
-			if(available_colors.length == 0){
-				toast('Please Add Available Colors for the model!', 'danger');
-				return false
-			}
+			// if(available_colors.length == 0){
+			// 	toast('Please Add Available Colors for the model!', 'danger');
+			// 	return false
+			// }
 
 			showLoader()
 			$.ajax({
@@ -206,7 +206,7 @@
 				data: { 
 					brand_id : $('#model-brand').val(),
 					model_name : $('#brand-name').val(),
-					colors : available_colors,
+					// colors : available_colors,
 					code:$('#inv-code').val()
 				}, 
 				success: function (data) { 
@@ -326,20 +326,20 @@
 						}
 					},
 					{ data: "model_name" },
-					{ data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-							let color = ''
-							for(let i = 0; i < oData.colors.length; i++){
-								if(oData.colors.length == i+1){
-									color += ` ${oData.colors[i].color_name.name} `
-								}else{
-									color += ` ${oData.colors[i].color_name.name} ,`
-								}
-							}
-							html = color;
-							$(nTd).html(html);
-						}
-					},
+					// { data: null, defaultContent: '',
+					// 	fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+					// 		let color = ''
+					// 		for(let i = 0; i < oData.colors.length; i++){
+					// 			if(oData.colors.length == i+1){
+					// 				color += ` ${oData.colors[i].color_name.name} `
+					// 			}else{
+					// 				color += ` ${oData.colors[i].color_name.name} ,`
+					// 			}
+					// 		}
+					// 		html = color;
+					// 		$(nTd).html(html);
+					// 	}
+					// },
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							
@@ -358,41 +358,42 @@
 
 		function edit(id, brandid, name,code){
 
-			$.ajax({
-				url: `${baseUrl}/getMapColor/${id}`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					available_colors = []
-					for(let i = 0; i < data.length; i++){
-						available_colors.push({
-							'color_name':data[i].name,
-							'value':data[i].id
-						})
-					}
-
-						let colors = ''
-						for(let i = 0; i < available_colors.length; i++){
-							
-							colors += `<li>${available_colors[i].color_name} &nbsp;&nbsp; 
-										<b><span onclick="removeColor(${available_colors[i].value})" title="Remove Color" style="color:red;cursor:pointer;">X</span></b>
-									</li>`
-						}
-
-						$('#color-list').html(colors)
-				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
-			});
 			$('#inv-code').val(code)
 			$('#model-brand').val(brandid).trigger('change')
 			$('#brand-name').val(name)
 			//$('#model-color').val(colorid).trigger('change')
 			$('#save-model').data('id', id)
+			
+			// $.ajax({
+			// 	url: `${baseUrl}/getMapColor/${id}`, 
+			// 	type: 'GET', 
+			// 	headers:{
+			// 		'Authorization':`Bearer ${ auth.token }`,
+			// 	},
+			// 	success: function (data) {
+			// 		available_colors = []
+			// 		for(let i = 0; i < data.length; i++){
+			// 			available_colors.push({
+			// 				'color_name':data[i].name,
+			// 				'value':data[i].id
+			// 			})
+			// 		}
+
+			// 		let colors = ''
+			// 		for(let i = 0; i < available_colors.length; i++){
+						
+			// 			colors += `<li>${available_colors[i].color_name} &nbsp;&nbsp; 
+			// 						<b><span onclick="removeColor(${available_colors[i].value})" title="Remove Color" style="color:red;cursor:pointer;">X</span></b>
+			// 					</li>`
+			// 		}
+
+			// 		$('#color-list').html(colors)
+			// 	},
+			// 	error: function(response) {
+			// 		toast(response.responseJSON.message, 'danger');
+			// 		forceLogout(response.responseJSON) //if token is expired
+			// 	}
+			// });
 		}
 	</script>
 </body>

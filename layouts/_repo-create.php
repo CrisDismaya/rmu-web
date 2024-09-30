@@ -854,7 +854,7 @@
 				from_data.append('certify_no_missing_and_damaged_parts', $('#certifying-unit').is(':Checked'));
 				from_data.append('append_count', parseInt($('#append-counter').val()));
 				from_data.append('spare_parts_count', parseInt($('#spare-parts-append-count').val()));
-				from_data.append('module_id', parseInt($('#moduleid').val()));
+				from_data.append('module_id', parseInt(current_module_id));
 
 				$('#save-details').prop('disabled', false);
 
