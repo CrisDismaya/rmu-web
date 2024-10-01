@@ -99,29 +99,38 @@
 
 
 		async function display_table(action){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/appraisedUnitList`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			let list = action == 'PRELOAD' ||  $('#status').val() == 'ALL' ? tableData: tableData.filter((d) => { return d.status == $('#status').val()})
 
-            let list = action == 'PRELOAD' ||  $('#status').val() == 'ALL' ? tableData: tableData.filter((d) => { return d.status == $('#status').val()})
-
-			$("#received-unit-table").DataTable().destroy();
+			if ($.fn.DataTable.isDataTable("#sales-tagging-table")) {
+				$('#sales-tagging-table').DataTable().clear().destroy();
+			}
+			
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-		  		scrollX: true,
+				processing: true,
+				serverSide: true,
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/appraisedUnitList`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
+				},
+				scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: list,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 					
 					{ data: "branchname" },

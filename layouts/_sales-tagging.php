@@ -43,7 +43,7 @@
 						<div class="col-lg-12">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
-									<h4 class="card-title mb-0 flex-grow-1">List of Units</h4>
+									<h4 class="card-title mb-0 flex-grow-1">Sales Tagging Of Units</h4>
 									<div class="flex-shrink-0">
 										<button type="button" id="tagunit" class="btn btn-soft-primary btn-sm">
 											+ Tag Unit
@@ -906,13 +906,26 @@
 				$("#sales-tagging-table").DataTable({
 					processing: true,
 					serverSide: true,
-					ajax: {
-						url: `${baseUrl}/getListForApproval/${ current_module_id }`,
-						type: 'GET',
-						dataType: 'json',
-						headers:{
-							'Authorization':`Bearer ${ auth.token }`,
-						}
+					ajax: function(data, callback, settings) {
+						fetch(`${baseUrl}/getListForApproval/${ current_module_id }`, {
+							method: 'GET',
+							headers: {
+								'Authorization': `Bearer ${auth.token}`,
+								'Content-Type': 'application/json',
+							},
+						})
+						.then(response => response.json())
+						.then(data => {
+							callback({
+								draw: settings.iDraw,
+								recordsTotal: data.recordsTotal,
+								recordsFiltered: data.recordsFiltered, 
+								data: data.data
+							});
+						})
+						.catch(error => {
+							console.error('Error fetching data:', error);
+						});
 					},
 					scrollX: true,
 					scrollCollapse: true,
@@ -1278,13 +1291,26 @@
 				$("#received-unit-table").DataTable({
 					processing: true,
 					serverSide: true,
-					ajax: {
-						url: `${baseUrl}/listForSalesTagging`,
-						type: 'GET',
-						dataType: 'json',
-						headers:{
-							'Authorization':`Bearer ${ auth.token }`,
-						}
+					ajax: function(data, callback, settings) {
+						fetch(`${baseUrl}/listForSalesTagging`, {
+							method: 'GET',
+							headers: {
+								'Authorization': `Bearer ${auth.token}`,
+								'Content-Type': 'application/json',
+							},
+						})
+						.then(response => response.json())
+						.then(data => {
+							callback({
+								draw: settings.iDraw,
+								recordsTotal: data.recordsTotal,
+								recordsFiltered: data.recordsFiltered, 
+								data: data.data
+							});
+						})
+						.catch(error => {
+							console.error('Error fetching data:', error);
+						});
 					},
 					scrollX: true,
 					scrollCollapse: true,

@@ -379,16 +379,33 @@
 		}
 
 		async function getListOfUnits() {
+			if ($.fn.DataTable.isDataTable("#list-table")) {
+				$('#list-table').DataTable().clear().destroy();
+			}
+			
 			$("#list-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: {
-					url: `${baseUrl}/listOfForRefurbish`,
-					type: 'GET',
-					dataType: 'json',
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					}
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/listOfForRefurbish`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
@@ -447,13 +464,26 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: {
-					url: `${baseUrl}/getListForApprovalRefurbish/${ current_module_id }`,
-					type: 'GET',
-					dataType: 'json',
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					}
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/getListForApprovalRefurbish/${ current_module_id }`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
 				},
 		  		scrollX: true,
 				scrollCollapse: true,

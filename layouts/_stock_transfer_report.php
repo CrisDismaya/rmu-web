@@ -92,24 +92,36 @@
 		});
 
 		async function display_table(){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/fetch_stock_transfer_approved`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#transfer-approved-table")) {
+				$('#transfer-approved-table').DataTable().clear().destroy();
+			}
 
-			$("#transfer-approved-table").DataTable().destroy();
 			$("#transfer-approved-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/fetch_stock_transfer_approved`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					{ data: "reference_code", className: 'text-center' },
 					{ data: "origin" },

@@ -940,15 +940,28 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: {
-					url: `${baseUrl}/repo`,
-					type: 'GET',
-					dataType: 'json',
-					headers: {
-						'Authorization': `Bearer ${ auth.token }`,
-					},
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/repo`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal, 
+							recordsFiltered: data.recordsFiltered,
+							data: data.data
+						});
+					})
+					.catch(error => {
+							console.error('Error fetching data:', error);
+					});
 				},
-		  		scrollX: true,
+				scrollX: true,
 				scrollCollapse: true,
 				columns: [
 					{ data: "acumatica_id",
@@ -981,7 +994,7 @@
 				dom: 'Bfrtip',
 				buttons: [
 					'excelHtml5'
-				]
+				],
 			});
 
 			$('#add-receive-units').prop('disabled', false)

@@ -102,7 +102,6 @@
 		});
 
 		async function display_table(){
-			
 			if ($.fn.DataTable.isDataTable("#list-for-receive-transfer-table")) {
 				$('#list-for-receive-transfer-table').DataTable().clear().destroy();
 			}
@@ -110,13 +109,29 @@
 			$("#list-for-receive-transfer-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: {
-					url: `${baseUrl}/getAllReceiveStockTransfer`,
-					type: 'GET',
-					dataType: 'json',
-					headers: {
-						'Authorization': `Bearer ${ auth.token }`,
-					}
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/getAllReceiveStockTransfer`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+						data:{
+							'branchId': branchId
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,  
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data 
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
 				},
 		  		scrollX: true,
 				scrollCollapse: true,

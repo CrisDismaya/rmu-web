@@ -85,27 +85,36 @@
 
 
 		async function display_table() {
-			const tableData = await $.ajax({
-				url: `${baseUrl}/appraisalHistory`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				}
-			});
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
+			}
 
-			$("#received-unit-table").DataTable().destroy();
 			$("#received-unit-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
+				processing: true,
+				serverSide: true,
+				ajax: function(data, callback, settings) {
+					fetch(`${baseUrl}/appraisalHistory`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+					})
+					.then(response => response.json())
+					.then(data => {
+						callback({
+							draw: settings.iDraw,
+							recordsTotal: data.recordsTotal,
+							recordsFiltered: data.recordsFiltered, 
+							data: data.data
+						});
+					})
+					.catch(error => {
+						console.error('Error fetching data:', error);
+					});
+				},
 				scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
 				columns: [
 					{
 						data: "branchname"
