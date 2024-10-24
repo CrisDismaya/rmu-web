@@ -205,7 +205,7 @@
 
 											<div class="col-sm-3">
 												<div class="mb-3">
-													<label class="form-label"> Plate Number <span class="text-danger">*</span></label>
+													<label class="form-label"> Plate Number <small class="text-muted">(Optional)</small></label>
 													<input id="unit-plate-number" type="text" class="form-control" value="" placeholder="Enter Plate Number" onkeypress="" autocomplete="off">
 												</div>
 											</div>
@@ -720,7 +720,7 @@
 					}
 					else if(
 						$('#unit-brand').val() == '' || $('#unit-model').val() == '' || $('#unit-model-engine').val().trim() == '' || $('#unit-model-chassis').val().trim() == '' || $('#unit-color').val().trim() == '' ||
-						$('#unit-plate-number').val().trim() == '' || $('#unit-year-model').val().trim() == '' || $('#unit-orcr-status').val().trim() == '' || 
+						$('#unit-year-model').val().trim() == '' || $('#unit-orcr-status').val().trim() == '' || 
 						$('#unit-original-owner').val().trim() == '' || $('#unit-original-owners-id').val().trim() == '' || $('#unit-documents').val().trim() == '' || $('#unit-date-sold').val().trim() == '' || 
 						$('#unit-date-surrender').val().trim() == '' ||  $('#unit-price').val().trim() == '' || $('#unit-loan-amount').val().trim() == '' || $('#unit-principal-balance').val().trim() == '' || 
 						$('#unit-total-payment').val().trim() == '' || $('#unit-loan-number').val().trim() == '' || $('#unit-odo-meter').val().trim() == '' || $('#unit-location').val().trim() == ''
@@ -822,6 +822,8 @@
 				showLoader()
 
 				// console.log(`${ id } - ${ url }`)
+				var unit_plate_number = $('#unit-plate-number').val().trim().toUpperCase();
+
 				var from_data = new FormData();
 				
 				from_data.append('repo_id', $(this).data('repo-id'));
@@ -831,7 +833,7 @@
 				from_data.append('model_engine', $('#unit-model-engine').val().trim().toUpperCase());
 				from_data.append('model_chassis', $('#unit-model-chassis').val().trim().toUpperCase());
 				from_data.append('color_id', $('#unit-color').val());
-				from_data.append('plate_number', $('#unit-plate-number').val().trim().toUpperCase());
+				from_data.append('plate_number', (empty(unit_plate_number) ? '' : unit_plate_number));
 				from_data.append('mv_file_number', $('#unit-mv-file-number').val().trim());
 				from_data.append('year_model', $('#unit-year-model').val().trim());
 				from_data.append('orcr_status', $('#unit-orcr-status').val().trim());
@@ -1505,7 +1507,8 @@
 					$('#unit-brand').val(data.brand_details.id).trigger('change').attr('disabled', attrValue)
 			   	fetch_branch_with_model(data.brand_details.id, data.model_details.id)
 
-               $('#unit-plate-number').val(data.repo.plate_number).attr('disabled', attrValue)
+					var plate_nubmer = (data.repo.plate_number != null ? data.repo.plate_number : "");
+               $('#unit-plate-number').val(plate_nubmer).attr('disabled', attrValue)
                $('#unit-model-engine').val(data.repo.model_engine).attr('disabled', attrValue)
 					color_id = data.repo.color_id;
 

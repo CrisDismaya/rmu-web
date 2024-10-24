@@ -682,7 +682,7 @@
 					sold_type: $('#v_type').val(),
 					repo_id: $('#repo_id').val(),
 					remarks: $('#remarks').val(),
-					module_id: $('#mod').val()
+					module_id: current_module_id
 				}
 
 				if ($('#remarks').val() == '') {
