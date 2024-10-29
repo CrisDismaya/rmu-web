@@ -833,7 +833,7 @@
 				from_data.append('model_engine', $('#unit-model-engine').val().trim().toUpperCase());
 				from_data.append('model_chassis', $('#unit-model-chassis').val().trim().toUpperCase());
 				from_data.append('color_id', $('#unit-color').val());
-				from_data.append('plate_number', (empty(unit_plate_number) ? '' : unit_plate_number));
+				from_data.append('plate_number', (unit_plate_number == '' ? '' : unit_plate_number));
 				from_data.append('mv_file_number', $('#unit-mv-file-number').val().trim());
 				from_data.append('year_model', $('#unit-year-model').val().trim());
 				from_data.append('orcr_status', $('#unit-orcr-status').val().trim());
