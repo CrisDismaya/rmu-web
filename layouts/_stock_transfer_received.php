@@ -116,9 +116,9 @@
 							'Authorization': `Bearer ${auth.token}`,
 							'Content-Type': 'application/json',
 						},
-						data:{
-							'branchId': branchId
-						}
+						//data:{
+						//	'branchId': branchId
+						//}
 					})
 					.then(response => response.json())
 					.then(data => {

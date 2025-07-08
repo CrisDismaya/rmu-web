@@ -192,7 +192,7 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
 
-		var selected_unit = [], record_id = '', moduleid = 0;
+		var selected_unit = [], record_id = '', moduleid = current_module_id;
 		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
 
 		$(document).ready(function(){
