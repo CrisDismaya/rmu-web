@@ -54,6 +54,7 @@
 									<table id="sales-tagging-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
+												<th>Transaction Number</th>
 												<th>Branch</th>
 												<th>Invoice Reference #</th>
 												<th>External Reference #</th>
@@ -906,31 +907,23 @@
 				$("#sales-tagging-table").DataTable({
 					processing: true,
 					serverSide: true,
-					ajax: function(data, callback, settings) {
-						fetch(`${baseUrl}/getListForApproval/${ current_module_id }`, {
-							method: 'GET',
-							headers: {
-								'Authorization': `Bearer ${auth.token}`,
-								'Content-Type': 'application/json',
-							},
-						})
-						.then(response => response.json())
-						.then(data => {
-							callback({
-								draw: settings.iDraw,
-								recordsTotal: data.recordsTotal,
-								recordsFiltered: data.recordsFiltered, 
-								data: data.data
-							});
-						})
-						.catch(error => {
-							console.error('Error fetching data:', error);
-						});
+					ajax: {
+						url: `${baseUrl}/getListForApproval/${ current_module_id }`,
+						type: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+						error: function (xhr, error, thrown) {
+							console.error('DataTables AJAX error:', error, thrown);
+						}
 					},
 					scrollX: true,
 					scrollCollapse: true,
 					columns: [
-
+						{
+							data: "transaction_number"
+						},
 						{
 							data: "branchname"
 						},
@@ -1287,30 +1280,21 @@
 				new_uplod = true
 				$('#uploaded_rnr').html(`<input type="file" id="v_rnr-uploader"></input>`)
 			}
+
 			async function listForTagging() {
 				$("#received-unit-table").DataTable({
 					processing: true,
 					serverSide: true,
-					ajax: function(data, callback, settings) {
-						fetch(`${baseUrl}/listForSalesTagging`, {
-							method: 'GET',
-							headers: {
-								'Authorization': `Bearer ${auth.token}`,
-								'Content-Type': 'application/json',
-							},
-						})
-						.then(response => response.json())
-						.then(data => {
-							callback({
-								draw: settings.iDraw,
-								recordsTotal: data.recordsTotal,
-								recordsFiltered: data.recordsFiltered, 
-								data: data.data
-							});
-						})
-						.catch(error => {
-							console.error('Error fetching data:', error);
-						});
+					ajax: {
+						url: `${baseUrl}/listForSalesTagging`,
+						type: 'GET',
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+							'Content-Type': 'application/json',
+						},
+						error: function (xhr, error, thrown) {
+							console.error('DataTables AJAX error:', error, thrown);
+						}
 					},
 					scrollX: true,
 					scrollCollapse: true,

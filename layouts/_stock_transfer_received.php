@@ -109,29 +109,16 @@
 			$("#list-for-receive-transfer-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/getAllReceiveStockTransfer`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-						//data:{
-						//	'branchId': branchId
-						//}
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,  
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data 
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/getAllReceiveStockTransfer`, // Your Laravel API endpoint
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 		  		scrollX: true,
 				scrollCollapse: true,

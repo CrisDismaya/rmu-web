@@ -351,10 +351,6 @@
 						}
 					}
 				],
-				dom: 'Bfrtip',
-				buttons: [
-					'excelHtml5'
-				]
 			});
 		}
 		
@@ -394,10 +390,6 @@
 					{ data: "model_chassis" },
 					{ data: "color_name" },
 					{ data: "plate_number" },
-				],
-				dom: 'Bfrtip',
-				buttons: [
-					'excelHtml5'
 				]
 			});
 		}

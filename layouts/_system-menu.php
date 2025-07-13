@@ -195,6 +195,7 @@
 						parent_menu : $('#parent-menu').val(),
 						menu_name : $('#menu-name').val().trim(),
 						menu_file_path : $('#menu-file-path').val().trim(),
+						menu_status : $('#status').val(),
                },
 					success: function (data) { 
                   // console.log(data)
@@ -375,9 +376,12 @@
 				columns: [
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-							html = `<i class="ri-edit-2-fill" 
-							onclick="selectMenu(${ oData.id }, '${ oData.category_name }', '${ oData.parent_id }', '${ oData.menu_name }', '${ oData.file_path }')"
-							style="cursor:pointer;color:red" title="edit"></i>`;
+							html = `
+							<i class="ri-edit-2-fill" 
+								onclick="selectMenu(${ oData.id }, '${ oData.category_name }', '${ oData.parent_id }', '${ oData.menu_name }', '${ oData.file_path }', '${ oData.menu_status }')"
+								style="cursor:pointer; color:red" title="edit"
+							></i>
+							`;
 							$(nTd).html(html);
 						}
 					},
@@ -409,12 +413,14 @@
 				]
 			});
 		}
-		function selectMenu(id,category,parentid,menuname,filepath){
+		function selectMenu(id,category,parentid,menuname,filepath, menuStatus){
 			$('#save-access-menu').data('id', id);
 			$('#category-menu').val(category).trigger('change');
 			$('#parent-menu').val(parentid).trigger('change');
 			$('#menu-name').val(menuname)
 			$('#menu-file-path').val(filepath)
+			$('#edit-status').show();
+			$('#status').val(menuStatus == 'Active' ? '1' : '0').trigger('change');
 		}
 		function setApproval(moduleid,page){
 

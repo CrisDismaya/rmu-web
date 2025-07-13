@@ -52,6 +52,7 @@
 										<thead>
 											<tr>
 												<th></th>
+												<th>Inventory IN/OUT</th>
 												<th>Branch</th>
 												<th>Location</th>
 												<th> Ex Owner </th>
@@ -189,33 +190,24 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/InventoryMasterList`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-						data:{
-							'branchId': branchId
-						}
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered,
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/InventoryMasterList`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					data:{
+						'branchId': branchId
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				columns: [{
+				columns: [
+					{
 						data: null,
 						defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
@@ -225,6 +217,9 @@
 
 							$(nTd).html(html);
 						}
+					},
+					{
+						data: "transacton_number", className: "fw-semibold"
 					},
 					{
 						data: "branchname"
