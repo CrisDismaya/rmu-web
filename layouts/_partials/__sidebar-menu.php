@@ -85,7 +85,8 @@
 
 									<div id="notif-list"></div>
 
-                                </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 496px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 181px; display: block; transform: translate3d(0px, 0px, 0px);"></div></div></div>
+                                </div></div></div></div>
+										  <div class="simplebar-placeholder" style="width: auto; height: 496px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 181px; display: block; transform: translate3d(0px, 0px, 0px);"></div></div></div>
 
                             </div>
                            
@@ -208,6 +209,7 @@
 			<div class="container-fluid">
 				<div id="two-column-menu"></div>
 				<ul class="navbar-nav" id="navbar-nav">
+					<li class="menu-title"><span data-key="t-menu" style="visibility: hidden;">Menu</span></li>
 					<!--  -->
 					<div id="sidebar-container"></div>
 				</ul>

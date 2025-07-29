@@ -38,6 +38,7 @@
 						</div>
 					</div>
 
+					<!-- table -->
 					<div class="row">
 						<!-- table -->
 						<div class="col-lg-12">
@@ -62,7 +63,6 @@
 												<th> Brand </th>
 												<th> Model </th>
 												<th> Color </th>
-
 												<th style="text-align: left !important;">Price </th>
 												<th> Engine </th>
 												<th> Chassis </th>
@@ -93,15 +93,13 @@
 			</div>
 
 			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-				<div class="modal-dialog modal-xl" id="modal-tag" role="document">
+				<div class="modal-dialog modal-dialog-scrollable modal-xl" id="modal-tag" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
 							<h5 class="modal-title" id="myExtraLargeModalLabel"> Sales Details </h5>
 							<button type="button" onclick="closeModal()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
-						<div class="modal-body container">
-
-							<div class="card pa-2">
+						<div class="modal-body">
 								<!--search for repo details-->
 								<div class="row" id="list">
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
@@ -123,162 +121,224 @@
 
 								<!--repo inputed details for sale tagging-->
 								<div class="row" id="details">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-12 seperator">
-										<div class="col-12">
-
-											<label for="customer-name" class="col-form-label">Branch</label>
-											<input type="text" class="form-control" id="branch" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-
-											<label for="customer-name" class="col-form-label">Brand</label>
-											<input type="text" class="form-control" id="brand" placeholder="Brand" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Model</label>
-											<input type="text" class="form-control" id="model" placeholder="Model" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Color</label>
-											<input type="text" class="form-control" id="color" placeholder="Model" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Engine</label>
-											<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Chassis #</label>
-											<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Selling Price (This includes refurbish parts cost if any)</label>
-											<input type="text" class="form-control" id="price" autocomplete="off" disabled>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Ex. owner</label>
-											<input type="text" class="form-control" id="ex_owner" autocomplete="off" disabled>
-										</div>
-									</div>
-									<div class="col-lg-6 col-md-6 col-sm-6 col-12">
-										<div class="col-12">
-											<input type="hidden" id="tag-id">
-											<input type="hidden" id="repo_id">
-											<input type="hidden" id="received_id">
-											<label for="customer-name" class="col-form-label">Invoice #</label>
-											<input type="text" class="form-control" id="invoice" placeholder="Invoice #" autocomplete="off">
-										</div>
-										<div class="col-12">
-											<div class="row">
-												<div class="col-6 form-icon right">
-													<label class="col-form-label"> Agent <small class="text-muted">(Optional)</small></label>
-													<select id="agent" class="select-single">
-														<option></option>
-													</select>
-													<i class="bx bx-hourglass bx-spin font-size-16 align-middle me-2" id="agent-loader" style="bottom: -35px; right:120px;"></i>
-												</div>
-												<div class="col-6">
-													<label class="col-form-label"> External Reference # </label>
-													<input type="text" class="form-control" id="external_ref" placeholder="External Reference #" autocomplete="off">
-												</div>
+									<!-- Unit Information -->
+									<div class="col-lg-12 col-md-12 col-sm-12">
+										<div class="card border card-border-primary">
+											<div class="card-header">
+												<h6 class="card-title mb-0"> Unit Information </h6>
 											</div>
-										</div>
-										<div class="col-12">
-											<div class="row">
-												<div class="col-6">
-													<label class="col-form-label"> Sale Type </label>
-													<select id="type" class="select-single">
-														<option></option>
-														<option value="C">Cash</option>
-														<option value="I">Installment</option>
-													</select>
-												</div>
-												<div class="col-6">
-													<label class="col-form-label"> Sold To </label>
-													<select id="new_owner" class="select-single-modal"></select>
-												</div>
-											</div>
-										</div>
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Sold Date</label>
-											<input type="date" class="form-control" id="sold_date" autocomplete="off">
-										</div>
-										<div class="col-12" id="amo_pd">
-											<label for="customer-name" class="col-form-label">Amount Paid</label>
-											<input type="number" class="form-control" id="amount_paid" autocomplete="off">
-										</div>
-										<div id="installment_det">
-											<div class="col-12">
-												<label for="customer-name" class="col-form-label">Downpayment</label>
-												<input type="number" class="form-control" id="dp" autocomplete="off" onchange="calculateAmountFinance()">
-											</div>
-											<div class="col-12">
+											<div class="card-body">
 												<div class="row">
-													<div class="col-6">
-														<label class="col-form-label"> Rate </label>
-														<select id="rate" class="select-single" onchange="calculateInterestRate()">
-															<option>--Select Rate--</option>
-															<option value="0.01">1 %</option>
-															<option value="0.015">1.5 %</option>
-															<option value="0.03">3 %</option>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Branch</label>
+														<input type="text" class="form-control" id="branch" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Brand</label>
+														<input type="text" class="form-control" id="brand" placeholder="Brand" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Model</label>
+														<input type="text" class="form-control" id="model" placeholder="Model" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Color</label>
+														<input type="text" class="form-control" id="color" placeholder="Model" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Engine</label>
+														<input type="text" class="form-control" id="engine" placeholder="Engine #" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Chassis #</label>
+														<input type="text" class="form-control" id="chassis" placeholder="Chassis #" autocomplete="off" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Selling Price </label>
+														<input type="text" class="form-control" id="price" autocomplete="off" disabled>
+														<span class="text-muted">Note: <i>This includes refurbish parts cost if any</i></span>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Ex. owner</label>
+														<input type="text" class="form-control" id="ex_owner" autocomplete="off" disabled>
+													</div>
+
+												</div><!-- end row -->
+											</div><!-- end card-body -->
+										</div><!-- end card -->
+									</div><!-- end col -->
+
+									<!-- Payment Details -->
+									<div class="col-lg-12 col-md-12 col-sm-12">
+										<div class="card border card-border-primary">
+											<div class="card-header">
+												<h6 class="card-title mb-0"> Payment Details </h6>
+											</div>
+											<div class="card-body">
+												<div class="row">
+													<input type="hidden" id="tag-id">
+													<input type="hidden" id="repo_id">
+													<input type="hidden" id="received_id">
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> Agent <small class="text-muted">(Optional)</small></label>
+														<select id="agent" class="select-single">
+															<option>Select Agent</option>
 														</select>
 													</div>
-													<div class="col-6">
-														<label for="customer-name" class="col-form-label">Rebate</label>
-														<input type="number" class="form-control" id="rebate" autocomplete="off">
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Invoice #</label>
+														<input type="text" class="form-control" id="invoice" placeholder="Invoice #" autocomplete="off">
 													</div>
-												</div>
-											</div>
-											<div class="col-12">
-												<div class="row">
-													<div class="col-6">
-														<label class="col-form-label"> Terms </label>
-														<select id="terms" class="select-single" onchange="calculateInterestRate()">
-															<option>--Select Terms--</option>
-															<option value="6">6 Months</option>
-															<option value="12">12 Months</option>
-															<option value="18">18 Months</option>
-															<option value="24">24 Months</option>
-															<option value="36">36 Months</option>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> External Reference # </label>
+														<input type="text" class="form-control" id="external_ref" placeholder="External Reference #" autocomplete="off">
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> Sale Type </label>
+														<select id="type" class="select-single">
+															<option>Select Sale Type</option>
+															<option value="C">Cash</option>
+															<option value="I">Installment</option>
 														</select>
 													</div>
-													<div class="col-6">
-														<label for="customer-name" class="col-form-label">Interest Rate</label>
-														<input type="number" class="form-control" id="interest-rate" autocomplete="off" onchange="calculateAmortization()" disabled>
-													</div>
-												</div>
 
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> Sold To </label>
+														<select id="new_owner" class="select-single-modal"></select>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Sold Date</label>
+														<input type="date" class="form-control" id="sold_date" autocomplete="off">
+													</div>
+
+													<div id="amo_pd">
+														<div class="row">
+															<div class="col-md-4 col-sm-6 col-12" id="amo_pd">
+																<label class="col-form-label">Amount Paid</label>
+																<input type="number" class="form-control" id="amount_paid" autocomplete="off">
+															</div>
+														</div>
+													</div>
+
+													<div id="installment_det">
+														<div class="row">
+															<div class="col-md-4 col-sm-6 col-12">
+																<label class="col-form-label"> Rate </label>
+																<select id="rate" class="select-single" onchange="calculateInterestRate()">
+																	<option value="">--Select Rate--</option>
+																	<option value="0.01">1 %</option>
+																	<option value="0.015">1.5 %</option>
+																	<option value="0.03">3 %</option>
+																</select>
+															</div>
+
+															<div class="col-md-4 col-sm-6 col-12">
+																<label class="col-form-label">Rebate</label>
+																<input type="number" class="form-control" id="rebate" autocomplete="off" placeholder="0">
+															</div>
+
+															<div class="col-md-4 col-sm-6 col-12" id="rnr">
+																<label class="col-form-label">Please Upload Approved RNR</label>
+																<input class="form-control" type="file" id="rnr-uploader" />
+															</div>
+														</div>
+
+														<div class="row">
+															<div class="col-md-4 col-sm-6 col-12">
+																<label class="col-form-label"> Terms </label>
+																<select id="terms" class="select-single" onchange="calculateInterestRate()">
+																	<option>--Select Terms--</option>
+																	<option value="6">6 Months</option>
+																	<option value="12">12 Months</option>
+																	<option value="18">18 Months</option>
+																	<option value="24">24 Months</option>
+																	<option value="36">36 Months</option>
+																</select>
+															</div>
+
+															<div class="col-md-4 col-sm-6 col-12">
+																<label for="customer-name" class="col-form-label">Downpayment</label>
+																<input type="number" class="form-control" id="dp" autocomplete="off" onkeyup="calculateAmountFinance()" placeholder="0">
+															</div>
+														</div>
+
+														<div class="row">
+															<div class="col-md-4 col-sm-6 col-12">
+																<label for="customer-name" class="col-form-label">Interest Rate</label>
+																<input type="number" class="form-control" id="interest-rate" autocomplete="off" onchange="calculateAmortization()" placeholder="0" disabled>
+															</div>
+
+															<div class="col-md-4 col-sm-6 col-12">
+																<label for="customer-name" class="col-form-label">Amount Finance</label>
+																<input type="number" class="form-control" id="amount_finance" autocomplete="off" placeholder="0" disabled>
+															</div>
+
+															<div class="col-md-4 col-sm-6 col-12">
+																<label for="customer-name" class="col-form-label">Monthly Amortization</label>
+																<input type="number" class="form-control" id="monthly" autocomplete="off" placeholder="0" disabled>
+															</div>
+															
+														</div>
+													</div>
+
+												</div><!-- end row -->
+											</div><!-- end card-body -->
+										</div><!-- end card -->
+									</div><!-- end col -->
+
+									<!-- Payment Tagging Details -->
+									<div class="col-lg-12 col-md-12 col-sm-12">
+										<div class="card border card-border-primary mb-0">
+											<div class="card-header">
+												<h6 class="card-title mb-0"> Payment Tagging Details </h6>
 											</div>
-											<div class="col-12">
+											<div class="card-body">
 												<div class="row">
-													<div class="col-6">
-														<label for="customer-name" class="col-form-label">Amount Finance</label>
-														<input type="number" class="form-control" id="amount_finance" autocomplete="off" disabled>
-													</div>
-													<div class="col-6">
-														<label for="customer-name" class="col-form-label">Monthly Amortization</label>
-														<input type="number" class="form-control" id="monthly" autocomplete="off" disabled>
-													</div>
-												</div>
 
-											</div>
-											<div class="col-12" id="rnr">
-												<label for="customer-name" class="col-form-label">Please Upload Approved RNR</label>
-												<div>
-													<input type="file" id="rnr-uploader" />
-												</div>
-											</div>
-										</div>
-									</div>
+													<div class="col-md-6 col-sm-6 col-12">
+														<label class="col-form-label"> Collector's Receipt No </label>
+														<input type="text" class="form-control" id="pt_receipt_no" autocomplete="off" placeholder="CR#XXXXXX">
+													</div>
+
+													<div class="col-md-6 col-sm-6 col-12">
+														<label class="col-form-label"> Date of Payment </label>
+														<input type="date" class="form-control" id="pt_date" autocomplete="off">
+													</div>
+
+													<div class="col-md-6 col-sm-6 col-12">
+														<label class="col-form-label"> Bank </label>
+														<input type="text" class="form-control" id="pt_bank" autocomplete="off" placeholder="Bank Name">
+													</div>
+
+													<div class="col-md-6 col-sm-6 col-12">
+														<label class="col-form-label"> Amount </label>
+														<input type="number" class="form-control" id="pt_amount" autocomplete="off" placeholder="0">
+													</div>
+
+												</div><!-- end row -->
+											</div><!-- end card-body -->
+										</div><!-- end card -->
+									</div><!-- end col -->
 								</div>
 								<!-- end card body -->
-
-							</div>
 						</div>
 						<div class="modal-footer btn-save-footer note1">
 							<button id="save-details" data-id="0" type="button" class="btn btn-primary" data-receive-unit-id="0">Submit</button>
 							<button id="back" onclick="backToSearch()" data-id="0" type="button" class="btn btn-primary">Back</button>
 							<!-- <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a> -->
-
 						</div>
 
 					</div>
@@ -287,185 +347,239 @@
 		</div>
 		
 		<div class="modal fade" id="approvalModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog modal-xl" role="document">
+			<div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="myExtraLargeModalLabel"> Sales Details </h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
-					<div class="modal-body container">
-
-						<div class="card pa-2">
-
-
-
-							<!--repo inputed details for sale tagging-->
-							<div class="row" id="details">
-								<div class="col-lg-6 col-md-6 col-sm-6 col-12 seperator">
-									<div class="col-12">
-
-										<label for="customer-name" class="col-form-label">Branch</label>
-										<input type="text" class="form-control" id="v_branch" autocomplete="off" disabled>
+					<div class="modal-body">
+						
+						<div class="row" id="details">
+							<!-- Unit Information -->
+							<div class="col-lg-12 col-md-12 col-sm-12">
+								<div class="card border card-border-primary">
+									<div class="card-header">
+										<h6 class="card-title mb-0"> Unit Information </h6>
 									</div>
-									<div class="col-12">
-
-										<label for="customer-name" class="col-form-label">Brand</label>
-										<input type="text" class="form-control" id="v_brand" placeholder="Brand" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Model</label>
-										<input type="text" class="form-control" id="v_model" placeholder="Model" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Color</label>
-										<input type="text" class="form-control" id="v_color" placeholder="Model" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Engine</label>
-										<input type="text" class="form-control" id="v_engine" placeholder="Engine #" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Chassis #</label>
-										<input type="text" class="form-control" id="v_chassis" placeholder="Chassis #" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Selling Price</label>
-										<input type="text" class="form-control" id="v_price" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Ex. owner</label>
-										<input type="text" class="form-control" id="v_ex_owner" autocomplete="off" disabled>
-									</div>
-								</div>
-								<div class="col-lg-6 col-md-6 col-sm-6 col-12">
-									<div class="col-12">
-										<input type="hidden" id="tag-id">
-										<input type="hidden" id="repo_id">
-										<input type="hidden" id="received_id">
-										<label for="customer-name" class="col-form-label">Invoice #</label>
-										<input type="text" class="form-control" id="v_invoice" placeholder="" autocomplete="off" disabled>
-									</div>
-									<div class="col-12">
+									<div class="card-body">
 										<div class="row">
-											<div class="col-6 form-icon right">
-												<label class="col-form-label"> Agent</label>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Branch</label>
+												<input type="text" class="form-control" id="v_branch" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Brand</label>
+												<input type="text" class="form-control" id="v_brand" placeholder="Brand" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Model</label>
+												<input type="text" class="form-control" id="v_model" placeholder="Model" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Color</label>
+												<input type="text" class="form-control" id="v_color" placeholder="Model" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Engine</label>
+												<input type="text" class="form-control" id="v_engine" placeholder="Engine #" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Chassis #</label>
+												<input type="text" class="form-control" id="v_chassis" placeholder="Chassis #" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Selling Price </label>
+												<input type="text" class="form-control" id="v_price" autocomplete="off" disabled>
+												<span class="text-muted">Note: <i>This includes refurbish parts cost if any</i></span>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Ex. owner</label>
+												<input type="text" class="form-control" id="v_ex_owner" autocomplete="off" disabled>
+											</div>
+
+										</div><!-- end row -->
+									</div><!-- end card-body -->
+								</div><!-- end card -->
+							</div><!-- end col -->
+
+							<!-- Payment Details -->
+							<div class="col-lg-12 col-md-12 col-sm-12">
+								<div class="card border card-border-primary">
+									<div class="card-header">
+										<h6 class="card-title mb-0"> Payment Details </h6>
+									</div>
+									<div class="card-body">
+										<div class="row">
+											<input type="hidden" id="tag-id">
+											<input type="hidden" id="repo_id">
+											<input type="hidden" id="received_id">
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label"> Agent <small class="text-muted">(Optional)</small></label>
 												<select id="v_agent" class="select-single" disabled>
-													<option></option>
-
+													<option>Select Agent</option>
 												</select>
-												<i class="bx bx-hourglass bx-spin font-size-16 align-middle me-2" id="v-agent-loader" style="bottom: -35px; right:120px;"></i>
 											</div>
-											<div class="col-6">
+
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Invoice #</label>
+												<input type="text" class="form-control" id="v_invoice" placeholder="Invoice #" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-4 col-sm-6 col-12">
 												<label class="col-form-label"> External Reference # </label>
-												<input type="text" class="form-control" id="v_external_ref" placeholder="Invoice #" autocomplete="off" disabled>
+												<input type="text" class="form-control" id="v_external_ref" placeholder="External Reference #" autocomplete="off" disabled>
 											</div>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="row">
-											<div class="col-6">
+
+											<div class="col-md-4 col-sm-6 col-12">
 												<label class="col-form-label"> Sale Type </label>
 												<select id="v_type" class="select-single" disabled>
-													<option></option>
+													<option>Select Sale Type</option>
 													<option value="C">Cash</option>
 													<option value="I">Installment</option>
 												</select>
 											</div>
-											<div class="col-6">
+
+											<div class="col-md-4 col-sm-6 col-12">
 												<label class="col-form-label"> Sold To </label>
-												<select id="v_new_owner" class="select-single" disabled></select>
+												<select id="v_new_owner" class="select-single-modal" disabled></select>
 											</div>
-										</div>
-									</div>
-									<div class="col-12">
-										<label for="customer-name" class="col-form-label">Sold Date</label>
-										<input type="date" class="form-control" id="v_sold_date" autocomplete="off" disabled>
-									</div>
 
-									<div class="col-12" id="v_amo_pd">
-										<label for="customer-name" class="col-form-label">Amount Paid</label>
-										<input type="number" class="form-control" id="v_amount_paid" autocomplete="off">
-									</div>
-
-									<div id="v_installment_det">
-										<div class="col-12">
-											<label for="customer-name" class="col-form-label">Downpayment</label>
-											<input type="number" class="form-control" id="v_dp" autocomplete="off" onchange="calculateAmountFinance()" disabled>
-										</div>
-										<div class="col-12">
-											<div class="row">
-												<div class="col-6">
-													<label class="col-form-label"> Rate </label>
-													<select id="v_rate" class="select-single" onchange="calculateInterestRate()" disabled>
-														<option>--Select Rate--</option>
-														<option value="0.01">1 %</option>
-														<option value="0.015">1.5 %</option>
-														<option value="0.03">3 %</option>
-													</select>
-												</div>
-												<div class="col-6">
-													<label for="customer-name" class="col-form-label">Rebate</label>
-													<input type="number" class="form-control" id="v_rebate" autocomplete="off" disabled>
-												</div>
+											<div class="col-md-4 col-sm-6 col-12">
+												<label class="col-form-label">Sold Date</label>
+												<input type="date" class="form-control" id="v_sold_date" autocomplete="off" disabled>
 											</div>
-										</div>
-										<div class="col-12">
-											<div class="row">
-												<div class="col-6">
-													<label class="col-form-label"> Terms </label>
-													<select id="v_terms" class="select-single" onchange="calculateInterestRate()" disabled>
-														<option>--Select Terms--</option>
-														<option value="6">6 Months</option>
-														<option value="12">12 Months</option>
-														<option value="18">18 Months</option>
-														<option value="24">24 Months</option>
-														<option value="36">36 Months</option>
-													</select>
-												</div>
-												<div class="col-6">
-													<label for="customer-name" class="col-form-label">Interest Rate</label>
-													<input type="number" class="form-control" id="v_interest-rate" autocomplete="off" onchange="calculateAmortization()" disabled>
+
+											<div id="v_amo_pd">
+												<div class="row">
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Amount Paid</label>
+														<input type="number" class="form-control" id="amount_paid" autocomplete="off" disabled>
+													</div>
 												</div>
 											</div>
 
-										</div>
-										<div class="col-12">
-											<div class="row">
-												<div class="col-6">
-													<label for="customer-name" class="col-form-label">Amount Finance</label>
-													<input type="number" class="form-control" id="v_amount_finance" autocomplete="off" disabled>
+											<div id="v_installment_det">
+												<div class="row">
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> Rate </label>
+														<select id="v_rate" class="select-single" onchange="calculateInterestRate()" disabled>
+															<option value="">--Select Rate--</option>
+															<option value="0.01">1 %</option>
+															<option value="0.015">1.5 %</option>
+															<option value="0.03">3 %</option>
+														</select>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label">Rebate</label>
+														<input type="number" class="form-control" id="v_rebate" autocomplete="off" placeholder="0" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12" id="v_rnr">
+														<label class="col-form-label">Please Upload Approved RNR</label>
+														<input class="form-control" type="file" id="v_rnr-uploader" disabled/>
+													</div>
 												</div>
-												<div class="col-6">
-													<label for="customer-name" class="col-form-label">Monthly Amortization</label>
-													<input type="number" class="form-control" id="v_monthly" autocomplete="off" disabled>
+
+												<div class="row">
+													<div class="col-md-4 col-sm-6 col-12">
+														<label class="col-form-label"> Terms </label>
+														<select id="v_terms" class="select-single" onchange="calculateInterestRate()" disabled>
+															<option>--Select Terms--</option>
+															<option value="6">6 Months</option>
+															<option value="12">12 Months</option>
+															<option value="18">18 Months</option>
+															<option value="24">24 Months</option>
+															<option value="36">36 Months</option>
+														</select>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label for="customer-name" class="col-form-label">Downpayment</label>
+														<input type="number" class="form-control" id="v_dp" autocomplete="off" onkeyup="calculateAmountFinance()" placeholder="0" disabled>
+													</div>
+												</div>
+
+												<div class="row">
+													<div class="col-md-4 col-sm-6 col-12">
+														<label for="customer-name" class="col-form-label">Interest Rate</label>
+														<input type="number" class="form-control" id="v_interest-rate" autocomplete="off" onchange="calculateAmortization()" placeholder="0" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label for="customer-name" class="col-form-label">Amount Finance</label>
+														<input type="number" class="form-control" id="v_amount_finance" autocomplete="off" placeholder="0" disabled>
+													</div>
+
+													<div class="col-md-4 col-sm-6 col-12">
+														<label for="customer-name" class="col-form-label">Monthly Amortization</label>
+														<input type="number" class="form-control" id="v_monthly" autocomplete="off" placeholder="0" disabled>
+													</div>
+													
 												</div>
 											</div>
 
-										</div>
-										<div class="col-12" id="v_rnr">
-											<label for="customer-name" class="col-form-label">Uploaded Approved RNR</label>
-											<div id="uploaded_rnr"></div>
-										</div>
-									</div>
+										</div><!-- end row -->
+									</div><!-- end card-body -->
+								</div><!-- end card -->
+							</div><!-- end col -->
 
-								</div>
-							</div>
+							<!-- Payment Tagging Details -->
+							<div class="col-lg-12 col-md-12 col-sm-12">
+								<div class="card border card-border-primary mb-0">
+									<div class="card-header">
+										<h6 class="card-title mb-0"> Payment Tagging Details </h6>
+									</div>
+									<div class="card-body">
+										<div class="row">
+
+											<div class="col-md-6 col-sm-6 col-12">
+												<label class="col-form-label"> Collector's Receipt No </label>
+												<input type="text" class="form-control" id="v_pt_receipt_no" autocomplete="off" placeholder="CR#XXXXXX" disabled>
+											</div>
+
+											<div class="col-md-6 col-sm-6 col-12">
+												<label class="col-form-label"> Date of Payment </label>
+												<input type="date" class="form-control" id="v_pt_date" autocomplete="off" disabled>
+											</div>
+
+											<div class="col-md-6 col-sm-6 col-12">
+												<label class="col-form-label"> Bank </label>
+												<input type="text" class="form-control" id="v_pt_bank" autocomplete="off" placeholder="Bank Name" disabled>
+											</div>
+
+											<div class="col-md-6 col-sm-6 col-12">
+												<label class="col-form-label"> Amount </label>
+												<input type="number" class="form-control" id="v_pt_amount" autocomplete="off" placeholder="0" disabled>
+											</div>
+
+										</div><!-- end row -->
+									</div><!-- end card-body -->
+								</div><!-- end card -->
+							</div><!-- end col -->
 
 							<div class="col-12">
 								<label for="customer-name" class="col-form-label">Remarks</label>
-								<textarea class="form-control" id="remarks" rows="3"></textarea>
+								<textarea class="form-control" id="remarks" rows="3" placeholder="Reason"></textarea>
 								<span id="approver-remarks" style="color:red"></span>
 							</div>
-							<!-- end card body -->
-
 						</div>
+
 					</div>
 					<div class="modal-footer btn-save-footer note1">
 						<button onclick="updateRequest()" type="button" class="btn btn-primary maker">Update</button>
 						<button onclick="decision(1)" type="button" class="btn btn-primary approver" data-receive-unit-id="0">Approve</button>
 						<button onclick="decision(2)" data-id="0" type="button" class="btn btn-primary approver">Disapprove</button>
-
-
 					</div>
 
 				</div>
@@ -505,15 +619,15 @@
 				$('#amo_pd').hide()
 
 				$('#tagunit').click(function() {
-
-
 					setTimeout(() => {
 						listForTagging()
 					}, 100);
 				})
 
 				$('#rate').change(function() {
-					if (this.value != '0.03') {
+					const rateValue = this.value != '0.03' || this.value == '';
+
+					if (rateValue) {
 						$('#rnr').show()
 					} else {
 						$('#rnr').hide()
@@ -521,7 +635,9 @@
 				})
 
 				$('#v_rate').change(function() {
-					if (this.value != '0.03') {
+					const rateValue = this.value != '0.03' || this.value == '';
+					
+					if (rateValue) {
 						$('#v_rnr').show()
 					} else {
 						$('#v_rnr').hide()
@@ -617,6 +733,23 @@
 						}
 					}
 
+					if ($('#pt_receipt_no').val() == '') {
+						toast(`#Payment Tagging Details > Collector's Receipt No field is required`, 'danger');
+						return false
+					}
+					if ($('#pt_date').val() == '') {
+						toast('#Payment Tagging Details > Date of Payment field is required', 'danger');
+						return false
+					}
+					if ($('#pt_bank').val() == '') {
+						toast('#Payment Tagging Details > Bank field is required', 'danger');
+						return false
+					}
+					if ($('#pt_amount').val() == '') {
+						toast('#Payment Tagging Details > Amount field is required', 'danger');
+						return false
+					}
+
 
 					showLoader() //function show loader
 
@@ -641,6 +774,12 @@
 					formData.append("rate", $('#type').val() == 'I' ? $('#rate').val() : '');
 					formData.append("module_id", current_module_id);
 					formData.append("rnr", $('#rnr-uploader')[0].files[0]);
+					
+					formData.append("pt_receipt_no", $('#pt_receipt_no').val());
+					formData.append("pt_date", $('#pt_date').val());
+					formData.append("pt_bank", $('#pt_bank').val());
+					formData.append("pt_amount", $('#pt_amount').val());
+
 					$.ajax({
 						url: `${baseUrl}/tagUnit`,
 						type: 'POST',
@@ -917,6 +1056,10 @@
 						error: function (xhr, error, thrown) {
 							console.error('DataTables AJAX error:', error, thrown);
 						}
+					},	
+					fixedColumns: {
+						left: 0,
+						right: 1
 					},
 					scrollX: true,
 					scrollCollapse: true,
@@ -1059,7 +1202,8 @@
                                             ,'${ oData.sold_date}','${ oData.dp}','${ oData.monthly_amo}'
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}','${ oData.remarks}'
-											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}')"> 
+											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}')"> 
                                                 <i class="ri-edit-box-line"></i> edit
                                             </button>
 											<button class="btn btn-sm btn-soft-warning"  
@@ -1086,7 +1230,8 @@
                                             ,'${ oData.sold_date}','${ oData.dp}','${ oData.monthly_amo}'
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}'
-											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}')"> 
+											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}')"> 
                                                 <i class="ri-edit-box-line"></i> Submit Decision
                                             </button> 
                                         `;
@@ -1138,7 +1283,8 @@
 
 			function submitApproval(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
-				interest_rate, amount_finance, filename, path, amount_paid, external_ref, agentId) {
+				interest_rate, amount_finance, filename, path, amount_paid, external_ref, agentId,
+				pt_receipt_no, pt_date, pt_bank, pt_amount) {
 
 				$('#v_rnr').hide()
 
@@ -1196,11 +1342,16 @@
 
 				}, 1000);
 
+				$('#v_pt_receipt_no').val(pt_receipt_no)
+				$('#v_pt_date').val(pt_date)
+				$('#v_pt_bank').val(pt_bank)
+				$('#v_pt_amount').val(pt_amount)
 			}
 
 			function edit(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
-				interest_rate, amount_finance, filename, path, remarks, amount_paid, external_ref, agentId) {
+				interest_rate, amount_finance, filename, path, remarks, amount_paid, external_ref, agentId,
+				pt_receipt_no, pt_date, pt_bank, pt_amount) {
 
 
 				let type = sale_type == 'INSTALLMENT' ? 'I' : 'C'
@@ -1274,6 +1425,10 @@
 
 				}, 500);
 
+				$('#v_pt_receipt_no').val(pt_receipt_no)
+				$('#v_pt_date').val(pt_date)
+				$('#v_pt_bank').val(pt_bank)
+				$('#v_pt_amount').val(pt_amount)
 			}
 
 			function uploadNew() {
@@ -1282,6 +1437,10 @@
 			}
 
 			async function listForTagging() {
+				if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+					$('#received-unit-table').DataTable().clear().destroy();
+				}
+				
 				$("#received-unit-table").DataTable({
 					processing: true,
 					serverSide: true,
@@ -1295,6 +1454,10 @@
 						error: function (xhr, error, thrown) {
 							console.error('DataTables AJAX error:', error, thrown);
 						}
+					},
+					fixedColumns: {
+						left: 0,
+						right: 1
 					},
 					scrollX: true,
 					scrollCollapse: true,
@@ -1350,7 +1513,6 @@
 			}
 
 			function tag(id, repo_id, brand, model, engine, chassis, exowner, color, branchname, price) {
-
 				$('#received_id').val(id)
 				$('#repo_id').val(repo_id)
 				$('#brand').val(brand)
@@ -1365,8 +1527,8 @@
 				$('#list').hide()
 				$('#save-details').show()
 				$('#back').show()
-				fetchAgentList('D', null)
 				fetch_customer_profile_list('D', null)
+				fetchAgentList('D', null)
 			}
 
 			function backToSearch() {

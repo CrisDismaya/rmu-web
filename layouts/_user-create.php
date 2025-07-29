@@ -84,7 +84,7 @@
 							<select id="user-branch" class="select-single"></select>
 						</div>
 						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> EMployee No</label>
+							<label for="customer-name" class="col-form-label"> Employee No</label>
 							<input type="text" class="form-control" id="user-employee-no" placeholder="Employee No" autocomplete="off">
 						</div>
 					</div>
@@ -169,11 +169,22 @@
 					password:$('#user-password').val()
 				}, 
 				success: function (data) { 
+					console.log(`data`, data)
+					console.log(`data.success`, !data.success)
 					if(!data.success){
 						hideLoader()
-						toastr.error(data.message);
+						for (const field in data.data) {
+							if (data.data.hasOwnProperty(field)) {
+								const messages = data.data[field];
+								if (messages.length > 0) {
+									toast(messages[0], 'danger');
+									break;
+								}
+							}
+						}
 					}
 					else{
+						console.log(`else condition`, data.message)
 						hideLoader()
 						let msg = id == 0 ? 'User Succesfully added!' : 'User Succesfully updated!'
 						toast(msg, 'success');
@@ -192,7 +203,7 @@
 				},
 				error: function(response) {
 					hideLoader()
-					toast(response.responseJSON.message, 'error');
+					toast(response.responseJSON.message, 'danger');
 					forceLogout(response.responseJSON) //if token is expired
 				}
 			});

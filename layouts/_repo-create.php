@@ -939,10 +939,14 @@
 						console.error('DataTables AJAX error:', error, thrown);
 					}
 				},
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 				scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ title: "Brancd", data: "branch_name", className: "fw-semibold", visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false },
+					{ title: "Brancd", data: "branch_name", className: "fw-semibold" }, // , visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
 					{  title: "Inventory IN", data: "transaction_number_inventory_in", className: "fw-semibold" },
 					{  title: "Customer ID", data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -957,6 +961,50 @@
 					{  title: "Model", data: "model_name" },
 					{  title: "Engine", data: "model_engine" },
 					{  title: "Chassis", data: "model_chassis" },
+
+					{  title: "Principal Balance", data: "principal_balance", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Loan Amount", data: "loan_amount", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Total Payment", data: "total_payments", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Total Missing and Damages", data: "total_amount_of_missing_and_damages", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Depreciation Cost", data: "total_depreciation_cost", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "SMV Pricing", data: "smv_pricing", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+
 					{  title: "Uploaded Files", data: "total_upload_files", className: 'text-center' },
 					{  title: "Process Status", data: "current_status" },
 					{  title: "Action", data: null, defaultContent: '',

@@ -51,24 +51,28 @@
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
-												<th></th>
-												<th>Inventory IN/OUT</th>
-												<th>Branch</th>
-												<th>Location</th>
-												<th> Ex Owner </th>
-												<th>MUISVA #</th>
-												<th> Brand </th>
-												<th> Model </th>
-												<th> Engine </th>
-												<th> Chassis </th>
-												<th> Color </th>
-												<th style="text-align: left !important;">Price</th>
-												<th> Aging </th>
-												<th> Quantity </th>
-												<th> On Hand </th>
-												<th> Status </th>
-												<th> Pictures </th>
-												<th> Forms </th>
+												<th rowspan="2"></th>
+												<th colspan="2" style="text-align: center;"> Inventory </th>
+												<th rowspan="2"> Branch</th>
+												<th rowspan="2"> Location</th>
+												<th rowspan="2"> Ex Owner </th>
+												<th rowspan="2"> MUISVA #</th>
+												<th rowspan="2"> Brand </th>
+												<th rowspan="2"> Model </th>
+												<th rowspan="2"> Engine </th>
+												<th rowspan="2"> Chassis </th>
+												<th rowspan="2"> Color </th>
+												<th rowspan="2" style="text-align: left !important;">Price</th>
+												<th rowspan="2"> Aging </th>
+												<th rowspan="2"> Quantity </th>
+												<th rowspan="2"> On Hand </th>
+												<th rowspan="2"> Status </th>
+												<th rowspan="2"> Pictures </th>
+												<th rowspan="2"> Forms </th>
+											</tr>
+											<tr>
+												<th style="text-align: center;">IN</th>
+												<th style="text-align: center;">OUT</th>
 											</tr>
 										</thead>
 									</table>
@@ -219,7 +223,10 @@
 						}
 					},
 					{
-						data: "transacton_number", className: "fw-semibold"
+						data: "inventory_in", className: "fw-semibold"
+					},
+					{
+						data: "inventory_out", className: "fw-semibold"
 					},
 					{
 						data: "branchname"

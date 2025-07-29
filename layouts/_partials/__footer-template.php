@@ -20,8 +20,12 @@
 	<script src="../assets/libs/datatables/buttons.html5.min.js"></script>
 	<script src="../assets/libs/datatables/vfs_fonts.js"></script>
 	<script src="../assets/libs/datatables/jszip.min.js"></script>
+	<script src="../assets/libs/datatables/dataTables.fixedColumns.min.js"></script>
 
 	<script src="../assets/js/pages/datatables.init.js"></script>
+
+	<!-- apexcharts -->
+	<script src="../assets/libs/apexcharts/apexcharts.min.js"></script>
 
 	<!-- select2 -->
 	<script src="../assets/libs/select2/select2.min.js"></script>
