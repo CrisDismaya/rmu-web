@@ -12,7 +12,8 @@
 	<link rel="stylesheet" href="../assets/libs/datatables/dataTables.bootstrap5.min.css">
 	<link rel="stylesheet" href="../assets/libs/datatables/responsive.bootstrap.min.css">
 	<link rel="stylesheet" href="../assets/libs/datatables/buttons.dataTables.min.css">
-	
+	<link rel="stylesheet" href="../assets/libs/datatables/fixedColumns.dataTables.min.css">
+
 	<!-- Layout config Js -->
 	<script src="../assets/js/layout.js"></script>
 	<!-- Bootstrap Css -->

@@ -51,23 +51,28 @@
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
 										<thead>
 											<tr>
-												<th></th>
-												<th>Branch</th>
-												<th>Location</th>
-												<th> Ex Owner </th>
-												<th>MUISVA #</th>
-												<th> Brand </th>
-												<th> Model </th>
-												<th> Engine </th>
-												<th> Chassis </th>
-												<th> Color </th>
-												<th style="text-align: left !important;">Price</th>
-												<th> Aging </th>
-												<th> Quantity </th>
-												<th> On Hand </th>
-												<th> Status </th>
-												<th> Pictures </th>
-												<th> Forms </th>
+												<th rowspan="2"></th>
+												<th colspan="2" style="text-align: center;"> Inventory </th>
+												<th rowspan="2"> Branch</th>
+												<th rowspan="2"> Location</th>
+												<th rowspan="2"> Ex Owner </th>
+												<th rowspan="2"> MUISVA #</th>
+												<th rowspan="2"> Brand </th>
+												<th rowspan="2"> Model </th>
+												<th rowspan="2"> Engine </th>
+												<th rowspan="2"> Chassis </th>
+												<th rowspan="2"> Color </th>
+												<th rowspan="2" style="text-align: left !important;">Price</th>
+												<th rowspan="2"> Aging </th>
+												<th rowspan="2"> Quantity </th>
+												<th rowspan="2"> On Hand </th>
+												<th rowspan="2"> Status </th>
+												<th rowspan="2"> Pictures </th>
+												<th rowspan="2"> Forms </th>
+											</tr>
+											<tr>
+												<th style="text-align: center;">IN</th>
+												<th style="text-align: center;">OUT</th>
 											</tr>
 										</thead>
 									</table>
@@ -189,33 +194,24 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/InventoryMasterList`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-						data:{
-							'branchId': branchId
-						}
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered,
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/InventoryMasterList`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					data:{
+						'branchId': branchId
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
-				columns: [{
+				columns: [
+					{
 						data: null,
 						defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
@@ -225,6 +221,12 @@
 
 							$(nTd).html(html);
 						}
+					},
+					{
+						data: "inventory_in", className: "fw-semibold"
+					},
+					{
+						data: "inventory_out", className: "fw-semibold"
 					},
 					{
 						data: "branchname"

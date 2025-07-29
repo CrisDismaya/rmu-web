@@ -37,7 +37,8 @@
 										<thead>
 											<tr>
 												<th> Branch </th>
-												<th> Customer Id </th>
+												<th> Inventory IN </th>
+												<th> Customer ID </th>
 												<th> Customer Name </th>
 												<th> Brand </th>
 												<th> Model </th>
@@ -111,14 +112,14 @@
 								<div class="tab-pane fade active show" id="pills-bill-info" role="tabpanel" aria-labelledby="pills-bill-info-tab">
 
 									<div>
-										<div class="row">
+										<!-- <div class="row">
 											<div class="col-sm-3">
 												<div class="mb-3">
 													<label class="form-label"> Select Customer <span class="text-danger">*</span></label>
 													<select id="customer-acumatica-id" class="select-single-modal"></select>
 												</div>
 											</div>
-										</div>
+										</div> -->
 
 										<div class="row">
 											<div class="col-sm-3">
@@ -516,25 +517,27 @@
 		$(document).ready(function(){
 			display_table(current_module_id)
 			fetch_brand_list()
-         fetch_customer_profile_list()
+         // fetch_customer_profile_list()
 			fetch_locations_list()
 			fetch_list_of_image('0')
 
-			$('#customer-acumatica-id').change(function(e){
-				e.preventDefault();
-				var id = $(this).val();
+			// $('#customer-acumatica-id').change(function(e){
+			// 	e.preventDefault();
+			// 	var id = $(this).val();
 
-				if(id != ''){
-					fetch_customer_profile_list_id(id)
-				}
-				else{
-					$('#customer-first-name').val('')
-					$('#customer-middle-name').val('')
-					$('#customer-last-name').val('')
-					$('#customer-contact-no').val('')
-					$('#customer-complete-address').val('')
-				}
-			});
+			// 	console.log('on change: ', id)
+
+			// 	if(id != ''){
+			// 		fetch_customer_profile_list_id(id)
+			// 	}
+			// 	else{
+			// 		$('#customer-first-name').val('')
+			// 		$('#customer-middle-name').val('')
+			// 		$('#customer-last-name').val('')
+			// 		$('#customer-contact-no').val('')
+			// 		$('#customer-complete-address').val('')
+			// 	}
+			// });
 
 			$('#unit-brand').change(function(e){
 				e.preventDefault()
@@ -583,8 +586,9 @@
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ data: "branch_name" },
-					{ data: "acumatica_id",
+					{ data: "branch_name", className: "fw-semibold" },
+					{ data: "transaction_number_inventory_in", className: "fw-semibold" },
+					{ data: "acumatica_id", className: "fw-semibold",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<b>${ oData.acumatica_id != null ? oData.acumatica_id : '-' }</b>
@@ -838,7 +842,7 @@
 
 		function fetch_color_list(model_id, color_id = ''){
 			$.ajax({
-				url: `${ baseUrl }/getMapColor/${model_id}`, 
+				url: `${ baseUrl }/getMapColor`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
@@ -906,7 +910,8 @@
 				success: function (data) {
 					// console.log(data)
 					$('#approver-decision').data('repo-id', data.repo.id)
-					$('#customer-acumatica-id').val(data.customer_details.id).trigger('change').prop('disabled', true)
+					// $('#customer-acumatica-id').val(data.customer_details.id).trigger('change').prop('disabled', true)
+					fetch_customer_profile_list_id(data.customer_details.id)
 					$('#unit-brand').val(data.brand_details.id).trigger('change').trigger('change').prop('disabled', true)
 			   	fetch_branch_with_model(data.brand_details.id, data.model_details.id)
 

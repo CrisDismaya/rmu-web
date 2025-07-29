@@ -37,21 +37,7 @@
 								</div>
 								<div class="card-body">
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-										<thead>
-											<tr>
-												<th> Customer Id </th>
-												<th> Customer Name </th>
-												<th> Brand </th>
-												<th> Model </th>
-												<th> Engine </th>
-												<th> Chassis </th>
-												<th> Uploaded <br> Required Files </th>
-												<th> Process Status </th>
-												<!-- <th> Repo Status </th>
-												<th> Approver </th> -->
-												<th> Action </th>
-											</tr>
-										</thead>
+										
 									</table>
 								</div>
 							</div>
@@ -639,7 +625,7 @@
 						<input type="hidden" id="unit-spare-parts-id-${ partsCounter }" value="0">
 						<div class="col-sm-3">
 							<div class="mb-3">
-								<select id="unit-parts-${ partsCounter }" class="select-single-modal" onchange="fetch_price_per_parts(this)">></select>
+								<select id="unit-parts-${ partsCounter }" class="select-single-modal" onchange="fetch_price_per_parts(this)"></select>
 							</div>
 						</div>
 						
@@ -677,7 +663,7 @@
 
 				$('#div-append-spare-parts').prepend(html);
 				fetch_spare_parts_list(partsCounter, $("#unit-model").val())
-				$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
+				// $(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
 				var choices2 = new Choices(`#unit-parts-status-${ partsCounter }`);
 
 				$('#spare-parts-append-count').val(partsCounter)
@@ -942,31 +928,27 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/repo`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						}
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal, 
-							recordsFiltered: data.recordsFiltered,
-							data: data.data
-						});
-					})
-					.catch(error => {
-							console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/repo`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
+				},
+				fixedColumns: {
+					left: 0,
+					right: 1
 				},
 				scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ data: "acumatica_id",
+					{ title: "Brancd", data: "branch_name", className: "fw-semibold" }, // , visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
+					{  title: "Inventory IN", data: "transaction_number_inventory_in", className: "fw-semibold" },
+					{  title: "Customer ID", data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<b>${ oData.acumatica_id != null ? oData.acumatica_id : '-' }</b>
@@ -974,14 +956,58 @@
 							$(nTd).html(html);
 						}
 					},
-					{ data: "customer_name", className: "fw-semibold" },
-					{ data: "brandname" },
-					{ data: "model_name" },
-					{ data: "model_engine" },
-					{ data: "model_chassis" },
-					{ data: "total_upload_files", className: 'text-center' },
-					{ data: "current_status" },
-					{ data: null, defaultContent: '',
+					{  title: "Customer Name", data: "customer_name", className: "fw-semibold" },
+					{  title: "Brand", data: "brandname" },
+					{  title: "Model", data: "model_name" },
+					{  title: "Engine", data: "model_engine" },
+					{  title: "Chassis", data: "model_chassis" },
+
+					{  title: "Principal Balance", data: "principal_balance", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Loan Amount", data: "loan_amount", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Total Payment", data: "total_payments", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Total Missing and Damages", data: "total_amount_of_missing_and_damages", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "Depreciation Cost", data: "total_depreciation_cost", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+					{  title: "SMV Pricing", data: "smv_pricing", className: "text-end", render: function(data, type, row) {
+							return parseFloat(data).toLocaleString('en-PH', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							});
+						} 
+					},
+
+					{  title: "Uploaded Files", data: "total_upload_files", className: 'text-center' },
+					{  title: "Process Status", data: "current_status" },
+					{  title: "Action", data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
@@ -993,17 +1019,16 @@
 						}
 					},
 				],
-				dom: 'Bfrtip',
-				buttons: [
-					'excelHtml5'
-				],
+				// dom: 'Bfrtip',
+				// buttons: ['excelHtml5'], // Enable export to Excel
+				lengthMenu: [10, 25, 50, 100],
+				pageLength: 10,
 			});
 
 			$('#add-receive-units').prop('disabled', false)
 		}
 
 		function add_receive_units(){
-			fetch_color_list('')
 			$('#save-details').show()
 			$('#save-details').data('repo-id', 0);
 			$('.btn-save-footer').hide()
@@ -1372,34 +1397,49 @@
 			});
 		}
 
-		function fetch_spare_parts_list(partsCounter, modelid, partsid = ''){
-			$.ajax({
-				url: `${ baseUrl }/partsPerModel`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					// console.log(data)
-					$(`#unit-parts-${ partsCounter }`).empty();
+		function fetch_spare_parts_list(partsCounter, modelid, partsid = '') {
+			let $select = $(`#unit-parts-${partsCounter}`);
 
-					if(data.length > 0){
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> Select Spart Parts </option>`);
-						for (let i = 0; i < data.length; i++) {
-							const el = data[i];
-							$(`#unit-parts-${ partsCounter }`).append(`<option value="${ el.value }">${ el.label }</option>`);
-						}
-					}
-					else{
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> No Available Data </option>`);
-					}
-					$(`#unit-parts-${ partsCounter }`).val(partsid != '' ? partsid : '').trigger('change');
+			if ($select.hasClass("select2-hidden-accessible")) {
+				$select.select2('destroy');
+			}
+			
+			$select.select2({
+				dropdownParent: $('#staticBackdrop'),
+				ajax: {
+					url: `${baseUrl}/partsPerModel`,
+					dataType: 'json',
+					delay: 250,
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+					},
+					data: function (params) {
+						return {
+							search: params.term,
+							page: params.page || 1,
+						};
+					},
+					processResults: function (data, params) {
+						params.page = params.page || 1;
+						return {
+							results: data.items,
+							pagination: {
+								more: data.more,
+							},
+						};
+					},
+					cache: true,
 				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
+				placeholder: 'Select Spare Parts',
+				minimumInputLength: 2,
+				templateResult: function (data) {
+					return data.text || 'Loading...';  
+				},
 			});
+
+			if (partsid) {
+				$select.val(partsid).trigger('change'); 
+			}
 		}
 
 		function fetch_price_per_parts(element, new_value = ''){
