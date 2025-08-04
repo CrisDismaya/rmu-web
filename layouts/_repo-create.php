@@ -1397,7 +1397,7 @@
 			});
 		}
 
-		function fetch_spare_parts_list(partsCounter, modelid, partsid = '') {
+		function fetch_spare_parts_list(partsCounter, modelid, partsid = '', partText = '') {
 			let $select = $(`#unit-parts-${partsCounter}`);
 
 			if ($select.hasClass("select2-hidden-accessible")) {
@@ -1438,7 +1438,8 @@
 			});
 
 			if (partsid) {
-				$select.val(partsid).trigger('change'); 
+				let option = new Option(partText, partsid, true, true);
+				$select.append(option).trigger('change');
 			}
 		}
 
@@ -1714,7 +1715,7 @@
 
 						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change')
 						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
-						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id)
+						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name)
 						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
 						$(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
 					}
