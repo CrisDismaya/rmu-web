@@ -42,14 +42,13 @@
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of  Units</h4>
-									<div class="flex-shrink-0">
-                                        Filter type
-                                        <select id="status" class="select-single">
-                                            <option value="ALL">ALL</option>
-                                            <option value="PENDING">PENDING</option>
-                                            <option value="APPROVED">APPROVED</option>
-                                            <option value="DISAPPROVED">DISAPPROVED</option>
-                                        </select>   
+									<div class="flex-shrink-0 col-md-3" id="branches-selection">
+										<select id="status" class="form-select form-select-sm select-single">
+											<option value="all">ALL</option>
+											<option value="0">PENDING</option>
+											<option value="1">APPROVED</option>
+											<option value="2">DISAPPROVED</option>
+										</select>   
 									</div>
 								</div>
 								<div class="card-body">
@@ -59,13 +58,13 @@
 												<th>Branch</th>
 												<th> Brand </th>
 												<th> Model </th>
-                                                <th> Color </th>
+												<th> Color </th>
 												<th style="text-align: left !important;">Request Price </th>
 												<th> Engine </th>
 												<th> Chassis </th>
-                                                <th> Approved Date </th>
-                                                <th> Ex. Owner </th>
-                                                <th> Status </th>
+												<th> Approved Date </th>
+												<th> Ex. Owner </th>
+												<th> Status </th>
 											</tr>
 										</thead>
 									</table>
@@ -84,50 +83,37 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
 
 	<script>
-
-	
 		$(document).ready(function(){
+			display_table('all')
 
-			display_table('PRELOAD')
-
-            $('#status').change(function(){
-                display_table('CHANGE')
-            })
-			
+			$('#status').change(function(){
+				const value = this.value;
+				display_table(value)
+			});
 		})
 
+		async function display_table(status){
 
-
-		async function display_table(action){
-			let list = action == 'PRELOAD' ||  $('#status').val() == 'ALL' ? tableData: tableData.filter((d) => { return d.status == $('#status').val()})
-
-			if ($.fn.DataTable.isDataTable("#sales-tagging-table")) {
-				$('#sales-tagging-table').DataTable().clear().destroy();
+			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
+				$('#received-unit-table').DataTable().clear().destroy();
 			}
 			
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/appraisedUnitList`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/appraisedUnitList`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					data: {
+						status: status 
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 				scrollX: true,
 				scrollCollapse: true,

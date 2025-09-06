@@ -330,53 +330,44 @@
 		})
 
 		function decision(status){
-			    if($('#remarks').val() == ''){
-					toast('Remarks is required', 'danger');
-					return false
+				if($('#remarks').val() == ''){
+				toast('Remarks is required', 'danger');
+				return false
+			}
+
+			const data = {
+				data_id:data_id,
+				remarks:$('#remarks').val(),
+				status:status,
+				approved_price:$('#approved_price').val(),
+				old_price:$('#srp').val(),
+				edit_price:edit_price,
+				module_id:current_module_id
+			}
+
+			showLoader()
+
+			$.ajax({
+				url: `${baseUrl}/submitDecision`, 
+				type: 'POST', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				data : data,
+				dataType: 'json',
+				success: function (data) { 
+					// console.log(data)
+					toast(data.message, (!data.success ? 'danger' : 'success'));
+					display_table(current_module_id)
+					data_id = null
+					hideLoader()
+				},
+				error: function(response) {
+					hideLoader()
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
 				}
-
-				const data = {
-					data_id:data_id,
-					remarks:$('#remarks').val(),
-					status:status,
-					approved_price:$('#approved_price').val(),
-					old_price:$('#srp').val(),
-					edit_price:edit_price,
-					module_id:current_module_id
-				}
-
-				showLoader()
-
-				$.ajax({
-					url: `${baseUrl}/submitDecision`, 
-					type: 'POST', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					},
-					data : data,
-					dataType: 'json',
-					success: function (data) { 
-						// console.log(data)
-						if(!data.success){
-							hideLoader()
-							toast(data.message, 'danger');
-						}
-						else{
-							hideLoader()
-							let msg = status == 1 ? 'New Unit Price Succesfully approved!' : 'New Unit Price disapproved!'
-							toast(msg, 'success');
-							$('#staticBackdrop').modal('hide')
-							display_table(current_module_id)
-							getAllForApproval()
-							data_id = null
-						}
-					},
-					error: function(response) {
-						hideLoader()
-						toast(response.responseJSON.message, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
-					}
-				});
+			});
 		}
 
 		function getListOfUnits(){
@@ -395,6 +386,10 @@
 					headers:{
 						'Authorization':`Bearer ${ auth.token }`,
 					}
+				},
+				fixedColumns: {
+					left: 0,
+					right: 1
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
@@ -451,11 +446,14 @@
 						'Authorization':`Bearer ${ auth.token }`,
 					}
 				},
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					
-					{ data: "branchname" },
+					{ data: "branchname", visible: (current_roles === 'Maker') },
 					{ data: "brandname" },
 					{ data: "model_name" },
 					{ data: "color" },
@@ -470,7 +468,7 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 						//	
 
-						html = 'No action available';
+							html = 'No action available';
 							if(oData.status == 'PENDING' && current_roles == 'Maker' && oData.approved_price == null){
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"

@@ -58,12 +58,12 @@
 									<h4 class="card-title mb-0 flex-grow-1">List of Units</h4>
 									<div class="flex-shrink-0">
 										<select id="refurb-status" class="form-select form-select-sm">
-											<option value="ALL">ALL Status</option>
-											<option value="PENDING">PENDING</option>
-											<option value="APPROVED">APPROVED</option>
-											<option value="ON GOING REFURBISH">ON GOING REFURBISH</option>
-											<option value="DONE">DONE</option>
-											<option value="DISAPPROVED">DISAPPROVED</option>
+											<option value="all">ALL Status</option>
+											<option value="0">PENDING</option>
+											<option value="1">APPROVED</option>
+											<option value="3">ON GOING REFURBISH</option>
+											<option value="4">DONE</option>
+											<option value="2">DISAPPROVED</option>
 										</select>
 									</div>
 								</div>
@@ -128,46 +128,39 @@
 	
 		$(document).ready(function(){
 
-			display_table('PRELOAD')
+			display_table('all')
 
 			$('#refurb-status').change(function(){
-				display_table('CHANGE')
+				const value = this.value;
+				display_table(value)
 			})
 			
 		})
 
 
 
-		async function display_table(action){
-
-			let list = (action == 'PRELOAD' ||  $('#refurb-status').val() == 'ALL' ? tableData : tableData.filter((d) => { return d.status == $('#refurb-status').val()}))
+		async function display_table(status) {
 
 			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
 				$('#received-unit-table').DataTable().clear().destroy();
 			}
+
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/refurbishUnitList`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/refurbishUnitList`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					data: {
+						status: status 
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 				scrollX: true,
 				scrollCollapse: true,

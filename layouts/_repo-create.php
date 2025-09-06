@@ -946,7 +946,7 @@
 				scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ title: "Brancd", data: "branch_name", className: "fw-semibold" }, // , visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
+					{ title: "Branch", data: "branch_name", className: "fw-semibold", visible: (auth.role.toLowerCase() !== 'warehouse custodian' ? true : false) }, 
 					{  title: "Inventory IN", data: "transaction_number_inventory_in", className: "fw-semibold" },
 					{  title: "Customer ID", data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -1403,44 +1403,52 @@
 			if ($select.hasClass("select2-hidden-accessible")) {
 				$select.select2('destroy');
 			}
-			
+
+			if (partsid) {
+				let option = new Option(partText, partsid, true, true);
+				$select.append(option);
+			}
+
+			// Initialize Select2
 			$select.select2({
 				dropdownParent: $('#staticBackdrop'),
 				ajax: {
-					url: `${baseUrl}/partsPerModel`,
-					dataType: 'json',
-					delay: 250,
-					headers: {
-						'Authorization': `Bearer ${auth.token}`,
-					},
-					data: function (params) {
-						return {
-							search: params.term,
-							page: params.page || 1,
-						};
-					},
-					processResults: function (data, params) {
-						params.page = params.page || 1;
-						return {
-							results: data.items,
-							pagination: {
-								more: data.more,
-							},
-						};
-					},
-					cache: true,
+						url: `${baseUrl}/partsPerModel`,
+						dataType: 'json',
+						delay: 250,
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+						},
+						data: function (params) {
+							return {
+								search: params.term,
+								page: params.page || 1,
+								model_id: modelid, // ← if needed for filtering
+							};
+						},
+						processResults: function (data, params) {
+							params.page = params.page || 1;
+							return {
+								results: data.items,
+								pagination: {
+										more: data.more,
+								},
+							};
+						},
+						cache: true,
 				},
 				placeholder: 'Select Spare Parts',
 				minimumInputLength: 2,
 				templateResult: function (data) {
-					return data.text || 'Loading...';  
+						return data.text || 'Loading...';
 				},
 			});
 
-			if (partsid) {
-				let option = new Option(partText, partsid, true, true);
-				$select.append(option).trigger('change');
-			}
+			$select.on('select2:open', function () {
+				if (partsid) {
+					$('.select2-search__field').val('').trigger('input');
+				}
+			});
 		}
 
 		function fetch_price_per_parts(element, new_value = ''){
@@ -1605,43 +1613,43 @@
 					// div-button-add-upload
 					$('#div-button-add-upload').css('display', (data.disabled === true ? 'none' : 'block'))
 					$('#append-upload-section').empty()
+
 					var image_path = `${ baseUrl.replace('/api', '') }`;
+					const defaultImage = [
+						{ name: 'pdf', source: '../assets/images/small/default-pdf.png' },
+						{ name: 'docx', source: '../assets/images/small/default-docs.png' },
+						{ name: 'xlsx', source: '../assets/images/small/default-xlsx.png' },
+						{ name: 'default', source: '../assets/images/small/img-4.jpg' }
+					];
+					const image_extension = ['jpg', 'jpeg', 'png'];
 					
 					for (let i = 0; i < filesJson.length; i++) {
 						const el = filesJson[i];
-						
-						var append_count = i + 1;
-						var string = el.path.split('.')
-						var extension = string[string.length - 1].toLowerCase();
-						var image_extension = ['jpg', 'jpeg', 'png'];
-						var image_source = '';
+						const append_count = i + 1;
+						const extension = el.path.split('.').pop().toLowerCase();
+						let image_source = '';
 
-						if(image_extension.indexOf(extension) !== -1){
-							image_source = image_path +'/'+ el.path;
-						}
-						else if(extension == 'pdf'){
-							image_source = '../assets/images/small/default-pdf.png';
-						}
-						else if(extension == 'docx'){
-							image_source = '../assets/images/small/default-docs.png';
-						}
-						else if(extension == 'xlsx'){
-							image_source = '../assets/images/small/default-xlsx.png';
-						}
-						else{
-							image_source = '../assets/images/small/img-1.jpg';
+						if (image_extension.includes(extension)) {
+							image_source = `${image_path}/${el.path}`;
+						} else {
+							const match = defaultImage.find(img => img.name === extension);
+							image_source = match ? match.source : defaultImage.find(img => img.name === 'default').source;
 						}
 						
 						$('#append-upload-section').append(`
 							<div class="col-sm-3" id="append-item-${ append_count }">
 								<input type="hidden" id="image-id-${ append_count }" value="${ el.id }">
 								<figure class="figure mb-2">
-									<img  src="${ image_source }" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ append_count }-preview" onclick="document.getElementById('input-file-${ append_count }').click();">
+									<img  src="${ image_source }" class="figure-img img-thumbnail rounded" alt="..." 
+										id="input-file-${ append_count }-preview" 
+										onclick="document.getElementById('input-file-${ append_count }').click();"
+										onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
+									>
 									<input type="file" id="input-file-${ append_count }" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
 									<figcaption class="figure-caption input-group input-group-sm">
 										<div class="input-group">
 											<select class="form-select form-select-sm" id="seleted-image-${ append_count }" aria-label="Example select with button addon" disabled>
-												<option value=""> Select </option>
+												<option value="${ el.files_id }" selected> ${ el.files_name } </option>
 											</select>
 											<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="picture-view-${ append_count }" type="button" onclick="view_image(${ append_count })"  style="display:${ image_extension.indexOf(extension) !== -1 ? 'block' : 'none' };">
 												<i class="ri-image-line label-icon align-middle"></i> 
@@ -1656,9 +1664,8 @@
 									</figcaption>
 								</figure>
 							</div>
-						`)
-
-						fetch_list_of_image(append_count, el.files_id)
+						`);
+						// fetch_list_of_image(append_count, el.files_id)
 					}
 					filesCounter = filesJson.length
 					$('#append-counter').val(`${ filesJson.length }`);
@@ -1716,7 +1723,6 @@
 						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change')
 						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
 						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name)
-						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
 						$(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
 					}
 					partsCounter = partsJson.length

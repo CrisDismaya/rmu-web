@@ -44,7 +44,7 @@
 												<th rowspan="2"> Requestor </th>
 												<th colspan="2" class="text-center"> Branch </th>
 												<th rowspan="2" class="text-center"> Unit Count </th>
-												<th rowspan="2"> Current Approver </th>
+												<th rowspan="2" id="col-approver"> Current Approver </th>
 												<th rowspan="2"> Status </th>
 												<th rowspan="2"> Action </th>
 											</tr>
@@ -297,6 +297,8 @@
 				$('#list-for-transfer-table').DataTable().clear().destroy();
 			}
 
+			current_roles == 'Maker' ? $('#col-approver').show() : $('#col-approver').hide();
+
 			$("#list-for-transfer-table").DataTable({
 				processing: true,
 				serverSide: true,
@@ -316,16 +318,16 @@
 					{ data: "from_branch" },
 					{ data: "to_branch" },
 					{ data: "transfer_units_count", class: 'text-center' },
-					{ data: "approver_name" },
+					{ data: "approver_name", visible: (current_roles === 'Maker') },
 					{ data: "approval_status",
 						render: function(data, type, row) {
 							var className;
 							if (row.status_id == 1) {
-									className += ' text-success';
+									className = ' text-success';
 							} else if (row.status_id == 2) {
-									className += ' text-danger';
+									className = ' text-danger';
 							} else {
-									className += ' text-warning';
+									className = ' text-warning';
 							}
 							return `<span class="text-center ${ className }">${ data }</span>`;
 						}
@@ -525,7 +527,7 @@
 			}
 
 			$.ajax({
-				url: `${baseUrl}/submitApproverDecision`, 
+				url: `${baseUrl}/transfer/submitApproverDecision`, 
 				type: 'POST', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
@@ -539,16 +541,11 @@
 				dataType: 'json',
 				success: function (data) { 
 					// console.log(data)
-					if(!data.success){
-						toast(data.message, 'danger');
-					}
-					else{
-						let msg = status == 1 ? 'Stock Transfer Approved' : 'Stock Transfer Disapproved'
-						toast(msg, 'success');
-						$('#view-units-details').modal('hide');
-						display_table(current_module_id)
-						record_id = null
-					}
+					
+					toast(data.message, (!data.success ? 'warning' : 'success'));	
+					$('#view-units-details').modal('hide');
+					display_table(current_module_id)
+					record_id = null
 				},
 				error: function(response) {
 					toast(response.responseJSON.message, 'danger');
@@ -572,29 +569,33 @@
 
 			$('#view-uploaded-files').modal('show')
 			$('#append-upload-section-received').empty()
+			
+				var image_path = `${ baseUrl.replace('/api', '') }`;
+			const defaultImage = [
+				{ name: 'pdf', source: '../assets/images/small/default-pdf.png' },
+				{ name: 'docx', source: '../assets/images/small/default-docs.png' },
+				{ name: 'xlsx', source: '../assets/images/small/default-xlsx.png' },
+				{ name: 'default', source: '../assets/images/small/img-4.jpg' }
+			];
+			const image_extension = ['jpg', 'jpeg', 'png'];
+
 			data.done(function(response) {
 				response[0]?.forEach(el => {
-					var image_path = `${ baseUrl.replace('/api', '') }`;
-					var string = el['path'].split('.')
-					var extension = string[string.length - 1].toLowerCase();
-					var image_extension = ['jpg', 'jpeg', 'png'];
+					const extension = el['path'].split('.').pop().toLowerCase();
+					let image_source = '';
 
-					if (image_extension.indexOf(extension) !== -1) {
-						image_source = image_path + '/' + el['path'];
-					} else if (extension == 'pdf') {
-						image_source = '../assets/images/small/default-pdf.png';
-					} else if (extension == 'docx') {
-						image_source = '../assets/images/small/default-docs.png';
-					} else if (extension == 'xlsx') {
-						image_source = '../assets/images/small/default-xlsx.png';
+					if (image_extension.includes(extension)) {
+						image_source = `${image_path}/${el['path']}`;
 					} else {
-						image_source = '../assets/images/small/img-1.jpg';
+						const match = defaultImage.find(img => img.name === extension);
+						image_source = match ? match.source : defaultImage.find(img => img.name === 'default').source;
 					}
 
 					$('#append-upload-section-received').append(`
 						<div class="col-sm-3">
 							<figure class="figure mb-2">
-								<img src="${ image_source }" class="figure-img img-thumbnail rounded" alt="...">
+								<img src="${ image_source }" class="figure-img img-thumbnail rounded" 
+									alt="..." onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';">
 								<input type="file" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
 								<figcaption class="figure-caption input-group input-group-sm">
 									<div class="input-group">

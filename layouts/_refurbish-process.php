@@ -374,7 +374,7 @@
 				data_id: data_id,
 				remarks: $('#remarks').val(),
 				status: status,
-				module_id: $('#mod').val(),
+				module_id: current_module_id,
 				spares: JSON.stringify(parts)
 			}
 
@@ -399,7 +399,7 @@
 
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
-						display_table($('#mod').val())
+						display_table(current_module_id)
 						getAllForApproval()
 						data_id = null
 					}

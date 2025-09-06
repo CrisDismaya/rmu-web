@@ -583,6 +583,10 @@
 						'Authorization':`Bearer ${ auth.token }`,
 					}
 				},
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [

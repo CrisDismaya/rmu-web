@@ -218,6 +218,12 @@
 			});
 
 			$('#save-matrix').click(() => {
+
+				if(matrix.length == 0){
+					toast('No approver to save', 'danger');
+					return false
+				}
+
 				let info = []
 				for(let i = 0; i < matrix.length; i++){
 
@@ -232,9 +238,10 @@
 							user:$('#signatory-'+matrix[i].order).val()
 						}]
 					})
-					
 				}
-			
+
+				const moduleId = info.length > 0 ? info[0].module_id : null;
+
 				$.ajax({
 					url: `${ baseUrl }/createMatrix`, 
 					type: 'POST', 
@@ -246,18 +253,18 @@
 					dataType: 'json',
 					success: function (data) { 
 						if(!data.success){
-							toastr.error(data.data);
+							toast('This role is already assigned as a signatory in the selected module.', 'danger');
 						}
 						else{
 							toast('Approval Matrix successfully setup', 'success');
 							matrix = []
 							$('.detail').hide()
 							$('.listing').show()
-							$('#staticBackdrop').modal('hide')
+							getAllPageSignatory(moduleId)
 						}
 					},
 					error: function(response) {
-						toast(response.responseJSON.data, 'error');
+						toast(response.responseJSON.data, 'danger');
 						forceLogout(response.responseJSON) //if token is expired
 					}
 				});
@@ -401,12 +408,15 @@
 					},
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-							html = `
-							<button class="btn btn-sm btn-soft-info" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="setApproval(${ oData.id },'${ oData.menu_name}')"> 
-									<i class="ri-user-line"></i> 
-								</button>
-							`;
+
+							html = oData.is_approvable == 'true' ?
+								`
+									<button class="btn btn-sm btn-soft-info" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+										onclick="setApproval(${ oData.id },'${ oData.menu_name}')"> 
+										<i class="ri-user-line"></i> 
+									</button>
+								`
+								: ``;
 							$(nTd).html(html);
 						}
 					},
@@ -448,7 +458,8 @@
 				</div>
 				`
 
-				fetchSignatory(`${ i+1 }`)
+				// fetchSignatory(`${ i+1 }`)
+				fetchSignatoryRoles(`${ i+1 }`)
 			}
 			$('#approval-matrix').html(signatory)
 			$('#page').html(page)
@@ -472,14 +483,15 @@
 							
 							<div class="col-12">
 								<div class="mb-3">
-									<label class="form-label">Approver - ${ matrix.length }  <span title="remove" 
+									<label class="form-label">Approval Level ${ matrix.length }  <span title="remove" 
 									style="color:red;cursor:pointer;margin-left:10px;" onclick="remove(${matrix.length})">X</span> </label>
 									<select id="signatory-${ matrix.length }" class="form-control"></select>
 								</div>
 							</div>
 					</div>
 					`)
-					fetchSignatory(matrix.length)
+					// fetchSignatory(matrix.length)
+					fetchSignatoryRoles(matrix.length)
 				}
 				
 			}
@@ -542,7 +554,33 @@
 			}
 		}
 
-		
+		async function fetchSignatoryRoles(index){
+			const roles = await $.ajax({
+				url: `${ baseUrl }/roles`,
+				method: 'GET',
+				dataType: 'json',
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				}
+			});
+
+			$('#signatory-'+index).empty();
+			 
+			// let filtered_user = roles.filter(d => {  return d.userrole == 'General Manager' ||   d.userrole == 'Verifier'})
+
+			let filtered_role = roles;
+
+			$('#signatory-'+index).append(`
+				<option value=""> Select Signatory </option>
+			`);
+			if(filtered_role.length > 0){
+				for (let i = 0; i < filtered_role.length; i++) {
+					const el = filtered_role[i];
+					$('#signatory-'+index).append(`<option value="${ el.id }"> ${ el.user_role_name } </option>`);
+				}
+				//$('#signatory-'+index).val('').trigger('change');
+			}
+		}
 
 		function selected_menu(menu_id, map_id){
 			if($('#user-role').val() == ''){
@@ -620,8 +658,7 @@
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
-							<button class="btn btn-sm btn-soft-danger" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="removeMatrix(${ oData.id })"> 
+								<button class="btn btn-sm btn-soft-danger" onclick="removeMatrix(${ oData.id })"> 
 									X 
 								</button>
 							`;
@@ -647,7 +684,9 @@
 							$('.detail').hide()
 							getAllPageSignatory(matrix[0].moduleid)
 						}
-						
+						else {
+							toast(data.message, 'warning');
+						}
 					},
 					error: function(response) {
 						toast(response.responseJSON.data, 'danger');

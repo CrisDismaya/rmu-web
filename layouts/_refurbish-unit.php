@@ -325,23 +325,14 @@
 				return false
 			}
 
-			let parts = []
-
-			for (let i = 0; i < spares.length; i++) {
-				parts.push({
-					received_parts_id: $('#received-id-' + spares[i].parts).val(),
-					parts_id: spares[i].parts,
-					price: $('#parts-' + spares[i].parts).val()
-				})
-			}
-
 			const data = {
 				data_id: data_id,
 				remarks: $('#remarks').val(),
 				status: status,
-				module_id: $('#mod').val(),
-				spares: JSON.stringify(parts)
+				module_id: current_module_id
 			}
+
+			console.log(data)
 
 			showLoader()
 
@@ -366,7 +357,6 @@
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
 						display_table(current_module_id)
-						getAllForApproval()
 						data_id = null
 					}
 				},
@@ -386,26 +376,20 @@
 			$("#list-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/listOfForRefurbish`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/listOfForRefurbish`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
+				},
+				fixedColumns: {
+					left: 0,
+					right: 1
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
@@ -464,26 +448,16 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/getListForApprovalRefurbish/${ current_module_id }`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/getListForApprovalRefurbish/${ current_module_id }`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
@@ -550,8 +524,7 @@
 
 								qoute_data.push({
 									"qoute_id": oData.refurbish_id,
-									"qoute_data": oData.qoute
-
+									"qoute_data": JSON.stringify(oData.qoute)
 								})
 								html = `
 									<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
@@ -653,7 +626,7 @@
 		}
 
 		function viewForApproval(repo_id, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, categ, color) {
-
+			data_id = refurbish_id
 			$('#list').hide()
 			$('#details').show()
 
@@ -669,26 +642,47 @@
 				$('.remarks1').css('display', 'none')
 			}
 
-			let qoute = qoute_data.filter(d => {
-				return d.qoute_id == refurbish_id
-			})[0]
+			let qoute = qoute_data.find(d => d.qoute_id == refurbish_id);
 
-			let qoutations = JSON.parse(qoute.qoute_data)
-			let row = ''
+			let qoutations = [];
 
-			let link = baseUrl.replace('/api', '')
+			if (qoute && qoute.qoute_data) {
+				try {
+					// Step 1: Decode HTML entities (&quot; → ")
+					let unescaped = qoute.qoute_data
+						.replace(/&quot;/g, '"')
+						.replace(/&amp;/g, '&')
+						.replace(/&lt;/g, '<')
+						.replace(/&gt;/g, '>');
+
+					// Step 2: Remove outer quotes if present
+					if (unescaped.startsWith('"') && unescaped.endsWith('"')) {
+						unescaped = unescaped.slice(1, -1);
+					}
+
+					// Step 3: Parse to array
+					qoutations = JSON.parse(unescaped);
+				} catch (err) {
+					console.error('Failed to parse qoute_data:', err, qoute.qoute_data);
+				}
+			}
+
+			let row = '';
+			let link = baseUrl.replace('/api', '');
+
 			for (let i = 0; i < qoutations.length; i++) {
+				const file = qoutations[i];
 				row += `<tr>
-							<td>
-								<a href="#" onclick="downloadURI('${link}/${qoutations[i].path}','${qoutations[i].filename}')"><span title="Download Qoutation">${qoutations[i].filename}</span></a>
-							</td>
-						</tr>`
+					<td>
+						<a href="#" onclick="downloadURI('${link}/${file.path}','${file.filename}')">
+							<span title="Download Quotation">${file.filename}</span>
+						</a>
+					</td>
+				</tr>`;
 			}
 
 			$('#uploaded-qoutation').html(row)
-
-
-			data_id = refurbish_id
+			
 			$('#branch_id').val(branchid)
 			$('#branch_name').val(branchname)
 			$('#brand').val(brand)
@@ -707,13 +701,13 @@
 				},
 				success: function(data) {
 					let tbl = `<table border="1" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Parts</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                `
+							<thead>
+									<tr>
+										<th>Parts</th>
+										<th>Price</th>
+									</tr>
+						</thead>
+					`
 					for (let i = 0; i < data.length; i++) {
 						spares.push({
 							parts: data[i].id
