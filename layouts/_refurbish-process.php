@@ -158,7 +158,7 @@
 								<div style="height:100px; overflow-y:scroll;" id="upload">
 									<table id="uploaded-qoutation">
 									</table>
-									<table id="table-docs"></table>
+									<table id="table-docs" width="100%"></table>
 								</div>
 								<!-- <div style="height:100px; overflow-y:scroll;" id="qoute-list">
                                     <table id="uploaded-qoutation">
@@ -281,34 +281,46 @@
 			display_table(current_module_id)
 
 			$('#save-refurbish-process').click(function(event) {
-
 				event.preventDefault();
 
-				var id = $('#record_id').val()
-				var url = (user_action === 'create' ? `${baseUrl}/proceedRefurbish` : `${baseUrl}/updateRefurbishProcess/${ id }`)
+				const id = $('#record_id').val();
+				const url = user_action === 'create'
+					? `${baseUrl}/proceedRefurbish`
+					: `${baseUrl}/updateRefurbishProcess/${id}`;
 
-				var formData = new FormData();
+				const formData = new FormData();
 
+				// Related documents
 				for (let i = 0; i < arr.length; i++) {
-					formData.append("related_documents_" + arr[i].id, $('#doc-' + arr[i].id)[0].files[0]);
+					const fileInput = $(`#doc-${arr[i].id}`)[0];
+					if (fileInput && fileInput.files.length > 0) {
+							formData.append(`related_documents_${arr[i].id}`, fileInput.files[0]);
+					} else {
+							console.warn(`[WARN] No file selected for related_documents_${arr[i].id}`);
+					}
 				}
-				formData.append("total_documents", arr.length);
-				formData.append("refurbish_id", $('#refurbish_id').val());
-				formData.append("repo_id", $('#repo_id').val());
-				formData.append("module_id", current_module_id);
-				formData.append("classification", $('#unit-classification').val());
+				formData.append('total_documents', arr.length);
 
-				let parts = []
+				// Main refurbish fields
+				formData.append('refurbish_id', $('#refurbish_id').val());
+				formData.append('repo_id', $('#repo_id').val());
+				formData.append('module_id', current_module_id);
+				formData.append('classification', $('#unit-classification').val());
 
+				// Spare parts
+				let parts = [];
 				for (let i = 0; i < spares.length; i++) {
-					parts.push({
-						received_parts_id: $(`#received-id-${ spares[i].parts }`).val(),
-						parts_id: spares[i].parts,
-						status: $('#repo_stats-' + spares[i].parts).val(),
-						actual_price: $('#actual-price-' + spares[i].parts).val()
-					})
+					const partId = spares[i].parts;
+					const partData = {
+							received_parts_id: $(`#received-id-${partId}`).val() || null,
+							parts_id: partId,
+							status: $(`#repo_stats-${partId}`).val() || null,
+							actual_price: $(`#actual-price-${partId}`).val() || null,
+					};
+					parts.push(partData);
 				}
-				formData.append("spares", JSON.stringify(parts));
+
+				formData.append('spares', JSON.stringify(parts));
 
 				showLoader()
 				$.ajax({
@@ -396,6 +408,7 @@
 						hideLoader()
 						let msg = status == 1 ? 'Request Refurbish Succesfully approved!' : 'Request Refurbish disapproved!'
 						toast(msg, 'success');
+						$('#remarks').val('')
 
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
@@ -424,34 +437,22 @@
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
-				ajax: function(data, callback, settings) {
-					fetch(`${baseUrl}/getListForRefurbishProcess/${ current_module_id }`, {
-						method: 'GET',
-						headers: {
-							'Authorization': `Bearer ${auth.token}`,
-							'Content-Type': 'application/json',
-						},
-					})
-					.then(response => response.json())
-					.then(data => {
-						callback({
-							draw: settings.iDraw,
-							recordsTotal: data.recordsTotal,
-							recordsFiltered: data.recordsFiltered, 
-							data: data.data
-						});
-					})
-					.catch(error => {
-						console.error('Error fetching data:', error);
-					});
+				ajax: {
+					url: `${baseUrl}/getListForRefurbishProcess/${ current_module_id }`,
+					type: 'GET',
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					}
+				},
+				fixedColumns: {
+					left: 0,
+					right: 1
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [
-
-					{
-						data: "branchname"
-					},
+					{ data: "branchname", className: "fw-semibold", visible: (auth.role.toLowerCase() !== 'warehouse custodian' ? true : false) },
 					{
 						data: "brandname"
 					},
@@ -626,6 +627,9 @@
 		}
 
 		function edit(repo_id, refurbish_id, branchid, branchname, brand, repo_id, modelname, chassis, engine, role, actionTaken, color, remarks, processid, classification, receive_id) {
+			getPartsForRefurbish(receive_id, role, refurbish_id)
+			$('#table-docs').empty();
+
 			$('#uploaded-qoutation').hide()
 			$('#maker-remarks').hide()
 			user_action = actionTaken
@@ -660,7 +664,6 @@
 				$('.btnapprover').css('display', 'block')
 			}
 
-
 			//let obJ = JSON.Parse(data)
 			$('#refurbish_id').val(refurbish_id)
 			$('#branch_id').val(branchid)
@@ -675,86 +678,78 @@
 			$('#unit-classification').val(classification).trigger('change')
 
 			//get list of missing and damages parts
-			getPartsForRefurbish(receive_id, role, refurbish_id)
 		}
 
 		function getPartsForRefurbish(receive_id, role, refurbish_id) {
-			$('#part-list').html('')
-			
-			var fetch_id = (role == 'Maker' ? 0 : refurbish_id)
-			console.log(fetch_id, receive_id, role, refurbish_id)
+			$('#part-list').html('');
+			spares = []; 
+
+			const fetch_id = role === 'Maker' ? 0 : refurbish_id;
 
 			$.ajax({
 				url: `${baseUrl}/getPartsForRefurbish`,
 				type: 'GET',
 				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
+						Authorization: `Bearer ${auth.token}`,
 				},
 				data: {
-					'received_id' : receive_id,
-					'fetch_id' : fetch_id
+						received_id: receive_id,
+						fetch_id: fetch_id,
 				},
-				success: function(data) {
-					console.log(data)
-		
-					let tbl = `<table border="1" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Parts</th>
-											<th>Price</th>
-											<th>Actual Price</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                `
-					for (let i = 0; i < data.length; i++) {
-						spares.push({
-							parts: data[i].record_id
-						})
+				success: function (data) {
 
-						tbl += `<tr>
-                                    <td>
-                                    <input type="hidden" class="form-control" id="received-id-${data[i].record_id}" value="${data[i].record_id}" autocomplete="off" disabled>
-                                    <input type="text" class="form-control" value="${data[i].name}" autocomplete="off" disabled>
-                                    </td>
+					let tbl = `
+						<table border="1" width="100%">
+							<thead>
+									<tr>
+										<th>Parts</th>
+										<th>Price</th>
+										<th>Actual Price</th>
+										<th>Status</th>
+									</tr>
+							</thead>
+							<tbody>
+					`;
+
+					data.forEach((item) => {
+						spares.push({ parts: item.record_id });
+
+						tbl += `
+							<tr>
 									<td>
-                                    <input type="number" class="form-control"  value="${data[i].price}" autocomplete="off" disabled>
-                                    </td>
+										<input type="hidden" class="form-control" id="received-id-${item.record_id}" value="${item.record_id}" autocomplete="off">
+										<input type="text" class="form-control" value="${item.name}" autocomplete="off" disabled>
+									</td>
 									<td>
-                                    <input type="number" class="form-control" id="actual-price-${data[i].record_id}"  value="${data[i].actual_price}">
-                                    </td>
-                                    <td>`
-
-						if (role == 'Maker') {
-
-							tbl += `<select id="repo_stats-${data[i].record_id}" class="form-control">
+										<input type="number" class="form-control" value="${item.price}" autocomplete="off" disabled>
+									</td>
+									<td>
+										<input type="number" class="form-control" id="actual-price-${item.record_id}" value="${item.actual_price ?? ''}" autocomplete="off">
+									</td>
+									<td>
+										<select id="repo_stats-${item.record_id}" class="form-control" ${role === 'Maker' ? '' : 'disabled'}>
 											<option value="">Select Status</option>
 											<option value="done">Refurbishing Done</option>
 											<option value="na">No available Parts</option>
-										</select>`
+										</select>
+									</td>
+							</tr>
+						`;
+					});
 
-						} else {
-							tbl += `<select id="repo_stats-${data[i].record_id}" class="form-control" disabled>
-											<option value="">Select Status</option>
-											<option value="done">Refurbishing Done</option>
-											<option value="na">No available Parts</option>
-										</select>`
+					tbl += `</tbody></table>`;
+					$('#part-list').html(tbl);
+
+					data.forEach((item) => {
+						if (item.status) {
+							$(`#repo_stats-${item.record_id}`).val(item.status).trigger('change');
 						}
-
-						tbl += `</td></tr>`
-
-
-						setTimeout(() => {
-							$(`#repo_stats-${data[i].record_id}`).val(data[i].status).trigger('change');
-						}, 200);
-					}
-					tbl += `</table>`
-					$('#part-list').html(tbl)
+					});
 				},
-				error: function(response) {
+				error: function (response) {
 					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
+					forceLogout(response.responseJSON); // if token expired
+				},
 			});
 		}
 

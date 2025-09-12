@@ -216,6 +216,8 @@
 		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
 
 		function Request_reprice() {
+			$('#list').show()
+			$('#details').hide()
 			getListOfUnits()
 		}
 
@@ -251,12 +253,9 @@
 			$('#save-details').click(function(event) {
 				event.preventDefault();
 
-
-				var url = (data_id == null ? `${baseUrl}/requestRefurbish` : `${baseUrl}/updateRefurbish/${ data_id }`)
-
+				var url = (data_id == null ? `${baseUrl}/requestRefurbish` : `${baseUrl}/	/${ data_id }`)
 
 				var formData = new FormData();
-
 				formData.append("q1", $('#q1')[0].files[0]);
 				formData.append("q2", $('#q2')[0].files[0]);
 				formData.append("q3", $('#q3')[0].files[0]);
@@ -297,10 +296,13 @@
 							toast(msg, 'success');
 							$('#staticBackdrop').modal('hide')
 							display_table(current_module_id)
-							 qoute1 = null
-							 qoute2 = null
-							 qoute3 = null
-							 data_id = null
+							$('#q1').val('')
+							$('#q2').val('')
+							$('#q3').val('')
+							qoute1 = null
+							qoute2 = null
+							qoute3 = null
+							data_id = null
 						}
 					},
 					error: function(response) {
@@ -332,8 +334,6 @@
 				module_id: current_module_id
 			}
 
-			console.log(data)
-
 			showLoader()
 
 			$.ajax({
@@ -353,7 +353,7 @@
 						hideLoader()
 						let msg = status == 1 ? 'Request Refurbish Succesfully approved!' : 'Request Refurbish disapproved!'
 						toast(msg, 'success');
-
+						$('#remarks').val('')
 						qoute_data = []
 						$('#staticBackdrop').modal('hide')
 						display_table(current_module_id)
@@ -459,13 +459,15 @@
 						console.error('DataTables AJAX error:', error, thrown);
 					}
 				},
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [
 
-					{
-						data: "branchname"
-					},
+					{ data: "branchname", className: "fw-semibold", visible: (auth.role.toLowerCase() !== 'warehouse custodian' ? true : false) },
 					{
 						data: "brandname"
 					},

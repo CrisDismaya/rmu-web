@@ -360,6 +360,7 @@
 					toast(data.message, (!data.success ? 'danger' : 'success'));
 					display_table(current_module_id)
 					data_id = null
+					$('#staticBackdrop').modal('hide')
 					hideLoader()
 				},
 				error: function(response) {
@@ -393,6 +394,7 @@
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
+				ordering: false,
 				columns: [
 					{ data: "branchname" },
 					{ data: "brandname" },
@@ -452,8 +454,9 @@
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
+				ordering: false,
 				columns: [
-					{ data: "branchname", visible: (current_roles === 'Maker') },
+					{ data: "branchname", className: "fw-semibold", visible: (auth.role.toLowerCase() !== 'warehouse custodian' ? true : false) },
 					{ data: "brandname" },
 					{ data: "model_name" },
 					{ data: "color" },

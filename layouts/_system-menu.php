@@ -167,6 +167,7 @@
 	<script>
 
 		var matrix = []
+		let selectedModule = 0;
 		$(document).ready(function(){
 			$('.detail').hide()
 			$('#edit-status').hide()
@@ -198,7 +199,6 @@
 						menu_status : $('#status').val(),
                },
 					success: function (data) { 
-                  // console.log(data)
 						if(!data.success){
 							toast(data.message, 'danger');
 						}
@@ -225,19 +225,26 @@
 				}
 
 				let info = []
-				for(let i = 0; i < matrix.length; i++){
+				for (let i = 0; i < matrix.length; i++) {
+					let signatory = $('#signatory-' + matrix[i].order).val();
 
-					if($('#signatory-'+matrix[i].order).val() == ''){
-						toast('Signatory is required at row ' + parseInt(i+1) , 'danger');
-						return false
+					if (!signatory) {
+						// ✅ Skip if empty/null
+						continue;
 					}
+
 					info.push({
-						module_id:matrix[i].moduleid,
-						level:matrix[i].order,
-						signatories:[{
-							user:$('#signatory-'+matrix[i].order).val()
+						module_id: matrix[i].moduleid,
+						level: matrix[i].order,
+						signatories: [{
+								user: signatory
 						}]
-					})
+					});
+				}
+				
+				if (info.length == 0) {
+					toast('No approver to save', 'danger');
+					return false;
 				}
 
 				const moduleId = info.length > 0 ? info[0].module_id : null;
@@ -245,7 +252,6 @@
 				$.ajax({
 					url: `${ baseUrl }/createMatrix`, 
 					type: 'POST', 
-					
 					headers:{
 						'Authorization':`Bearer ${ auth.token }`,
 					},
@@ -434,6 +440,8 @@
 		}
 		function setApproval(moduleid,page){
 
+			selectedModule = moduleid
+
 			getAllPageSignatory(moduleid)
 
 			matrix = []
@@ -470,7 +478,7 @@
 		function newSignatory(){
 
 			matrix.push({
-				moduleid:matrix[0].moduleid,
+				moduleid:selectedModule,
 				order:''
 			})
 
@@ -601,7 +609,6 @@
 						map_id : (map_id == null ? 0 : map_id)
                },
 					success: function (data) { 
-                  console.log(data)
 						if(!data.success){
 							toast(data.message, 'danger');
 						}
@@ -619,8 +626,10 @@
 		}
 
 		function addSignatory(){
+			$('#approval-matrix').empty();
 			$('.listing').hide()
 			$('.detail').show()
+			newSignatory();
 		}
 
 		function closeModal(){
@@ -658,7 +667,7 @@
 					{ data: null, defaultContent: '',
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
-								<button class="btn btn-sm btn-soft-danger" onclick="removeMatrix(${ oData.id })"> 
+								<button class="btn btn-sm btn-soft-danger" onclick="removeMatrix(${ oData.id }, ${ pageid })"> 
 									X 
 								</button>
 							`;
@@ -669,7 +678,7 @@
 			});
 		}
 
-		function removeMatrix(id){
+		function removeMatrix(id, pageId){
 
 			$.ajax({
 					url: `${ baseUrl }/removeMatrix/${id}`, 
@@ -682,7 +691,7 @@
 							toast('Approver successfully removed in matrix!', 'success');
 							$('.listing').show()
 							$('.detail').hide()
-							getAllPageSignatory(matrix[0].moduleid)
+							getAllPageSignatory(pageId)
 						}
 						else {
 							toast(data.message, 'warning');
