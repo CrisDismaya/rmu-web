@@ -437,7 +437,7 @@
 														<label class="form-label"> Spare Parts </label>
 													</div>
 													
-													<div class="col-sm-3">
+													<div class="col-sm-2">
 														<label class="form-label"> Status </label>
 													</div>
 
@@ -445,7 +445,11 @@
 														<label class="form-label"> Price </label>
 													</div>
 
-													<div class="col-sm-3">
+													<div class="col-sm-2">
+														<label class="form-label"> Proof </label>
+													</div>
+
+													<div class="col-sm-2">
 														<label class="form-label"> Remarks </label>
 														<span class="text-muted">(Optional)</span>
 													</div>
@@ -484,6 +488,16 @@
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<img id="image-selected-preview" src="" alt="">
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="zoomImageModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+				<div class="modal-body text-center p-0">
+					<img id="zoomImage" src="" class="img-fluid rounded" alt="Zoomed Image">
+				</div>
 			</div>
 		</div>
 	</div>
@@ -544,19 +558,6 @@
 				}
 			});
 
-			// $('#unit-model').change(function(e){
-			// 	e.preventDefault()
-			// 	var model_id = $(this).val();
-			// 	if(model_id != ''){
-			// 		fetch_color_list(model_id, color_id)
-			// 		$('#unit-color').prop('disabled', parseInt($('#save-details').data('repo-id')) == 0 || attrValue === false ? false : true);
-			// 	}
-			// 	else{
-			// 		$('#unit-color').empty();
-			// 		// $('#unit-color').prop('disabled', true);
-			// 	}
-			// });
-
 			$('#unit-apprehension').change(function(e){
 				e.preventDefault()
 				var answer = $(this).val();
@@ -574,7 +575,7 @@
 				
 				// accept="image/png, image/jpg, image/jpeg"
 				$('#append-upload-section').prepend(`
-					<div class="col-sm-3" id="append-item-${ filesCounter }">
+					<div class="col-sm-3" id="append-item-${ filesCounter }" data-is-new="1">
 						<input type="hidden" id="image-id-${ filesCounter }" value="0">
 						<figure class="figure mb-2">
 							<img  src="../assets/images/small/img-4.jpg" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ filesCounter }-preview" onclick="document.getElementById('input-file-${ filesCounter }').click();">
@@ -607,21 +608,26 @@
 
 			$('#add-new-spare-parts').click(function(e){
 				e.preventDefault()
+				
+				if($('.spare-parts-row').length > 0) {
+					var partsId = $(`#unit-parts-${ partsCounter }`).val();
+					var partsStatus = $(`#unit-parts-status-${ partsCounter }`).val();
+					var partsPrice = $(`#unit-parts-price-${ partsCounter }`).val();
+					var $fileInput = $(`#unit-parts-proof-${ partsCounter }`);
+					var partsFile = ($fileInput.length > 0) ? $fileInput[0].files[0] : undefined;
+					var partsRemarks = $(`#unit-parts-remarks-${ partsCounter }`).val();
 
-				var partsId = $(`#unit-parts-${ partsCounter }`).val();
-				var partsStatus = $(`#unit-parts-status-${ partsCounter }`).val();
-				var partsPrice = $(`#unit-parts-price-${ partsCounter }`).val();
-				var partsRemarks = $(`#unit-parts-remarks-${ partsCounter }`).val();
+					if (partsId === '' || partsStatus === '' || partsPrice === '' || typeof partsFile === 'undefined') {
+						toast('Please fill out all the fields before add a new row', 'warning');
+						return;
+					}
 
-				if (partsId === '' || partsStatus === '' || partsPrice === '') {
-					toast('Please fill out all the fields before add a new row', 'warning');
-					return;
 				}
 
 				partsCounter++;
 
 				var html = `
-					<div id="row-tools-${ partsCounter }" class="col-lg-12 row">
+					<div id="row-tools-${ partsCounter }" class="col-lg-12 row spare-parts-row">
 						<input type="hidden" id="unit-spare-parts-id-${ partsCounter }" value="0">
 						<div class="col-sm-3">
 							<div class="mb-3">
@@ -629,10 +635,10 @@
 							</div>
 						</div>
 						
-						<div class="col-sm-3">
+						<div class="col-sm-2">
 							<div class="mb-3">
 								<select id="unit-parts-status-${ partsCounter }" class="form-control">
-									<option value=""> Select Status </option>
+									<option value=""> Status </option>
 									<option value="Damaged"> Damaged </option>
 									<option value="Missing"> Missing </option>
 								</select>
@@ -645,7 +651,25 @@
 							</div>
 						</div>
 
-						<div class="col-sm-3">
+						<div class="col-sm-2">
+							<div class="d-flex mb-3">
+								<div class="flex-shrink-0 hstack">
+									<img src="../assets/images/small/img-4.jpg" class="rounded material-shadow img-thumb" alt="55x55" width="55" height="38" style="cursor:pointer"
+										id="unit-parts-proof-${ partsCounter }-preview" 
+										onclick="showZoomImage(this.src)"
+									>
+									<input type="file" id="unit-parts-proof-${ partsCounter }" class="form-control d-none" accept="image/*" onchange="preview_photo(this.id)">
+								</div>
+								<div class="flex-grow-1 ms-3">
+									<button type="button" class="btn btn-ghost-primary waves-effect waves-light material-shadow-none"
+										onclick="document.getElementById('unit-parts-proof-${ partsCounter }').click();">
+										<i class="ri-upload-2-line" style="font-size:15px;"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-sm-2">
 							<div class="mb-3">
 								<input type="text" id="unit-parts-remarks-${ partsCounter }" class="form-control isNullPrice" placeholder="Remarks" autocomplete="off">
 							</div>
@@ -667,7 +691,7 @@
 				var choices2 = new Choices(`#unit-parts-status-${ partsCounter }`);
 
 				$('#spare-parts-append-count').val(partsCounter)
-				parseInt($('#spare-parts-append-count').val()) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
+				parseInt($('.spare-parts-row').length) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
 				setTimeout(() => { $(`#remove-row-${ partsCounter }`).prop('disabled', false) }, 2000)
 				append_number_format_keyup()
 			});
@@ -730,6 +754,7 @@
 					}
 				}
 
+				// Validation for Previous Owner
 				if(timesRepoCounter > 1){
 					for (let index = 1; index < timesRepoCounter; index++) {
 						var names = $(`#unit-exOwner-${ index }`).val();
@@ -741,6 +766,7 @@
 					}
 				}
 
+				// Validation for Upload Files
 				var required_files_count = requiredFiles.length
 				var append_count = parseInt($('#append-counter').val())
 				if(append_count > 0){
@@ -750,8 +776,18 @@
 
 							var id = parseInt($(`#image-id-${ i }`).val());
 							var file = $(`#input-file-${ i }`)[0].files[0];
-							var selected_file = $(`#seleted-image-${ i }`).val();
-							var selected_filename = $(`#seleted-image-${ i } option:selected`).text();
+
+							let el = $(`#seleted-image-${i}`);
+							let selected_file, selected_filename;
+
+							if (el.prop("tagName") === "SELECT") {
+								selected_file = el.val();
+								selected_filename = el.find("option:selected").text();
+							} 
+							else if (el.prop("tagName") === "INPUT") {
+								selected_file = el.data("document-id");
+								selected_filename = el.val();
+							}
 
 							if(id == 0 && !file || !selected_file){
 								toast(`Upload Files Tab: Please check the details of pictres if complete`, 'warning');
@@ -764,11 +800,14 @@
 								return false;
 							}
 
-							uploadedFiles.push(selected_file);
+							uploadedFiles.push(parseInt(selected_file));
 						}
 					}
 
-					var isCompleteRequiredFiles = requiredFiles.every(item => uploadedFiles.includes(item.id));
+					console.log('uploadedFiles: ', uploadedFiles)
+					console.log('requiredFiles: ', requiredFiles)
+
+					var isCompleteRequiredFiles = requiredFiles.every(item => uploadedFiles.includes(parseInt(item.id)));
 					if(!isCompleteRequiredFiles){
 						toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
 						return false;
@@ -779,28 +818,33 @@
 						toast(`Upload Files Tab: Please check the file have redundant file: ${ filterRedundant }`, 'warning');
 						return false;
 					}
-
 				}
 				else{
 					toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
 					return false;
 				}
 
+				// Validation for Spare Parts
 				if(parseInt($('#spare-parts-append-count').val()) > 0){
 					for (let index = 1; index <= partsCounter; index++) {
 
 						var partsId = $(`#unit-parts-${ index }`).val();
 						var partsStatus = $(`#unit-parts-status-${ index }`).val();
 						var partsPrice = $(`#unit-parts-price-${ index }`).val();
+						let fileInput = $(`#unit-parts-proof-${ index }`)[0];
+						let partsFile = fileInput && fileInput.files && fileInput.files.length > 0 
+							? fileInput.files[0] 
+							: null;
 						var partsRemarks = $(`#unit-parts-remarks-${ index }`).val();
+						
 
-						if (partsId === '' || partsStatus === '' || partsPrice === '') {
-							toast('Missing & Damaged Parts Tab: Please check the row if fields is not empty', 'warning');
+						if (partsId === '' || partsStatus === '' || partsPrice === '' || !partsFile) {
+							toast('Missing & Damaged Parts Tab: Please check the row if fields is not empty and uploaded image', 'warning');
 							return false;
 						}
 					}
 				}
-				else if(!$('#certifying-unit').is(':Checked')){
+				else if(!$('#certifying-unit').is(':checked')){
 					toast('Missing & Damaged Parts Tab: Please Check the checkbox if not available parts', 'warning')
 					return false
 				}
@@ -846,6 +890,7 @@
 
 				$('#save-details').prop('disabled', false);
 
+				// previous owner
 				const exOnwers = [];
 				for (let index = 1; index <= timesRepoCounter; index++) {
 					var container = $(`#container-ex-onwers-${ index }`).length;
@@ -857,6 +902,7 @@
 				from_data.append('times_repossessed', parseInt($('#unit-times-repossessed').val()));
 				from_data.append('repossessed_exowner', JSON.stringify(exOnwers));
 
+				// files uploads
 				for (let i = 1; i <= append_count; i++) {
 					var append_id_if_exists = $(`#append-item-${ i }`).length;
 					if(append_id_if_exists == 1){
@@ -866,11 +912,12 @@
 							from_data.append(`image_fetch_id_${ i }`, $(`#image-id-${ i }`).val());
 							from_data.append(`image_${ i }`, $(`#input-file-${ i }`)[0].files[0]);
 							from_data.append(`image_id_${ i }`, $(`#seleted-image-${ i }`).val());
-							from_data.append(`image_name_${ i }`, $(`#seleted-image-${ i } option:selected`).text());
+							from_data.append(`image_name_${ i }`, $(`#seleted-image-${ i } option:selected`).text().trim());
 						}
 					}
 				}
 
+				// spare parts
 				for (let x = 1; x <= partsCounter; x++) {
 					var append_id_if_exists = $(`#row-tools-${ x }`).length;
 					if(append_id_if_exists == 1){
@@ -878,13 +925,15 @@
 						from_data.append(`spare_parts_id_${ x }`, $(`#unit-parts-${ x }`).val());
 						from_data.append(`spare_parts_status_${ x }`, $(`#unit-parts-status-${ x }`).val());
 						from_data.append(`spare_parts_price_${ x }`, $(`#unit-parts-price-${ x }`).val());
+
+						var file = $(`#unit-parts-proof-${ x }`)[0].files[0];
+						if (typeof file !== 'undefined') {
+							from_data.append(`spare_parts_proof_${ x }`, file);
+						}
+
 						from_data.append(`spare_parts_remarks_${ x }`, $(`#unit-parts-remarks-${ x }`).val());
 					}
 				}
-
-				// for (var pair of from_data.entries()) {
-				// 	console.log(pair[0]+ ', ' + pair[1]); 
-				// }
 
 				$.ajax({
 					url: url, 
@@ -920,6 +969,20 @@
 			});
 		});
 
+		function showZoomImage(src) {
+			if (!src || src.includes("img-4.jpg")) {
+				toast("No image available to zoom.", "warning"); // optional feedback
+				return;
+			}
+
+			const zoomImage = document.getElementById("zoomImage");
+			if (zoomImage) {
+				zoomImage.src = src;
+			}
+
+			$('#zoomImageModal').modal('show');
+		}
+
 		async function display_table(){
 			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
 				$('#received-unit-table').DataTable().clear().destroy();
@@ -946,7 +1009,7 @@
 				scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ title: "Brancd", data: "branch_name", className: "fw-semibold" }, // , visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
+					{ title: "Brancd", data: "branch_name", className: "fw-semibold", visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false },
 					{  title: "Inventory IN", data: "transaction_number_inventory_in", className: "fw-semibold" },
 					{  title: "Customer ID", data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
@@ -1068,7 +1131,7 @@
 			$('#unit-apprehension').val('').trigger('change').attr('disabled', false)
 			$('#unit-apprehension-description').val('').trigger('change').attr('disabled', false)
 			$('#unit-apprehension-summary').val('').attr('disabled', false)
-			$('#unit-times-repossessed').val('0').attr('disabled', false)
+			$('#unit-times-repossessed').val('1').attr('disabled', false)
 			$('#multiple-times-repos').empty()
 			$('#multiple-times-repos-fetch').empty()
 
@@ -1085,13 +1148,14 @@
 			$('#unit-principal-balance').val('').attr('disabled', false)
 			$('#unit-original-owner').val('').attr('disabled', false)
 
-			
 			$('#div-button-add-upload').css('display', 'block')
 			$('#add-new-spare-parts').css('display', 'block')
 
-			$('#certifying-unit').prop('disabled', false);
+			$('#certifying-unit').prop('checked', false).prop('disabled', false);
 			$('#spare-parts-append-count').val(0)
 			$('#div-append-spare-parts').empty()
+
+			$('#pills-bill-info-tab').tab('show');
 		}
 		
 		function button_show_hide(tab_id){
@@ -1507,30 +1571,43 @@
 			}
 
 			$('#spare-parts-append-count').val( parseInt($('#spare-parts-append-count').val()) - 1)
-			parseInt($('#spare-parts-append-count').val()) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
+			parseInt($('.spare-parts-row').length) > 0 ? $('#certifying-unit').prop('disabled', true) : $('#certifying-unit').prop('disabled', false)
 		}
 
 		function checkRedundancy(requiredJson, receivedArray) {
-			const requiredIds = requiredJson.map(item => item.id);
+			// Normalize everything to integers
+			const requiredIds = requiredJson.map(item => parseInt(item.id));
+
+			// Count received IDs
 			const idCounts = receivedArray.reduce((counts, id) => {
-				counts[id] = (counts[id] || 0) + 1;
+				const numId = parseInt(id);
+				counts[numId] = (counts[numId] || 0) + 1;
 				return counts;
 			}, {});
 
-			const redundantIds = Object.entries(idCounts).some(([id, count]) => count > requiredIds.filter(reqId => reqId === id).length);
+			// Find redundant IDs (uploaded more than once compared to required)
+			const redundantIds = Object.entries(idCounts)
+				.filter(([id, count]) => count > requiredIds.filter(reqId => reqId === parseInt(id)).length)
+				.map(([id]) => parseInt(id));
 
 			if (redundantIds.length > 0) {
-				const redundantFileIds = redundantIds.map(([id, _]) => id);
-				const redundantFiles = requiredJson.filter(item => redundantFileIds.includes(item.id)).map(item => item.filename);
-				return `Redundant files: ${redundantFiles.join(", ")}`;
-			} else {
-				return false;
+				// Map back to filenames for nicer message
+				const redundantFiles = requiredJson
+						.filter(item => redundantIds.includes(parseInt(item.id)))
+						.map(item => item.filename);
+
+				return `${redundantFiles.join(", ")}`;
 			}
+
+			return false;
 		}
 
 		function edit(id){
-			$('#save-details').prop('disabled', true);
-			$('#save-details').data('repo-id', id);
+			$('#pills-bill-info-tab').tab('show');
+			$('#save-details')
+				.prop('disabled', true)
+				.data('repo-id', id)
+				.hide()
 			
 			$.ajax({
 				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ current_module_id }`, 
@@ -1541,9 +1618,10 @@
 				success: function (data) {
 					// console.log(data)
 
-					data.disabled == true ? $('#save-details').hide() : $('#save-details').show()
-
-					$('#save-details').data('repo-id', data.repo.id)
+					$('#save-details')
+						.prop('disabled', data.disabled)
+						.css('display', (data.disabled === true ? 'none' : 'block'));
+					
 					$('#customer-acumatica-id').val(data.customer_details.id).trigger('change').attr('disabled', attrValue)
 					$('#unit-brand').val(data.brand_details.id).trigger('change').attr('disabled', attrValue)
 			   	fetch_branch_with_model(data.brand_details.id, data.model_details.id)
@@ -1601,132 +1679,220 @@
 					}
 
 					var filesJson = data.picture_details;
-
 					// div-button-add-upload
 					$('#div-button-add-upload').css('display', (data.disabled === true ? 'none' : 'block'))
 					$('#append-upload-section').empty()
 					var image_path = `${ baseUrl.replace('/api', '') }`;
 					
-					for (let i = 0; i < filesJson.length; i++) {
-						const el = filesJson[i];
-						
-						var append_count = i + 1;
-						var string = el.path.split('.')
-						var extension = string[string.length - 1].toLowerCase();
-						var image_extension = ['jpg', 'jpeg', 'png'];
-						var image_source = '';
+					filesJson.forEach((el, i) => {
+						const append_count = i + 1;
 
-						if(image_extension.indexOf(extension) !== -1){
-							image_source = image_path +'/'+ el.path;
+						// extract extension
+						const extension = el.path.split('.').pop().toLowerCase();
+
+						// supported extensions and fallback icons
+						const fileIcons = {
+							pdf:  '../assets/images/small/default-pdf.png',
+							docx: '../assets/images/small/default-docs.png',
+							xlsx: '../assets/images/small/default-xlsx.png'
+						};
+						const imageExtensions = ['jpg', 'jpeg', 'png'];
+
+						// decide image source
+						let image_source;
+						if (imageExtensions.includes(extension)) {
+							image_source = `${image_path}/${el.path}`;
+						} else {
+							image_source = fileIcons[extension] || '../assets/images/small/img-1.jpg';
 						}
-						else if(extension == 'pdf'){
-							image_source = '../assets/images/small/default-pdf.png';
-						}
-						else if(extension == 'docx'){
-							image_source = '../assets/images/small/default-docs.png';
-						}
-						else if(extension == 'xlsx'){
-							image_source = '../assets/images/small/default-xlsx.png';
-						}
-						else{
-							image_source = '../assets/images/small/img-1.jpg';
-						}
-						
-						$('#append-upload-section').append(`
-							<div class="col-sm-3" id="append-item-${ append_count }">
-								<input type="hidden" id="image-id-${ append_count }" value="${ el.id }">
+
+						// build html
+						const html = `
+							<div class="col-sm-3" id="append-item-${append_count}" data-is-new="0">
+								<input type="hidden" id="image-id-${append_count}" value="${el.id}">
 								<figure class="figure mb-2">
-									<img  src="${ image_source }" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ append_count }-preview" onclick="document.getElementById('input-file-${ append_count }').click();">
-									<input type="file" id="input-file-${ append_count }" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
+									<img 
+										src="${image_source}" 
+										class="figure-img img-thumbnail rounded" 
+										alt="..." 
+										id="input-file-${append_count}-preview"
+										onclick="document.getElementById('input-file-${append_count}').click();"
+										onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
+									>
+									<input 
+										type="file" 
+										id="input-file-${append_count}" 
+										class="form-control d-none"  
+										onchange="preview_photo(this.id)" 
+										disabled
+									>
 									<figcaption class="figure-caption input-group input-group-sm">
 										<div class="input-group">
-											<select class="form-select form-select-sm" id="seleted-image-${ append_count }" aria-label="Example select with button addon" disabled>
-												<option value=""> Select </option>
-											</select>
-											<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="picture-view-${ append_count }" type="button" onclick="view_image(${ append_count })"  style="display:${ image_extension.indexOf(extension) !== -1 ? 'block' : 'none' };">
-												<i class="ri-image-line label-icon align-middle"></i> 
-											</button>
-											<a role="button" class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="download-file-${ append_count }" href="${ image_source }" download style="display:${ image_extension.indexOf(extension) !== -1 ? 'none' : 'block' };">
-												<i class="ri-download-2-line label-icon align-middle"></i> 
-											</a>
-											<button class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" type="button" onclick="remove_image(${ append_count }, ${ el.id })" style="display:${ data.disabled === true ? 'none' : 'block' };">
-												<i class="ri-delete-bin-line label-icon align-middle"></i>
-											</button>
+												<input 
+													class="form-control form-control-sm" 
+													id="seleted-image-${ append_count }"
+													type="text" 
+													value="${el.files_name}"
+													data-document-id="${el.files_id}"
+													disabled
+												>
+												<button 
+													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+													id="picture-view-${append_count}" 
+													type="button" 
+													onclick="view_image(${append_count})"
+													style="display:${imageExtensions.includes(extension) ? 'block' : 'none'};"
+												>
+													<i class="ri-image-line label-icon align-middle"></i> 
+												</button>
+												<a 
+													role="button" 
+													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+													id="download-file-${append_count}" 
+													href="${image_source}" 
+													download
+													style="display:${imageExtensions.includes(extension) ? 'none' : 'block'};"
+												>
+													<i class="ri-download-2-line label-icon align-middle"></i> 
+												</a>
+												<button 
+													class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" 
+													type="button" 
+													onclick="remove_image(${append_count}, ${el.id})"
+													style="display:${data.disabled === true ? 'none' : 'block'};"
+												>
+													<i class="ri-delete-bin-line label-icon align-middle"></i>
+												</button>
 										</div>
 									</figcaption>
 								</figure>
 							</div>
-						`)
+						`;
 
-						fetch_list_of_image(append_count, el.files_id)
-					}
-					filesCounter = filesJson.length
+						$('#append-upload-section').append(html);
+					});
+					filesCounter = filesJson.length	
 					$('#append-counter').val(`${ filesJson.length }`);
 					
 					// add-new-spare-parts
-					$('#add-new-spare-parts').css('display', (data.disabled === true ? 'none' : 'block'))
-					var partsJson = data.parts_details;
-					$('#div-append-spare-parts').empty()
-					for (let i = 0; i < partsJson.length; i++){
-						const el = partsJson[i];
+					// toggle add-new-spare-parts button
+					$('#add-new-spare-parts').css('display', data.disabled ? 'none' : 'block');
 
-						var append_count = i + 1;
+					let partJson = data.parts_details;
 
-						$('#div-append-spare-parts').append(`
-							<div id="row-tools-${ append_count }" class="col-lg-12 row">
-								<input type="hidden" id="unit-spare-parts-id-${ append_count }" value="${ el.id }">
-								<div class="col-sm-3">
-									<div class="mb-3">
-										<select id="unit-parts-${ append_count }" class="select-single-modal" onchange="fetch_price_per_parts(this, ${ roundOf(el.latest_price) })"></select>
-									</div>
-								</div>
-								
-								<div class="col-sm-3">
-									<div class="mb-3">
-										<select id="unit-parts-status-${ append_count }" class="form-control">
-											<option value=""> Select Status </option>
-											<option value="Damaged"> Damaged </option>
-											<option value="Missing"> Missing </option>
-										</select>
-									</div>
-								</div>
+					// certification toggle
+					const cert_value = (data.received_details.is_certified_no_parts === "true" || (partJson.length === 0 ? true : false));
 
-								<div class="col-sm-2">
-									<div class="mb-3">
-										<input type="text" id="unit-parts-price-${ append_count }" class="form-control number-format text-end" value="${ roundOf(el.latest_price) }" placeholder="0.00" autocomplete="off">
-									</div>
-								</div>
+					$('#certifying-unit')
+						.prop('checked', cert_value)
+						.prop('disabled', !cert_value);
 
-								<div class="col-sm-3">
-									<div class="mb-3">
-										<input type="text" id="unit-parts-remarks-${ append_count }" class="form-control isNullPrice" placeholder="Remarks" autocomplete="off" value="${ (el.parts_remarks == null ? '' : el.parts_remarks) }">
-									</div>
-								</div>
+					$('#add-new-spare-parts').prop('disabled', cert_value);
 
-								<div class="col-sm-1">
-									<div class="mb-3">
-										<button type="button" id="remove-row-${ append_count }" class="btn btn-danger remove-row" data-row-id="${ append_count }" onclick="remove_parts(${ append_count }, ${ el.id })" style="display:${ data.disabled === true ? 'none' : 'block' };">
-											<i class="ri-subtract-line align-bottom"></i>
-										</button>
+					// reset spare parts container
+					$('#div-append-spare-parts').empty();
+
+					// render parts rows
+					partJson.forEach((el, i) => {
+						const append_count = i + 1;
+						const latestPrice = roundOf(el.latest_price);
+						const remarks = el.parts_remarks ?? '';
+
+						const html = `
+							<div id="row-tools-${append_count}" class="col-lg-12 row">
+									<input type="hidden" id="unit-spare-parts-id-${append_count}" value="${el.id}">
+
+									<div class="col-sm-3">
+										<div class="mb-3">
+											<select 
+													id="unit-parts-${append_count}" 
+													class="select-single-modal" 
+													onchange="fetch_price_per_parts(this, ${latestPrice})">
+											</select>
+										</div>
 									</div>
-								</div>
+									
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<select id="unit-parts-status-${append_count}" class="form-control">
+													<option value="">Select Status</option>
+													<option value="Damaged">Damaged</option>
+													<option value="Missing">Missing</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<input 
+													type="text" 
+													id="unit-parts-price-${append_count}" 
+													class="form-control number-format text-end" 
+													value="${latestPrice}" 
+													placeholder="0.00" 
+													autocomplete="off">
+										</div>
+									</div>
+
+									<div class="col-sm-2">
+										<div class="d-flex mb-3">
+											<div class="flex-shrink-0 hstack">
+												<img src="${image_path}/${el.dir_image}" class="rounded material-shadow img-thumb" alt="55x55" width="55" height="38" style="cursor:pointer"
+													id="unit-parts-proof-${ append_count }-preview" 
+													onclick="showZoomImage(this.src)"
+													onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
+												>
+											</div>
+											<div class="flex-grow-1 ms-3">
+												<button type="button" class="btn btn-ghost-primary waves-effect waves-light material-shadow-none"
+													onclick="showZoomImage(document.getElementById('unit-parts-proof-${ append_count }-preview').src)">
+													<i class="ri-eye-line" style="font-size:15px;"></i>
+												</button>
+											</div>
+										</div>
+									</div>
+
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<input 
+													type="text" 
+													id="unit-parts-remarks-${append_count}" 
+													class="form-control isNullPrice" 
+													placeholder="Remarks" 
+													autocomplete="off" 
+													value="${remarks}">
+										</div>
+									</div>
+
+									<div class="col-sm-1">
+										<div class="mb-3">
+											<button 
+													type="button" 
+													id="remove-row-${append_count}" 
+													class="btn btn-danger remove-row" 
+													data-row-id="${append_count}" 
+													onclick="remove_parts(${append_count}, ${el.id})"
+													style="display:${data.disabled ? 'none' : 'block'};">
+													<i class="ri-subtract-line align-bottom"></i>
+											</button>
+										</div>
+									</div>
 							</div>
-						`);
+						`;
 
-						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change')
-						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
-						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name)
+						$('#div-append-spare-parts').append(html);
+
+						// init fields
+						$(`#unit-parts-status-${append_count}`).val(el.parts_status).trigger('change');
+						new Choices(`#unit-parts-status-${append_count}`);
+						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name);
 						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
-						$(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
-					}
-					partsCounter = partsJson.length
-					$('#spare-parts-append-count').val(`${ partsJson.length }`);
+						$(`#unit-parts-price-${append_count}`).val(latestPrice);
+					});
 
-					var cert_value = (data.received_details.is_certified_no_parts == "true" || partsJson.length == 0 ? true : false);
-					$('#certifying-unit').attr('checked', cert_value).attr('disabled', !cert_value)
-					$('#add-new-spare-parts').attr('disabled', cert_value)
-
-					$('#save-details').prop('disabled', false);
+					// update counters
+					partsCounter = partJson.length;
+					$('#spare-parts-append-count').val(partsCounter);
 				}
 			});
 		}
