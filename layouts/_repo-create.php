@@ -1010,7 +1010,7 @@
 				scrollCollapse: true,
 				columns: [
 					{ title: "Brancd", data: "branch_name", className: "fw-semibold", visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false },
-					{  title: "Inventory IN", data: "transaction_number_inventory_in", className: "fw-semibold" },
+					{  title: "Inventory IN", data: "inventory_in", className: "fw-semibold" },
 					{  title: "Customer ID", data: "acumatica_id",
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
