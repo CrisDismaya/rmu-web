@@ -535,7 +535,7 @@
 				data : {
 					id : record_id,
 					status : status,
-					module_id : moduleid,
+					module_id : current_module_id,
 					remarks : $('#approver-remark').val()
 				},
 				dataType: 'json',

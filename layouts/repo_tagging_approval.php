@@ -444,7 +444,7 @@
 														<label class="form-label"> Spare Parts </label>
 													</div>
 													
-													<div class="col-sm-3">
+													<div class="col-sm-2">
 														<label class="form-label"> Status </label>
 													</div>
 
@@ -452,7 +452,11 @@
 														<label class="form-label"> Price </label>
 													</div>
 
-													<div class="col-sm-3">
+													<div class="col-sm-2">
+														<label class="form-label"> Proof </label>
+													</div>
+
+													<div class="col-sm-2">
 														<label class="form-label"> Remarks </label>
 														<span class="text-muted">(Optional)</span>
 													</div>
@@ -520,24 +524,6 @@
          // fetch_customer_profile_list()
 			fetch_locations_list()
 			fetch_list_of_image('0')
-
-			// $('#customer-acumatica-id').change(function(e){
-			// 	e.preventDefault();
-			// 	var id = $(this).val();
-
-			// 	console.log('on change: ', id)
-
-			// 	if(id != ''){
-			// 		fetch_customer_profile_list_id(id)
-			// 	}
-			// 	else{
-			// 		$('#customer-first-name').val('')
-			// 		$('#customer-middle-name').val('')
-			// 		$('#customer-last-name').val('')
-			// 		$('#customer-contact-no').val('')
-			// 		$('#customer-complete-address').val('')
-			// 	}
-			// });
 
 			$('#unit-brand').change(function(e){
 				e.preventDefault()
@@ -623,6 +609,50 @@
 				]
 
 			});
+		}
+
+		function fetch_price_per_parts(element, new_value = ''){
+			var pieces = $(element).attr('id').split('-')
+			var last = pieces[pieces.length - 1]
+			var parts_id = $(element).val()
+
+			if(new_value){
+				$(`#unit-parts-price-${ last }`).val(roundOf(new_value))
+				$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(new_value))
+			}
+			else {
+				if(parts_id != ''){
+					$.ajax({
+						url: `${ baseUrl }/partsPrice/${ parts_id }`, 
+						type: 'GET', 
+						headers:{
+							'Authorization':`Bearer ${ auth.token }`,
+						},
+						success: function (data) {
+							$(`#unit-parts-price-${ last }`).val(roundOf(data.price))
+							$(`#unit-parts-price-${ last }`).attr('placeholder', roundOf(data.price))
+						},
+						error: function(response) {
+							toast(response.responseJSON.message, 'danger');
+							forceLogout(response.responseJSON) //if token is expired
+						}
+					})
+				}
+			}
+		}
+		
+		function showZoomImage(src) {
+			if (!src || src.includes("img-4.jpg")) {
+				toast("No image available to zoom.", "warning"); // optional feedback
+				return;
+			}
+
+			const zoomImage = document.getElementById("zoomImage");
+			if (zoomImage) {
+				zoomImage.src = src;
+			}
+
+			$('#zoomImageModal').modal('show');
 		}
 
 		function view_image(filesCounter){
@@ -873,40 +903,58 @@
 			});
 		}
 
-		function fetch_spare_parts_list(partsCounter, partsid = ''){
-			$.ajax({
-				url: `${ baseUrl }/partsPerModel`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					// console.log(data)
-					$(`#unit-parts-${ partsCounter }`).empty();
+		function fetch_spare_parts_list(partsCounter, modelid, partsid = '', partText = '') {
+			let $select = $(`#unit-parts-${partsCounter}`);
 
-					if(data.length > 0){
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> Choose Spart Parts </option>`);
-						for (let i = 0; i < data.length; i++) {
-							const el = data[i];
-							$(`#unit-parts-${ partsCounter }`).append(`<option value="${ el.value }">${ el.label }</option>`);
-						}
-					}
-					else{
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> No Available Data </option>`);
-					}
-					$(`#unit-parts-${ partsCounter }`).val(partsid != '' ? partsid : '').trigger('change');
+			if ($select.hasClass("select2-hidden-accessible")) {
+				$select.select2('destroy');
+			}
+			
+			$select.select2({
+				dropdownParent: $('#staticBackdrop'),
+				ajax: {
+					url: `${baseUrl}/partsPerModel`,
+					dataType: 'json',
+					delay: 250,
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+					},
+					data: function (params) {
+						return {
+							search: params.term,
+							page: params.page || 1,
+						};
+					},
+					processResults: function (data, params) {
+						params.page = params.page || 1;
+						return {
+							results: data.items,
+							pagination: {
+								more: data.more,
+							},
+						};
+					},
+					cache: true,
 				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
+				placeholder: 'Select Spare Parts',
+				minimumInputLength: 2,
+				templateResult: function (data) {
+					return data.text || 'Loading...';  
+				},
 			});
+
+			if (partsid) {
+				let option = new Option(partText, partsid, true, true);
+				$select.append(option).trigger('change');
+			}
 		}
 		
 		function view_details(id, current_module_id){
+			let repoModuleID = 3;
+
 			$('#approver-decision').prop('disabled', true);
 			$.ajax({
-				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ current_module_id }`, 
+				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ repoModuleID }`, 
 				type: 'GET', 
 				headers:{
 					'Authorization':`Bearer ${ auth.token }`,
@@ -968,114 +1016,201 @@
 						}
 					}
 					
-
+					// files details
 					var filesJson = data.picture_details;
 					$('#append-upload-section').empty()
 					var image_path = `${ baseUrl.replace('/api', '') }`;
-					
-					for (let i = 0; i < filesJson.length; i++) {
-						const el = filesJson[i];
-						
-						var append_count = i + 1;
-						var string = el.path.split('.')
-						var extension = string[string.length - 1].toLowerCase();
-						var image_extension = ['jpg', 'jpeg', 'png'];
-						var image_source = '';
+					filesJson.forEach((el, i) => {
+						const append_count = i + 1;
 
-						if(image_extension.indexOf(extension) !== -1){
-							image_source = image_path +'/'+ el.path;
+						// extract extension
+						const extension = el.path.split('.').pop().toLowerCase();
+
+						// supported extensions and fallback icons
+						const fileIcons = {
+							pdf:  '../assets/images/small/default-pdf.png',
+							docx: '../assets/images/small/default-docs.png',
+							xlsx: '../assets/images/small/default-xlsx.png'
+						};
+						const imageExtensions = ['jpg', 'jpeg', 'png'];
+
+						// decide image source
+						let image_source;
+						if (imageExtensions.includes(extension)) {
+							image_source = `${image_path}/${el.path}`;
+						} else {
+							image_source = fileIcons[extension] || '../assets/images/small/img-1.jpg';
 						}
-						else if(extension == 'pdf'){
-							image_source = '../assets/images/small/default-pdf.png';
-						}
-						else if(extension == 'docx'){
-							image_source = '../assets/images/small/default-docs.png';
-						}
-						else if(extension == 'xlsx'){
-							image_source = '../assets/images/small/default-xlsx.png';
-						}
-						else{
-							image_source = '../assets/images/small/img-1.jpg';
-						}
-						
-						$('#append-upload-section').append(`
-							<div class="col-sm-3" id="append-item-${ append_count }">
-								<input type="hidden" id="image-id-${ append_count }" value="${ el.id }">
+
+						// build html
+						const html = `
+							<div class="col-sm-3" id="append-item-${append_count}" data-is-new="0">
+								<input type="hidden" id="image-id-${append_count}" value="${el.id}">
 								<figure class="figure mb-2">
-									<img  src="${ image_source }" class="figure-img img-thumbnail rounded" alt="..." id="input-file-${ append_count }-preview" onclick="document.getElementById('input-file-${ append_count }').click();">
-									<input type="file" id="input-file-${ append_count }" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
+									<img 
+										src="${image_source}" 
+										class="figure-img img-thumbnail rounded" 
+										alt="..." 
+										id="input-file-${append_count}-preview"
+										onclick="document.getElementById('input-file-${append_count}').click();"
+										onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
+									>
+									<input 
+										type="file" 
+										id="input-file-${append_count}" 
+										class="form-control d-none"  
+										onchange="preview_photo(this.id)" 
+										disabled
+									>
 									<figcaption class="figure-caption input-group input-group-sm">
 										<div class="input-group">
-											<select class="form-select form-select-sm" id="seleted-image-${ append_count }" aria-label="Example select with button addon" disabled>
-												<option value=""> Select </option>
-											</select>
-											<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="picture-view-${ append_count }" type="button" onclick="view_image(${ append_count })"  style="display:${ image_extension.indexOf(extension) !== -1 ? 'block' : 'none' };">
-												<i class="ri-image-line label-icon align-middle"></i> 
-											</button>
-											<a role="button" class="btn btn-sm btn-info bg-gradient waves-effect waves-light" id="download-file-${ append_count }" href="${ image_source }" download style="display:${ image_extension.indexOf(extension) !== -1 ? 'none' : 'block' };">
-												<i class="ri-download-2-line label-icon align-middle"></i> 
-											</a>
+												<input 
+													class="form-control form-control-sm" 
+													id="seleted-image-${ append_count }"
+													type="text" 
+													value="${el.files_name}"
+													data-document-id="${el.files_id}"
+													disabled
+												>
+												<button 
+													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+													id="picture-view-${append_count}" 
+													type="button" 
+													onclick="view_image(${append_count})"
+													style="display:${imageExtensions.includes(extension) ? 'block' : 'none'};"
+												>
+													<i class="ri-image-line label-icon align-middle"></i> 
+												</button>
+												<a 
+													role="button" 
+													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+													id="download-file-${append_count}" 
+													href="${image_source}" 
+													download
+													style="display:${imageExtensions.includes(extension) ? 'none' : 'block'};"
+												>
+													<i class="ri-download-2-line label-icon align-middle"></i> 
+												</a>
 										</div>
 									</figcaption>
 								</figure>
 							</div>
-						`)
+						`;
 
-						fetch_list_of_image(append_count, el.files_id)
-					}
+						$('#append-upload-section').append(html);
+					});
 					filesCounter = filesJson.length
 					$('#append-counter').val(`${ filesJson.length }`);
 					
-					var partsJson = data.parts_details;
+					// spare parts details
+					var partJson = data.parts_details;
+
+					// certification toggle
+					const cert_value = (data.received_details.is_certified_no_parts === "true" || (partJson.length === 0 ? true : false));
+
+					$('#certifying-unit')
+						.prop('checked', cert_value)
+						.prop('disabled', !cert_value);
+
 					$('#div-append-spare-parts').empty()
-					for (let i = 0; i < partsJson.length; i++){
-						const el = partsJson[i];
+					partJson.forEach((el, i) => {
+						const append_count = i + 1;
+						const latestPrice = roundOf(el.latest_price);
+						const remarks = el.parts_remarks ?? '';
 
-						var append_count = i + 1;
+						const html = `
+							<div id="row-tools-${append_count}" class="col-lg-12 row">
+									<input type="hidden" id="unit-spare-parts-id-${append_count}" value="${el.id}">
 
-						$('#div-append-spare-parts').append(`
-							<div id="row-tools-${ append_count }" class="col-lg-12 row">
-								<input type="hidden" id="unit-spare-parts-id-${ append_count }" value="${ el.id }">
-								<div class="col-sm-3">
-									<div class="mb-3">
-										<select id="unit-parts-${ append_count }" class="select-single-modal"></select>
+									<div class="col-sm-3">
+										<div class="mb-3">
+											<select 
+													id="unit-parts-${append_count}" 
+													class="select-single-modal" 
+													onchange="fetch_price_per_parts(this, ${latestPrice})">
+											</select>
+										</div>
 									</div>
-								</div>
-								
-								<div class="col-sm-3">
-									<div class="mb-3">
-										<select id="unit-parts-status-${ append_count }" class="form-control">
-											<option value=""> Choose Status </option>
-											<option value="Damaged"> Damaged </option>
-											<option value="Missing"> Missing </option>
-										</select>
+									
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<select id="unit-parts-status-${append_count}" class="form-control">
+													<option value="">Select Status</option>
+													<option value="Damaged">Damaged</option>
+													<option value="Missing">Missing</option>
+											</select>
+										</div>
 									</div>
-								</div>
 
-								<div class="col-sm-2">
-									<div class="mb-3">
-										<input type="text" id="unit-parts-price-${ append_count }" class="form-control number-format text-end" placeholder="0.00" autocomplete="off" value="${ roundOf(el.price) }" disabled>
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<input 
+													type="text" 
+													id="unit-parts-price-${append_count}" 
+													class="form-control number-format text-end" 
+													value="${latestPrice}" 
+													placeholder="0.00" 
+													autocomplete="off">
+										</div>
 									</div>
-								</div>
 
-								<div class="col-sm-4">
-									<div class="mb-3">
-										<input type="text" id="unit-parts-remarks-${ append_count }" class="form-control isNullPrice" placeholder="Remarks" autocomplete="off" value="${ (el.parts_remarks == null ? '' : el.parts_remarks) }" disabled>
+									<div class="col-sm-2">
+										<div class="d-flex mb-3">
+											<div class="flex-shrink-0 hstack">
+												<img src="${image_path}/${el.dir_image}" class="rounded material-shadow img-thumb" alt="55x55" width="55" height="38" style="cursor:pointer"
+													id="unit-parts-proof-${ append_count }-preview" 
+													onclick="showZoomImage(this.src)"
+													onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
+												>
+											</div>
+											<div class="flex-grow-1 ms-3">
+												<button type="button" class="btn btn-ghost-primary waves-effect waves-light material-shadow-none"
+													onclick="showZoomImage(document.getElementById('unit-parts-proof-${ append_count }-preview').src)">
+													<i class="ri-eye-line" style="font-size:15px;"></i>
+												</button>
+											</div>
+										</div>
 									</div>
-								</div>
+
+									<div class="col-sm-2">
+										<div class="mb-3">
+											<input 
+													type="text" 
+													id="unit-parts-remarks-${append_count}" 
+													class="form-control isNullPrice" 
+													placeholder="Remarks" 
+													autocomplete="off" 
+													value="${remarks}">
+										</div>
+									</div>
+
+									<div class="col-sm-1">
+										<div class="mb-3">
+											<button 
+													type="button" 
+													id="remove-row-${append_count}" 
+													class="btn btn-danger remove-row" 
+													data-row-id="${append_count}" 
+													onclick="remove_parts(${append_count}, ${el.id})"
+													style="display:${data.disabled ? 'none' : 'block'};">
+													<i class="ri-subtract-line align-bottom"></i>
+											</button>
+										</div>
+									</div>
 							</div>
-						`);
+						`;
 
-						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change').prop('disabled', true)
-						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
-						fetch_spare_parts_list(append_count, el.parts_id)
+						$('#div-append-spare-parts').append(html);
+
+						// init fields
+						$(`#unit-parts-status-${append_count}`).val(el.parts_status).trigger('change');
+						new Choices(`#unit-parts-status-${append_count}`);
+						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name);
 						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
-					}
-					partsCounter = partsJson.length
-					$('#spare-parts-append-count').val(`${ partsJson.length }`);
-
-					var cert_value = (data.received_details.is_certified_no_parts == "true" || partsJson.length == 0 ? true : false);
-					$('#certifying-unit').attr('checked', cert_value).attr('disabled', true)
+						$(`#unit-parts-price-${append_count}`).val(latestPrice);
+					});
+					partsCounter = partJson.length
+					$('#spare-parts-append-count').val(partsCounter);
 
 					$('#approver-decision').prop('disabled', false);
 				}

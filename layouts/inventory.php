@@ -49,7 +49,7 @@
 								</div>
 								<div class="card-body">
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-										<thead>
+										<!-- <thead>
 											<tr>
 												<th rowspan="2"></th>
 												<th colspan="2" style="text-align: center;"> Inventory </th>
@@ -74,7 +74,7 @@
 												<th style="text-align: center;">IN</th>
 												<th style="text-align: center;">OUT</th>
 											</tr>
-										</thead>
+										</thead> -->
 									</table>
 								</div>
 							</div>
@@ -177,7 +177,7 @@
 		$(document).ready(function() {
 			fetch_branch_data()
 			display_table()
-			
+
 			$('#branch').change(function() {
 				const branchId = $(this).val() == 'all' ? 0 : $(this).val();
 				display_table(branchId)
@@ -186,7 +186,7 @@
 
 		async function display_table(branchId = 0) {
 			(auth.role == 'Warehouse Custodian' ? $('#branches-selection').hide() : $('#branches-selection').show())
-			
+
 			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
 				$('#received-unit-table').DataTable().clear().destroy();
 			}
@@ -210,180 +210,95 @@
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
+				ordering: false,
 				columns: [
+					{ data: "inventory_in", title: "Inventory In", className: "fw-semibold" },
+					{ data: "inventory_out", title: "Inventory Out", className: "fw-semibold" },
+					{ data: "branch_name", title: "Branch" },
+					{ data: "location_name", title: "Location" },
+					{ data: "ex_owner", title: "Ex Owner" },
+					{ data: "brand_name", title: "Brand" },
+					{ data: "model_name", title: "Model" },
+					{ data: "model_engine", title: "Engine" },
+					{ data: "model_chassis", title: "Chassis" },
+					{ data: "color_name", title: "Color" },
+					{ data: "selling_price", title: "Selling Price", render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''), className: "text-end" },
+					{ data: "aging_days", title: "Aging" },
+					{ data: "quantity", title: "Quantity" },
+					{ data: "available", title: "On Hand" },
+					{ data: "current_status", title: "Current Status" },
 					{
-						data: null,
-						defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							//	
-							html = `<a href="#" title="Click here to view customer history" 
-										onclick="getAllCustomer(${ oData.repo_id })"><u><span>History</span></u></a>`;
-
-							$(nTd).html(html);
+						data: null, title: "Pictures", defaultContent: '', className: "text-center",
+						fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+								let html = `
+									<button class="btn btn-sm btn-soft-primary"
+												onclick="fetch_files_updated(${oData.id})">
+										<i class="bx bx-images"></i>
+									</button>`;
+								$(nTd).html(html);
 						}
 					},
 					{
-						data: "inventory_in", className: "fw-semibold"
-					},
-					{
-						data: "inventory_out", className: "fw-semibold"
-					},
-					{
-						data: "branchname"
-					},
-					{
-						data: "location"
-					},
-					{
-						data: "ex_owner"
-					},
-					{
-						data: "msuisva"
-					},
-					{
-						data: "brandname"
-					},
-					{
-						data: "model_name"
-					},
-					{
-						data: "model_engine"
-					},
-					{
-						data: "model_chassis"
-					},
-					{
-						data: "color"
-					},
-					{
-						data: "current_price",
-						render: $.fn.dataTable.render.number('\, ', '.', 2, '', ''),
-						className: "text-end"
-					},
-					{
-						data: "aging"
-					},
-					{
-						data: "quantity"
-					},
-					{
-						data: "availability"
-					},
-					{
-						data: "status"
-					},
-					{
-						data: null,
-						defaultContent: '',
-						className: "text-center",
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							html = `
-								<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${ oData.repo_id })"> 
-									<i class="bx bx-images"></i>
-								</button> 
-							`;
-
-							$(nTd).html(html);
-						}
-					},
-					{
-						data: null,
-						defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-
-							html = `
-								<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'MUISVA')">
-									<b>MUISVA</b>
-								</a>
-							`;
-							if (oData.approved_price != null) {
-								html += `
-									<b>|</b>
-									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'RDAF')">
-										<b>RDAF</b>
+						data: null, title: "Forms", defaultContent: '',
+						fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+								let html = `
+									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary"
+										onclick="generateForm(${oData.repo_id}, 'MUISVA')">
+										<b>MUISVA</b>
 									</a>
 								`;
-							}
-							if (oData.total_cost_parts != null) {
-								html += `
-									<b>|</b>
-									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary" onclick="generateForm(${ oData.repo_id }, ${ iRow }, 'SMURF')">
-										<b>SMURF</b>
-									</a>
-								`;
-							}
 
-							$(nTd).html(html);
+								if (oData.is_appraised == 1) {
+									html += `
+										<b>|</b>
+										<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary"
+											onclick="generateForm(${oData.repo_id}, 'RDAF')">
+												<b>RDAF</b>
+										</a>`;
+								}
+
+								if (oData.is_refurbished == 1) {
+									html += `
+										<b>|</b>
+										<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary"
+											onclick="generateForm(${oData.repo_id}, 'SMURF')">
+												<b>SMURF</b>
+										</a>`;
+								}
+								$(nTd).html(html);
 						}
-					},
-
+					}
 				],
 				dom: 'Bfrtip',
 				buttons: [
-					'excelHtml5'
+					{
+							extend: 'pageLength',
+							text: 'Rows per page',
+							className: 'btn btn-light bg-gradient waves-effect waves-light'
+					},
+					{
+							extend: 'colvis',
+							text: 'Show/Hide Columns',
+							className: 'btn btn-light bg-gradient waves-effect waves-light'
+					},
+					{
+						extend: 'excelHtml5',
+						text: 'Export to Excel (All Visible)',
+						className: 'btn btn-success bg-gradient waves-effect waves-light',
+						filename: 'Export_All',
+						exportOptions: {
+							columns: ':visible'
+						}
+					},
+				],
+				lengthMenu: [
+					[10, 25, 50, -1],
+					[10, 25, 50, 'All']
 				]
 			});
 		}
 
-		async function getAllCustomer(repo_id) {
-			const tableData = await $.ajax({
-				url: `${baseUrl}/UnitHistory/${repo_id}`,
-				method: 'GET',
-				dataType: 'json',
-				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
-				}
-			});
-
-			$("#history-unit-table").DataTable().destroy();
-			$("#history-unit-table").DataTable({
-				data: tableData,
-				columns: [
-					{
-						data: "branch"
-					},
-					{
-						data: "exOwner"
-					},
-					{
-						data: "brand"
-					},
-					{
-						data: "model"
-					},
-					{
-						data: "engine"
-					},
-					{
-						data: "chassis"
-					},
-					{
-						className: "text-center",
-						data: "date_inserted"
-					},
-					{
-						className: "text-center",
-						data: "date_appraised"
-					},
-					{
-						className: "text-center",
-						data: "date_refurbish"
-					},
-					{
-						className: "text-center",
-						data: "date_transfer"
-					},
-					{
-						className: "text-center",
-						data: "date_received"
-					},
-				],
-			});
-
-			$('#customerhistory').modal('show')
-		}
-
-		function generateForm(recordId, index, forms) {
+		function generateForm(recordId, forms) {
 				$('#myExtraLargeModalLabel').html(forms + ' Form')
 				$('#iframe-content').html(`
 					<iframe  height="100%" width="100%" src="${ baseUrl }/generateReport/${ forms }/${ recordId }/inventory" frameborder="0"></iframe>
@@ -419,98 +334,83 @@
 		}
 
 		function fetch_files_updated(repoid) {
+			const image_path = `${baseUrl.replace('/api', '')}`;
+			const imageExtensions = ['jpg', 'jpeg', 'png'];
+			const fileIcons = {
+				pdf:  '../assets/images/small/default-pdf.png',
+				docx: '../assets/images/small/default-docs.png',
+				xlsx: '../assets/images/small/default-xlsx.png'
+			};
+
+			// --- helper to build file card ---
+			function buildFileCard(el) {
+				const filePath = el?.path || '';
+				const fileName = el?.files_name || 'Unknown File';
+				const extension = filePath.includes('.') ? filePath.split('.').pop().toLowerCase() : '';
+
+				// decide image source
+				let imageSource;
+				if (imageExtensions.includes(extension)) {
+					imageSource = `${image_path}/${filePath}`;
+				} else {
+					imageSource = fileIcons[extension] || '../assets/images/small/img-1.jpg';
+				}
+
+				return `
+					<div class="col-sm-3">
+						<figure class="figure mb-2">
+							<img src="${imageSource}" class="figure-img img-thumbnail rounded" alt="${fileName}"
+								onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';">
+							<input type="file" class="form-control d-none" onchange="preview_photo(this.id)" disabled>
+							<figcaption class="figure-caption input-group input-group-sm">
+								<div class="input-group">
+									<input type="text" class="form-control form-control-sm" value="${fileName}" readonly>
+									<button
+										class="btn btn-sm btn-info bg-gradient waves-effect waves-light"
+										type="button"
+										onclick="view_image('${imageSource}')"
+										style="display:${imageExtensions.includes(extension) ? 'block' : 'none'};"
+									>
+										<i class="ri-image-line label-icon align-middle"></i>
+									</button>
+									<a
+										role="button"
+										class="btn btn-sm btn-info bg-gradient waves-effect waves-light"
+										href="${image_path}/${filePath}"
+										download
+										style="display:${imageExtensions.includes(extension) ? 'none' : 'block'};"
+									>
+										<i class="ri-download-2-line label-icon align-middle"></i>
+									</a>
+								</div>
+							</figcaption>
+						</figure>
+					</div>
+				`;
+			}
+
+			// --- main ajax ---
 			const data = $.ajax({
 				url: `${baseUrl}/getAllFileUploaded`,
 				method: 'POST',
 				dataType: 'json',
 				headers: {
-					'Authorization': `Bearer ${ auth.token }`,
+					'Authorization': `Bearer ${auth.token}`,
 				},
-				data: {
-					repoid: repoid
-				}
+				data: { repoid }
 			});
 
-			$('#view-uploaded-files').modal('show')
-			$('#append-upload-section-received-newest').empty()
-			$('#append-upload-section-received-oldest').empty()
+			$('#view-uploaded-files').modal('show');
+			$('#append-upload-section-received-newest').empty();
+			$('#append-upload-section-received-oldest').empty();
+
 			data.done(function(response) {
 				response[0]?.forEach(el => {
-					var image_path = `${ baseUrl.replace('/api', '') }`;
-					var string = el['path'].split('.')
-					var extension = string[string.length - 1].toLowerCase();
-					var image_extension = ['jpg', 'jpeg', 'png'];
-
-					if (image_extension.indexOf(extension) !== -1) {
-						image_source = image_path + '/' + el['path'];
-					} else if (extension == 'pdf') {
-						image_source = '../assets/images/small/default-pdf.png';
-					} else if (extension == 'docx') {
-						image_source = '../assets/images/small/default-docs.png';
-					} else if (extension == 'xlsx') {
-						image_source = '../assets/images/small/default-xlsx.png';
-					} else {
-						image_source = '../assets/images/small/img-1.jpg';
-					}
-
-					$('#append-upload-section-received-newest').append(`
-						<div class="col-sm-3">
-							<figure class="figure mb-2">
-								<img src="${ image_source }" class="figure-img img-thumbnail rounded" alt="...">
-								<input type="file" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
-								<figcaption class="figure-caption input-group input-group-sm">
-									<div class="input-group">
-										<input type="text" class="form-control form-control-sm" value="${ el['files_name'] }" readonly>
-										<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" type="button" onclick="view_image('${ image_source }')" style="display:${ image_extension.indexOf(extension) !== -1 ? 'block' : 'none' };">
-											<i class="ri-image-line label-icon align-middle"></i> 
-										</button>
-										<a role="button" class="btn btn-sm btn-info bg-gradient waves-effect waves-light" href="${ image_path +'/'+ el['path'] }" download style="display:${ image_extension.indexOf(extension) !== -1 ? 'none' : 'block' };">
-											<i class="ri-download-2-line label-icon align-middle"></i> 
-										</a>
-									</div>
-								</figcaption>
-							</figure>
-						</div>
-					`);
+					$('#append-upload-section-received-newest').append(buildFileCard(el));
 				});
 
 				response[1]?.forEach(el => {
-					var image_path = `${ baseUrl.replace('/api', '') }`;
-					var string = el['path'].split('.')
-					var extension = string[string.length - 1].toLowerCase();
-					var image_extension = ['jpg', 'jpeg', 'png'];
-
-					if (image_extension.indexOf(extension) !== -1) {
-						image_source = image_path + '/' + el['path'];
-					} else if (extension == 'pdf') {
-						image_source = '../assets/images/small/default-pdf.png';
-					} else if (extension == 'docx') {
-						image_source = '../assets/images/small/default-docs.png';
-					} else if (extension == 'xlsx') {
-						image_source = '../assets/images/small/default-xlsx.png';
-					} else {
-						image_source = '../assets/images/small/img-1.jpg';
-					}
-
-					$('#append-upload-section-received-oldest').append(`
-						<div class="col-sm-3">
-							<figure class="figure mb-2">
-								<img src="${ image_source }" class="figure-img img-thumbnail rounded" alt="...">
-								<input type="file" class="form-control d-none"  onchange="preview_photo(this.id)" disabled>
-								<figcaption class="figure-caption input-group input-group-sm">
-									<div class="input-group">
-										<input type="text" class="form-control form-control-sm" value="${ el['files_name'] }" readonly>
-										<button class="btn btn-sm btn-info bg-gradient waves-effect waves-light" type="button" onclick="view_image('${ image_source }')" style="display:${ image_extension.indexOf(extension) !== -1 ? 'block' : 'none' };">
-											<i class="ri-image-line label-icon align-middle"></i> 
-										</button>
-										<a role="button" class="btn btn-sm btn-info bg-gradient waves-effect waves-light" href="${ image_path +'/'+ el['path'] }" download style="display:${ image_extension.indexOf(extension) !== -1 ? 'none' : 'block' };">
-											<i class="ri-download-2-line label-icon align-middle"></i> 
-										</a>
-									</div>
-								</figcaption>
-							</figure>
-						</div>
-					`);
+					$('#append-upload-section-received-oldest').append(buildFileCard(el));
 				});
 			});
 		}

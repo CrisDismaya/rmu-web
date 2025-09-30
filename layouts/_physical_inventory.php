@@ -68,7 +68,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body">
-					<div class="row g-3">
+					<div class="row g-3 mb-0">
 						<div class="col-md-auto">
 							<label class="form-label">Select Month</label>
 							<div class="input-group">
@@ -99,8 +99,12 @@
 							</table>
 						</div>
 						<div class="col-md-12" id="mdl-reason">
+							<label class="form-label">Reason <small class="fst-italic fw-lighter">(Note: mandatory if the delay upload documents)</small></label>
+							<textarea id="reason" class="form-control" placeholder="Reason"></textarea>
+						</div>
+						<div class="col-md-12" id="mdl-approver-remarks">
 							<label class="form-label">Reason <small class="fst-italic fw-lighter">(Note: mandatory if the desision is <span class="text-danger fw-bold">Disapproved</span>)</small></label>
-							<textarea id="decision-reason" class="form-control" placeholder="Reason"></textarea>
+							<textarea id="decision-remarks" class="form-control" placeholder="Remark"></textarea>
 						</div>
 					</div>
 				</div>
@@ -151,6 +155,7 @@
 			const modalTriggerBtn = document.querySelector('#add-new-documents');
 			const monthPicker = document.querySelector('#monthPicker');
 			const fileInput = document.querySelector('#formFileMultiple');
+			const reasonInput = document.querySelector('#reason');
 			const maxFile = document.querySelector('#maxFiles');
 			const maxFileSize = document.querySelector('#maxFileSize');
 			const fileListStyled = document.querySelector('#fileListTable tbody');
@@ -160,7 +165,8 @@
 			const mdlCalendarBtn = document.querySelector('#mdl-calendar-btn');
 			const mdlUpload = document.querySelector('#mdl-upload');
 			const mdlReason = document.querySelector('#mdl-reason');
-			const ReasonInput = document.querySelector('#decision-reason');
+			const mdlApproverRemarks = document.querySelector('#mdl-approver-remarks');
+			const approverRemarks = document.querySelector('#decision-remarks');
 			const approvalBtnContainer = document.querySelector('#approval-button');
 
 			maxFile.textContent = MAX_FILES;
@@ -310,7 +316,7 @@
 				mdlCalendarBtn.hidden = false;
 				mdlUpload.hidden = false;
 				saveBtn.hidden = false;
-				mdlReason.hidden = true;
+				mdlApproverRemarks.hidden = true;
 
 				selectedFiles = [];
 				renderFileList();
@@ -346,6 +352,7 @@
 					{ title: 'Branch', data: 'branch_name' },
 					{ title: 'Month', data: 'month_year_name' },
 					{ title: 'Uploads', data: 'total_count_uploaded', render: (data, type, row) => `${data} Files` },
+					{ title: 'Reason', data: 'reason' },
 					{ title: 'Status', data: 'request_status' },
 					{ title: 'Approver', data: 'approver' },
 					{ title: 'Requestor', data: 'requestor' },
@@ -362,7 +369,11 @@
 							`;
 
 							const approverModalBtn = !isWarehouseCustodian ? `
-								<button type="button" class="btn btn-soft-info btn-sm btn-approver-decision" data-id="${row.id}" data-date="${row.month_year_name}">
+								<button type="button" class="btn btn-soft-info btn-sm btn-approver-decision" 
+									data-id="${row.id}" 
+									data-date="${row.month_year_name}"
+									data-reason="${row.reason ?? ''}"
+								>
 									<span class="icon-on">Approver</span>
 								</button>
 							` : '';
@@ -450,54 +461,64 @@
 			}
 
 			const saveUploadedFiles = () => {
-				const month = monthPicker?.value;
+				const today = new Date();
 				const id = saveBtn.dataset.id;
+				const monthValue = monthPicker?.value;
+				const reason = reasonInput?.value?.trim();
+				const files = selectedFiles || [];
 
-				if (!month) {
+				if (!monthValue) {
 					toast('Please select a month before saving.', 'warning');
 					return;
 				}
 
-				if (selectedFiles.length === 0) {
+				if (files.length === 0) {
 					toast('Please upload at least one file.', 'warning');
 					return;
 				}
 
-				saveBtn.disabled = true;
-				saveBtn.innerHTML = `<span class="d-flex align-items-center">
-							<span class="spinner-border flex-shrink-0" role="status"></span>
-						</span>`;
-
-				const selectedDocTypes = new Set();
-				const [monthName, year] = month.split(' ');
-				const date = new Date(`${monthName} 1, ${year}`);
-
-				if (isNaN(date)) {
+				const [monthName, year] = monthValue.split(" ");
+				const parsedDate = new Date(`${monthName} 1, ${year}`);
+				if (isNaN(parsedDate)) {
 					toast('Invalid month format.', 'error');
-					saveBtn.disabled = false;
-					saveBtn.innerHTML = 'Save';
 					return;
 				}
 
-				const formattedDate = `${year}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
-				
+				const lastDayOfMonth = new Date(year, parsedDate.getMonth() + 1, 0);
+				const isDelayed = today > lastDayOfMonth;
+
+				if (isDelayed && !reason) {
+					toast(`Please type the Reason for the delay! Deadline was ${lastDayOfMonth.toDateString()}`, 'error');
+					return;
+				}
+
+				const formattedDate = `${year}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-01`;
+
+				saveBtn.disabled = true;
+				saveBtn.innerHTML = `
+					<span class="d-flex align-items-center">
+							<span class="spinner-border flex-shrink-0" role="status"></span>
+					</span>
+				`;
+
 				const formData = new FormData();
 				formData.append('module_id', current_module_id);
 				formData.append('month', formattedDate);
+				formData.append('reason', reason);
 
+				const selectedDocTypes = new Set();
 				let missingDocType = false;
 
-				selectedFiles.forEach((file, index) => {
+				files.forEach((file, index) => {
 					const select = document.querySelector(`select[name="doc_type_${index}"]`);
 					const docTypeId = select?.value;
 
 					if (!docTypeId) {
-						missingDocType = true;
-						return;
+							missingDocType = true;
+							return;
 					}
 
 					selectedDocTypes.add(Number(docTypeId));
-
 					formData.append(`files[${index}]`, file);
 					formData.append(`doc_types[${index}]`, docTypeId);
 				});
@@ -517,34 +538,44 @@
 					return;
 				}
 
-				// Debugging: Log the form data
-				// formData.forEach((value, key) => {
-				// 	console.log(`${key}:`, value);
-				// });
-
-				let url = (id === '0' ? `${baseUrl}/createPhysicalInventoryDoc` : `${baseUrl}/updateModel/${id}`)
+				const url = id === '0'
+					? `${baseUrl}/createPhysicalInventoryDoc`
+					: `${baseUrl}/updateModel/${id}`;
 
 				$.ajax({
-					url: url,
+					url,
 					type: 'POST',
 					data: formData,
 					processData: false,
 					contentType: false,
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
 					},
-					success: function(response) {
-						toast('Details saved successfully.', 'success');
+					success: function (response) {
+						const message = response?.message || 'Details saved successfully.';
+						toast(message, 'success');
 						clearFileList();
-						saveBtn.disabled = false;
-						saveBtn.innerHTML = 'Save';
-						table.ajax.reload();
+						if (table?.ajax) {
+							table.ajax.reload();
+						}
 					},
-					error: function(xhr, status, error) {
-						console.error(xhr.responseText);
+					error: function (xhr) {
+						let errorMessage = 'An error occurred while saving files.';
+
+						try {
+							const res = JSON.parse(xhr.responseText);
+							if (res?.message) {
+								errorMessage = res.message + (res.error ? `: ${res.error}` : '');
+							}
+						} catch (e) {
+							console.error('Error parsing response:', e);
+						}
+
+						toast(errorMessage, 'error');
+					},
+					complete: function () {
 						saveBtn.disabled = false;
 						saveBtn.innerHTML = 'Save';
-						toast('An error occurred while saving files.', 'error');
 					}
 				});
 			};
@@ -566,7 +597,11 @@
 				if (approverBtn) {
 					const id = approverBtn.getAttribute('data-id');
 					const selected = approverBtn.getAttribute('data-date');
+					const reasonValue = approverBtn.getAttribute('data-reason') || '';
 					monthPicker.value = selected;
+					mdlReason.hidden = !reasonValue;
+					reason.value = reasonValue;
+					reason.disabled = true;
 
 					const success = await fetchDetails(id);
 
@@ -638,7 +673,7 @@
 				monthPicker.disabled = true;
 				mdlCalendarBtn.hidden = true;
 				mdlUpload.hidden = true;
-				mdlReason.hidden = false;
+				mdlApproverRemarks.hidden = false;
 				approvalBtnContainer.hidden = false;
 
 				const res = await fetch(`${baseUrl}/getPhysicalInventoryFiles?id=${id}&module_id=${current_module_id}`, {
@@ -657,6 +692,7 @@
 					name: file.path.split('/').pop().split('-').pop(),
 					docTypeId: parseInt(file.files_id),
 				}));
+
 				renderFileList();
 
 				return true;
@@ -699,7 +735,7 @@
 					toast('Failed to submit decision.', 'danger');
 					return false;
 				} finally {
-					ReasonInput.value = '';
+					approverRemarks.value = '';
 				}
 			};
 
@@ -714,7 +750,7 @@
 
 				const id = button.getAttribute('data-id');
 				const decision = button.getAttribute('data-decision');
-				const reason = ReasonInput.value.trim();
+				const reason = approverRemarks.value.trim();
 
 				const buttons = approvalBtnContainer.querySelectorAll('.btn-decision');
 				const originalHtml = button.innerHTML;
