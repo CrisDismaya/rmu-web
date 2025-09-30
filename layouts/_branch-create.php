@@ -50,6 +50,10 @@
 										<label class="form-label"> Enter Branch Name </label>
 										<input id="branch-name" type="text" class="form-control" id="placeholderInput" placeholder="Branch Name" autocomplete="off">
 									</div>
+									<div class="col-md-12 mb-3">
+										<label class="form-label"> Enter Complete Address </label>
+										<textarea id="branch-address" class="form-control" placeholder="Complete Address" rows="3" style="resize: none;"></textarea>
+									</div>
 									<div class="col-md-12">
 										<div class="d-grid gap-2" >
 											<button id="save-branches" type="button" class="btn btn-primary" data-id="0">
@@ -75,6 +79,7 @@
 												<th> Branch Code </th>
 												<th> Warehouse Code </th>
 												<th> Branch </th>
+												<th> Address </th>
 												<th> Status </th>
 												<th> Action </th>
 											</tr>
@@ -121,6 +126,7 @@
 					branchCode : $('#branch-code').val(),
 					warehouseID : $('#warehouse-code').val(),
 					name : $('#branch-name').val(),
+					address : $('#branch-address').val(),
 				}, 
 				success: function (data) { 
 					if(!data.success){
@@ -135,6 +141,8 @@
 						$('#warehouse-code').val('');
 						$('#branch-name').val('');
 						$('#save-branches').data('id', 0)
+						$('#branch-address').val('');
+						
 						display_table()
 					}
 				},
@@ -165,10 +173,15 @@
 				scrollCollapse: true,
 				paging: false,
 				data: tableData,
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 				columns: [
 					{ data: "branchCode" },
 					{ data: "warehouseID" },
 					{ data: "name" },
+					{ data: "address" },
 					{ data: "status", defaultContent: '',
 						render: function (data, type, row) {
 							return (data == 1 ? 'Active' : 'Inactive');
@@ -182,7 +195,7 @@
 
 							html = `
 								<button class="btn btn-sm btn-soft-warning"
-									onclick="edit(${ oData.id }, '${ oData.name }', '${ oData.branchCode }', '${ oData.warehouseID }')"> 
+									onclick="edit(${ oData.id }, '${ oData.name }', '${ oData.branchCode }', '${ oData.warehouseID }', '${ oData.address }')"> 
 									<i class="ri-edit-box-line"></i> Edit 
 								</button> 
 								&nbsp; | &nbsp;  
@@ -198,7 +211,8 @@
 			});
 		}
 
-		function edit(id, name,code,warehouse){
+		function edit(id, name,code,warehouse, address){
+			$('#branch-address').val(name)
 			$('#branch-name').val(name)
 			$('#branch-code').val(code)
 			$('#warehouse-code').val(warehouse)
