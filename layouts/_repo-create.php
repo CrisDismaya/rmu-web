@@ -804,9 +804,6 @@
 						}
 					}
 
-					console.log('uploadedFiles: ', uploadedFiles)
-					console.log('requiredFiles: ', requiredFiles)
-
 					var isCompleteRequiredFiles = requiredFiles.every(item => uploadedFiles.includes(parseInt(item.id)));
 					if(!isCompleteRequiredFiles){
 						toast(`Upload Files Tab: Upload the ${ required_files_count } required files`, 'warning');
@@ -1019,8 +1016,8 @@
 							$(nTd).html(html);
 						}
 					},
-					{  title: "Customer Name", data: "customer_name", className: "fw-semibold" },
-					{  title: "Brand", data: "brandname" },
+					{  title: "Ex Owner", data: "ex_owner", className: "fw-semibold" },
+					{  title: "Brand", data: "brand_name" },
 					{  title: "Model", data: "model_name" },
 					{  title: "Engine", data: "model_engine" },
 					{  title: "Chassis", data: "model_chassis" },
@@ -1687,6 +1684,12 @@
 					filesJson.forEach((el, i) => {
 						const append_count = i + 1;
 
+						// values
+						const filePath = el?.path || '';
+						const fileName = el?.files_name || 'Unknown File';
+						const fileId   = el?.files_id || 0;
+						const recordId = el?.id || 0;
+
 						// extract extension
 						const extension = el.path.split('.').pop().toLowerCase();
 
@@ -1709,12 +1712,12 @@
 						// build html
 						const html = `
 							<div class="col-sm-3" id="append-item-${append_count}" data-is-new="0">
-								<input type="hidden" id="image-id-${append_count}" value="${el.id}">
+								<input type="hidden" id="image-id-${append_count}" value="${recordId}">
 								<figure class="figure mb-2">
 									<img 
 										src="${image_source}" 
 										class="figure-img img-thumbnail rounded" 
-										alt="..." 
+										alt="${fileName}" 
 										id="input-file-${append_count}-preview"
 										onclick="document.getElementById('input-file-${append_count}').click();"
 										onerror="this.onerror=null; this.src='../assets/images/small/img-4.jpg';"
@@ -1728,41 +1731,41 @@
 									>
 									<figcaption class="figure-caption input-group input-group-sm">
 										<div class="input-group">
-												<input 
-													class="form-control form-control-sm" 
-													id="seleted-image-${ append_count }"
-													type="text" 
-													value="${el.files_name}"
-													data-document-id="${el.files_id}"
-													disabled
-												>
-												<button 
-													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
-													id="picture-view-${append_count}" 
-													type="button" 
-													onclick="view_image(${append_count})"
-													style="display:${imageExtensions.includes(extension) ? 'block' : 'none'};"
-												>
-													<i class="ri-image-line label-icon align-middle"></i> 
-												</button>
-												<a 
-													role="button" 
-													class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
-													id="download-file-${append_count}" 
-													href="${image_source}" 
-													download
-													style="display:${imageExtensions.includes(extension) ? 'none' : 'block'};"
-												>
-													<i class="ri-download-2-line label-icon align-middle"></i> 
-												</a>
-												<button 
-													class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" 
-													type="button" 
-													onclick="remove_image(${append_count}, ${el.id})"
-													style="display:${data.disabled === true ? 'none' : 'block'};"
-												>
-													<i class="ri-delete-bin-line label-icon align-middle"></i>
-												</button>
+											<input 
+												class="form-control form-control-sm" 
+												id="selected-image-${append_count}"
+												type="text" 
+												value="${fileName}"
+												data-document-id="${fileId}"
+												disabled
+											>
+											<button 
+												class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+												id="picture-view-${append_count}" 
+												type="button" 
+												onclick="view_image(${append_count})"
+												style="display:${imageExtensions.includes(extension) ? 'block' : 'none'};"
+											>
+												<i class="ri-image-line label-icon align-middle"></i> 
+											</button>
+											<a 
+												role="button" 
+												class="btn btn-sm btn-info bg-gradient waves-effect waves-light" 
+												id="download-file-${append_count}" 
+												href="${image_path}/${filePath}" 
+												download
+												style="display:${imageExtensions.includes(extension) ? 'none' : 'block'};"
+											>
+												<i class="ri-download-2-line label-icon align-middle"></i> 
+											</a>
+											<button 
+												class="btn btn-sm btn-danger bg-gradient waves-effect waves-light" 
+												type="button" 
+												onclick="remove_image(${append_count}, ${recordId})"
+												style="display:${data.disabled === true ? 'none' : 'block'};"
+											>
+												<i class="ri-delete-bin-line label-icon align-middle"></i>
+											</button>
 										</div>
 									</figcaption>
 								</figure>
