@@ -328,6 +328,18 @@
 														<input type="number" class="form-control" id="pt_amount" autocomplete="off" placeholder="0">
 													</div>
 
+													<div class="col-md-6 col-sm-6 col-12">
+														<!-- File Input -->
+														<label class="col-form-label"> Image Upload </label>
+														<div class="input-group">
+															<input type="file" class="form-control" id="pt_receipt_image" accept="image/*">
+															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+																onclick="previewAndZoomImage('pt_receipt_image')">
+																<i class="ri-image-line label-icon align-middle"></i> 
+															</button>
+														</div>
+													</div>
+
 												</div><!-- end row -->
 											</div><!-- end card-body -->
 										</div><!-- end card -->
@@ -463,7 +475,7 @@
 												<div class="row">
 													<div class="col-md-4 col-sm-6 col-12">
 														<label class="col-form-label">Amount Paid</label>
-														<input type="number" class="form-control" id="amount_paid" autocomplete="off" disabled>
+														<input type="number" class="form-control" id="v_amount_paid" autocomplete="off" disabled>
 													</div>
 												</div>
 											</div>
@@ -563,6 +575,18 @@
 												<input type="number" class="form-control" id="v_pt_amount" autocomplete="off" placeholder="0" disabled>
 											</div>
 
+											<div class="col-md-6 col-sm-6 col-12">
+												<!-- File Input -->
+												<label class="col-form-label"> Image Upload </label>
+												<div class="input-group">
+													<input type="text" class="form-control" id="v_pt_receipt_image" data-image-path="" disabled>
+													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+														onclick="showZoomImage(document.getElementById('v_pt_receipt_image').getAttribute('data-image-path'))">
+														<i class="ri-image-line label-icon align-middle"></i> 
+													</button>
+												</div>
+											</div>
+
 										</div><!-- end row -->
 									</div><!-- end card-body -->
 								</div><!-- end card -->
@@ -582,6 +606,16 @@
 						<button onclick="decision(2)" data-id="0" type="button" class="btn btn-primary approver">Disapprove</button>
 					</div>
 
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="zoomImageModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg">
+				<div class="modal-content">
+					<div class="modal-body text-center p-0">
+						<img id="zoomImage" src="" class="img-fluid rounded" alt="Zoomed Image">
+					</div>
 				</div>
 			</div>
 		</div>
@@ -749,6 +783,10 @@
 						toast('#Payment Tagging Details > Amount field is required', 'danger');
 						return false
 					}
+					if ($('#pt_receipt_image').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Image field is required', 'danger');
+						return false;
+					}
 
 
 					showLoader() //function show loader
@@ -779,6 +817,7 @@
 					formData.append("pt_date", $('#pt_date').val());
 					formData.append("pt_bank", $('#pt_bank').val());
 					formData.append("pt_amount", $('#pt_amount').val());
+					formData.append("pt_receipt_image", $('#pt_receipt_image').get(0).files[0]);
 
 					$.ajax({
 						url: `${baseUrl}/tagUnit`,
@@ -814,6 +853,33 @@
 
 				});
 			})
+
+			function previewAndZoomImage(inputId) {
+				const input = document.getElementById(inputId);
+				if (input.files && input.files[0]) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+							showZoomImage(e.target.result); // pass base64 image to zoom modal
+					};
+					reader.readAsDataURL(input.files[0]);
+				} else {
+					toast("No image selected.", "warning");
+				}
+			}
+
+			function showZoomImage(src) {
+				if (!src || src.includes("img-4.jpg")) {
+					toast("No image available to zoom.", "warning"); // optional feedback
+					return;
+				}
+
+				const zoomImage = document.getElementById("zoomImage");
+				if (zoomImage) {
+					zoomImage.src = src;
+				}
+
+				$('#zoomImageModal').modal('show');
+			}
 
 			function decision(status) {
 				const data = {
@@ -1203,7 +1269,7 @@
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}','${ oData.remarks}'
 											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
-											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}')"> 
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_receipt_image}')"> 
                                                 <i class="ri-edit-box-line"></i> edit
                                             </button>
 											<button class="btn btn-sm btn-soft-warning"  
@@ -1231,7 +1297,7 @@
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}'
 											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
-											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}')"> 
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_receipt_image}')"> 
                                                 <i class="ri-edit-box-line"></i> Submit Decision
                                             </button> 
                                         `;
@@ -1284,7 +1350,7 @@
 			function submitApproval(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
 				interest_rate, amount_finance, filename, path, amount_paid, external_ref, agentId,
-				pt_receipt_no, pt_date, pt_bank, pt_amount) {
+				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_receipt_image) {
 
 				$('#v_rnr').hide()
 
@@ -1346,12 +1412,18 @@
 				$('#v_pt_date').val(pt_date)
 				$('#v_pt_bank').val(pt_bank)
 				$('#v_pt_amount').val(pt_amount)
+				
+				var image_path = `${ baseUrl.replace('/api', '') }`;
+				let filenameValue = pt_receipt_image.split('/').pop().replace(/\s+/g, '_') ?? '';
+				$('#v_pt_receipt_image')
+					.val(filenameValue)
+					.attr('data-image-path', `${ image_path }/${ pt_receipt_image }`);
 			}
 
 			function edit(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
 				interest_rate, amount_finance, filename, path, remarks, amount_paid, external_ref, agentId,
-				pt_receipt_no, pt_date, pt_bank, pt_amount) {
+				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_receipt_image) {
 
 
 				let type = sale_type == 'INSTALLMENT' ? 'I' : 'C'
@@ -1429,6 +1501,12 @@
 				$('#v_pt_date').val(pt_date)
 				$('#v_pt_bank').val(pt_bank)
 				$('#v_pt_amount').val(pt_amount)
+
+				var image_path = `${ baseUrl.replace('/api', '') }`;
+				let filenameValue = pt_receipt_image.split('/').pop().replace(/\s+/g, '_') ?? '';
+				$('#v_pt_receipt_image')
+					.val(filenameValue)
+					.attr('data-image-path', `${ image_path }/${ pt_receipt_image }`);
 			}
 
 			function uploadNew() {
