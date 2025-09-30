@@ -7,12 +7,6 @@
 	
 	<!-- select2 -->
 	<link rel="stylesheet" href="../assets/libs/select2/select2.min.css">
-	
-	<!-- datatables -->
-	<link rel="stylesheet" href="../assets/libs/datatables/dataTables.bootstrap5.min.css">
-	<link rel="stylesheet" href="../assets/libs/datatables/responsive.bootstrap.min.css">
-	<link rel="stylesheet" href="../assets/libs/datatables/buttons.dataTables.min.css">
-	<link rel="stylesheet" href="../assets/libs/datatables/fixedColumns.dataTables.min.css">
 
 	<!-- Layout config Js -->
 	<script src="../assets/js/layout.js"></script>
@@ -26,6 +20,22 @@
 	<link href="../assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
 	<script src="../assets/js/jquery.js"></script>
+	
+	<!-- datatables -->
+	<!-- <link rel="stylesheet" href="../assets/libs/datatables/dataTables.bootstrap5.min.css">
+	<link rel="stylesheet" href="../assets/libs/datatables/responsive.bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/libs/datatables/buttons.dataTables.min.css">
+	<link rel="stylesheet" href="../assets/libs/datatables/fixedColumns.dataTables.min.css"> -->
+	<!-- DataTables Core + Bootstrap 5 -->
+	<link rel="stylesheet" href="../assets/libs/datatables/css/dataTables.bootstrap5.min.css">
+
+	<!-- DataTables Buttons + Bootstrap 5 -->
+	<link rel="stylesheet" href="../assets/libs/datatables/css/buttons.bootstrap5.min.css">
+
+	<!-- Optional: Responsive & FixedColumns with Bootstrap 5 -->
+	<link rel="stylesheet" href="../assets/libs/datatables/css/responsive.bootstrap5.min.css">
+	<link rel="stylesheet" href="../assets/libs/datatables/css/fixedColumns.bootstrap5.min.css">
+
 	<script>
 
 		var page_url = window.location.href

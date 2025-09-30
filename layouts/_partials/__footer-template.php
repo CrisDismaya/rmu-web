@@ -1,6 +1,6 @@
 
 	
-	<script src="../assets/js/jquery.js"></script>
+	<!-- <script src="../assets/js/jquery.js"></script> -->
 
    <!-- JAVASCRIPT -->
    <script src="../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -12,15 +12,27 @@
 	<!-- <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script> -->
 
 	<!-- Datatables -->
-	<script src="../assets/libs/datatables/jquery.dataTables.min.js"></script>
-	<script src="../assets/libs/datatables/dataTables.bootstrap5.min.js"></script>
-	<script src="../assets/libs/datatables/dataTables.responsive.min.js"></script>
-	<script src="../assets/libs/datatables/dataTables.buttons.min.js"></script>
-	<script src="../assets/libs/datatables/buttons.print.min.js"></script>
-	<script src="../assets/libs/datatables/buttons.html5.min.js"></script>
-	<script src="../assets/libs/datatables/vfs_fonts.js"></script>
-	<script src="../assets/libs/datatables/jszip.min.js"></script>
-	<script src="../assets/libs/datatables/dataTables.fixedColumns.min.js"></script>
+	<!-- DataTables Core + Bootstrap 5 -->
+	<script src="../assets/libs/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="../assets/libs/datatables/js/dataTables.bootstrap5.min.js"></script>
+
+	<!-- DataTables Buttons + Bootstrap 5 -->
+	<script src="../assets/libs/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="../assets/libs/datatables/js/buttons.bootstrap5.min.js"></script>
+	<script src="../assets/libs/datatables/js/buttons.html5.min.js"></script>
+	<script src="../assets/libs/datatables/js/buttons.print.min.js"></script>
+	<script src="../assets/libs/datatables/js/buttons.colVis.min.js"></script>
+
+	<!-- Optional: Responsive & FixedColumns -->
+	<script src="../assets/libs/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="../assets/libs/datatables/js/responsive.bootstrap5.min.js"></script>
+	<script src="../assets/libs/datatables/js/dataTables.fixedColumns.min.js"></script>
+	<script src="../assets/libs/datatables/js/fixedColumns.bootstrap5.min.js"></script>
+
+	<!-- Optional: Export libraries (Excel/PDF) -->
+	<script src="../assets/libs/datatables/js/jszip.min.js"></script>
+	<script src="../assets/libs/datatables/js/pdfmake.min.js"></script>
+	<script src="../assets/libs/datatables/js/vfs_fonts.js"></script>
 
 	<script src="../assets/js/pages/datatables.init.js"></script>
 
