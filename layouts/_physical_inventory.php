@@ -538,12 +538,8 @@
 					return;
 				}
 
-				const url = id === '0'
-					? `${baseUrl}/createPhysicalInventoryDoc`
-					: `${baseUrl}/updateModel/${id}`;
-
 				$.ajax({
-					url,
+					url: `${baseUrl}/createPhysicalInventoryDoc`,
 					type: 'POST',
 					data: formData,
 					processData: false,

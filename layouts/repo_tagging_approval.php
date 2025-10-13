@@ -485,7 +485,7 @@
 				</div>
 				<div class="modal-footer btn-save-footer">
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-					<button id="approver-decision" class="btn btn-success waves-effect approver" onclick="approver_decision(this, 0)" data-repo-id="0"> 
+					<button id="approver-decision" class="btn btn-success waves-effect approver" onclick="approver_decision(this, 1)" data-repo-id="0"> 
 						<i class="ri-thumb-up-line me-1 align-middle"></i> Approve 
 					</button> 
 				</div>
