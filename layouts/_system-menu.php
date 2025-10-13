@@ -115,52 +115,64 @@
 					
 				</div>
 			</div>
+		</div>
 
+		<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="myExtraLargeModalLabel">
+							Approval Matrix Setup - <span id="page"></span>
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
+					</div>
 
-			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-lg" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title" id="myExtraLargeModalLabel">Approval Matrix Setup - <span id="page"></span></h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
+					<div class="modal-body">
+						<div class="row">
+							<div class="detail col-lg-12">
+								<table id="table-assign-signatory" class="table table-borderless nowrap align-middle mdl-data-table" style="width:100%">
+									<thead>
+										<tr>
+											<td width="5%"></td>
+											<td width="80%"></td>
+											<td width="15%">
+												<button type="button" class="btn btn-soft-secondary btn-sm waves-effect material-shadow-none" onclick="newSignatory()">
+													+ Add New
+												</button>
+											</td>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
 							</div>
-							<hr />
-							<div class="modal-body container" >
-								<div class="detail">
-									<div class="row">
-										<div class="col-lg-10"></div>
-										<div class="col-lg-2">
-											<a href='#' onclick="newSignatory()"><span>+ Add New</span></a>
-										</div>
-									</div>
-									<div id="approval-matrix">
-									</div>
-									</div>
-									
-								</div>
-								<div class="listing">
-									<div class="row" style="padding:10px;">
-										<table id="approverlist" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-											<thead>
-												<tr>
-													<th> Level </th>
-													<th> Approver </th>
-													<th>  </th>
-												</tr>
-											</thead>
-										</table>
-									</div>
-								</div>
-								<div class="modal-footer">
-									<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal" onclick="closeModal()"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-									<button  type="button" class="btn btn-primary listing" onclick="addSignatory()">Add Approver</button>
-									<button id="save-matrix" data-id="0" type="button" class="btn btn-primary detail">Save changes</button>
-								</div>
-								
+
+							<div class="listing col-lg-12">
+								<table id="approverlist" class="table table-borderless nowrap align-middle mdl-data-table" style="width:100%">
+									<thead>
+										<tr>
+											<th width="5%"> No </th>
+											<th width="80%"> Approver </th>
+											<th width="15%"></th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
 						</div>
 					</div>
+
+					<!-- Footer -->
+					<div class="modal-footer">
+						<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal" onclick="closeModal()">
+							<i class="ri-close-line me-1 align-middle"></i> Close
+						</a>
+						<button type="button" class="btn btn-primary listing" onclick="addSignatory()">Add Approver</button>
+						<button id="save-matrix" data-id="0" type="button" class="btn btn-primary detail">Save changes</button>
+					</div>
 				</div>
+			</div>
 		</div>
+
 	</div>
 
 	<?php include_once './_partials/__footer-template.php'; ?>
@@ -168,12 +180,20 @@
 
 		var matrix = []
 		let selectedModule = 0;
+		let selectedPage = '';
+		let approverCounter = 0; 
+		let cachedRoles = [];
+		let cachedUsers = [];
+		let selectedRoleIds = new Set();
 		$(document).ready(function(){
 			$('.detail').hide()
 			$('#edit-status').hide()
 			new_access();
 			display_table('');
 			user_role();
+
+			fetchSignatoryRolesOnce();
+			fetchUsersOnce();
 
 			$('#user-role').change(function(){
 				display_table($('#user-role').val());
@@ -218,36 +238,33 @@
 			});
 
 			$('#save-matrix').click(() => {
+				const matrixData = {};
 
-				if(matrix.length == 0){
-					toast('No approver to save', 'danger');
-					return false
-				}
+				// Iterate over each signatory row
+				$('#table-assign-signatory tbody .signatory-row').each(function () {
+					const rowId = $(this).data('id');
+					// Only process the first row of each pair (the select row)
+					if (!$('#signatory-' + rowId).length) return;
 
-				let info = []
-				for (let i = 0; i < matrix.length; i++) {
-					let signatory = $('#signatory-' + matrix[i].order).val();
+					const roleId = Number($(`#signatory-${rowId}`).val());
+					if (!roleId) return; // skip if no role selected
 
-					if (!signatory) {
-						// ✅ Skip if empty/null
-						continue;
-					}
-
-					info.push({
-						module_id: matrix[i].moduleid,
-						level: matrix[i].order,
-						signatories: [{
-								user: signatory
-						}]
+					const users = [];
+					$(`#list-${rowId} input[type="checkbox"]:checked`).each(function () {
+							users.push({ id: Number($(this).val()) });
 					});
-				}
+
+					matrixData[rowId] = [{ role: roleId, users }];
+				});
+
+				// If you want it as JSON string to send via AJAX:
+				const jsonData = JSON.stringify(matrixData);
+				console.log(jsonData);
 				
-				if (info.length == 0) {
-					toast('No approver to save', 'danger');
+				if (matrixData.length == 0) {
+					toast('No approvers found to save', 'danger');
 					return false;
 				}
-
-				const moduleId = info.length > 0 ? info[0].module_id : null;
 
 				$.ajax({
 					url: `${ baseUrl }/createMatrix`, 
@@ -255,28 +272,339 @@
 					headers:{
 						'Authorization':`Bearer ${ auth.token }`,
 					},
-					data: {'data':info},
+					data: {
+						module: selectedModule,
+						matrix: jsonData
+					},
 					dataType: 'json',
 					success: function (data) { 
+						console.log(data)
 						if(!data.success){
 							toast('This role is already assigned as a signatory in the selected module.', 'danger');
 						}
 						else{
 							toast('Approval Matrix successfully setup', 'success');
 							matrix = []
+							approverCounter = 0;
 							$('.detail').hide()
 							$('.listing').show()
-							getAllPageSignatory(moduleId)
+							setApproval(selectedModule, selectedPage);
 						}
 					},
 					error: function(response) {
 						toast(response.responseJSON.data, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
+						forceLogout(response.responseJSON)
 					}
 				});
 			})
 
 		});
+
+		function addSignatory(){
+			$('#approval-matrix').empty();
+			$('#table-assign-signatory tbody').empty();
+			
+			$('.listing').hide()
+			$('.detail').show()
+			newSignatory();
+		}
+
+		async function fetchSignatoryRolesOnce() {
+			if (cachedRoles.length) return cachedRoles;
+
+			try {
+				const roles = await $.ajax({
+					url: `${baseUrl}/roles`,
+					method: 'GET',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+					}
+				});
+
+				const filteredRoles = roles
+					.filter(u => u.id !== '1')
+
+				cachedRoles = filteredRoles;
+				return cachedRoles;
+			} catch (e) {
+				console.error("Failed to load roles:", e);
+				return [];
+			}
+		}
+
+		async function fetchUsersOnce() {
+			if (cachedUsers.length) return cachedUsers;
+
+			try {
+				const users = await $.ajax({
+					url: `${baseUrl}/users`,
+					method: 'GET',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+					}
+				});
+
+				const filteredUsers = users
+					.filter(u => u.role_id !== '1' && u.role_id !== '7' && u.status === '1')
+					.map(u => ({ id: parseInt(u.id), name: `${u.firstname} ${u.lastname}`, role_id: parseInt(u.role_id),  }))
+
+				cachedUsers = filteredUsers;
+				return cachedUsers;
+			} catch (e) {
+				console.error("Failed to load roles:", e);
+				return [];
+			}
+		}
+
+		async function newSignatory() {
+
+			// Find the last existing select-signatory in the table
+			const $lastSelect = $('#table-assign-signatory tbody .select-signatory').last();
+
+			if ($lastSelect.length) {
+				const prevSelectVal = Number($lastSelect.val()) || 0;
+				if (!prevSelectVal) {
+					toast('Please select a role for the previous signatory before adding a new one.', 'warning');
+					return; // Stop adding new row
+				}
+			}
+			
+			approverCounter++;
+			matrix.push({ moduleid: selectedModule, order: approverCounter });
+
+			// Fetch roles (cached)
+			let roles = await fetchSignatoryRolesOnce();
+
+			// Build select options
+			let options = `<option value="">Select Signatory</option>`;
+			roles.forEach(r => options += `<option value="${r.id}">${r.user_role_name}</option>`);
+
+			// Build row HTML
+			let rowHtml = `
+				<tr class="signatory-row" data-id="${approverCounter}">
+					<td class="text-center">${approverCounter}</td>
+					<td>
+						<select id="signatory-${approverCounter}" class="form-select select-signatory">${options}</select>
+					</td>
+					<td class="text-center">
+						<button type="button" class="btn btn-soft-danger btn-sm" onclick="removeSignatory(${approverCounter})">
+							- Remove
+						</button>
+					</td>
+				</tr>
+				<tr class="signatory-row" data-id="${approverCounter}">
+					<td></td>
+					<td colspan="2">
+						<div class="list-group" id="list-${approverCounter}"></div>
+					</td>
+				</tr>
+			`;
+
+			// Add row
+			$('#table-assign-signatory tbody').prepend(rowHtml);
+
+			const $select = $(`#signatory-${approverCounter}`);
+			$select.select2({ width: '100%' });
+
+			// Update all selects to disable already selected roles
+			function updateSelectOptions() {
+				const selectedRoles = $('.select-signatory').map(function () {
+					return Number($(this).val()) || 0;
+				}).get();
+
+				$('.select-signatory').each(function () {
+					const currentVal = Number($(this).val()) || 0;
+					$(this).find('option').each(function () {
+						const roleId = Number($(this).val());
+						$(this).prop('disabled', roleId !== 0 && roleId !== currentVal && selectedRoles.includes(roleId));
+					});
+				});
+			}
+
+			// When select changes
+			$select.on('change', function () {
+				const selectedRoleId = Number($(this).val());
+				const rowId = $(this).attr('id').split('-')[1];
+				const listGroup = $(`#list-${rowId}`);
+				listGroup.empty();
+
+				// Update disabled options across all selects
+				updateSelectOptions();
+
+				if (!selectedRoleId) return;
+
+				const filteredUsers = cachedUsers.filter(u => u.role_id === selectedRoleId);
+
+				if (filteredUsers.length === 0) {
+					listGroup.append('<div class="text-muted">No items found for this role</div>');
+					return;
+				}
+
+				// Split into two columns
+				const mid = Math.ceil(filteredUsers.length / 2);
+				const left = filteredUsers.slice(0, mid);
+				const right = filteredUsers.slice(mid);
+
+				// Build HTML for each column as string (fast)
+				const leftHtml = left.map(u => `
+					<label class="list-group-item">
+						<input class="form-check-input me-1" type="checkbox" value="${u.id}">
+						${u.name}
+					</label>
+				`).join('');
+
+				const rightHtml = right.map(u => `
+					<label class="list-group-item">
+						<input class="form-check-input me-1" type="checkbox" value="${u.id}">
+						${u.name}
+					</label>
+				`).join('');
+
+				const container = $(`
+					<div class="d-flex gap-3">
+						<div class="flex-fill">${leftHtml}</div>
+						<div class="flex-fill">${rightHtml}</div>
+					</div>
+				`);
+
+				listGroup.append(container);
+			});
+
+			// Trigger once to update disabled options
+			$select.trigger('change');
+		}
+
+		function removeSignatory(rowId) {
+			const remaining = $('.select-signatory').length;
+
+			if (remaining <= 1) {
+				toast('At least one signatory must remain.', 'warning');
+				return; // Do not remove if only one left
+			}
+			
+			// Remove from matrix
+			matrix = matrix.filter(m => m.order !== rowId);
+
+			// Remove the row and its list
+			$(`.signatory-row[data-id="${rowId}"]`).remove();
+		}
+
+		async function setApproval(moduleid, page){
+			$('#page').html(page)
+			selectedModule = moduleid;
+			selectedPage = page;
+
+			const rows = await $.ajax({
+				url: `${baseUrl}/approverByPage/${moduleid}`,
+				method: 'GET',
+				dataType: 'json',
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				}
+			});
+
+			$('#approverlist tbody').empty();
+
+			let rowNumber = 0;
+			for (const row of rows) {
+				rowNumber++;
+
+				const signatories = typeof row.signatories === "string" 
+					? JSON.parse(row.signatories) 
+					: row.signatories;
+
+				if (Array.isArray(signatories) && signatories.length > 0) {
+					const roleId = signatories[0].role;
+					const role = cachedRoles.find(r => parseInt(r.id) === roleId);
+					const roleName = role ? role.user_role_name  : 'Unknown Role';
+
+					const users = signatories[0].users || [];
+					const filteredUsers = cachedUsers.filter(u => 
+						users.some(us => parseInt(us.id) === parseInt(u.id))
+					);
+
+					let rowHtml = `
+						<tr class="listed-signatory-row" data-id="${ rowNumber }">
+							<td class="text-center">${ rowNumber }</td>
+							<td>
+								<input type="text" id="role-${ roleId }" class="form-control" value="${ roleName }" readonly/>
+							</td>
+							<td class="text-center">
+								<button type="button" class="btn btn-soft-danger btn-sm" onclick="removeMatrix(${ row.id })">
+									<strong><i class="ri-delete-bin-line"></i> Delete</strong>
+								</button>
+							</td>
+						</tr>
+						<tr class="listed-signatory-row" data-id="${ rowNumber }">
+							<td></td>
+							<td colspan="2">
+								<div class="list-group" id="list-${ rowNumber }"></div>
+							</td>
+						</tr>
+					`;
+
+					$('#approverlist tbody').append(rowHtml);
+
+					const listGroup = $(`#list-${rowNumber}`);
+
+					if (filteredUsers.length > 0) {
+						const mid = Math.ceil(filteredUsers.length / 2);
+						const left = filteredUsers.slice(0, mid);
+						const right = filteredUsers.slice(mid);
+
+						const leftHtml = left.map(u => `
+							<label class="list-group-item">
+								${u.name}
+							</label>
+						`).join('');
+
+						const rightHtml = right.map(u => `
+							<label class="list-group-item">
+								${u.name}
+							</label>
+						`).join('');
+
+						const container = $(`
+							<div class="d-flex gap-3">
+								<div class="flex-fill">${leftHtml}</div>
+								<div class="flex-fill">${rightHtml}</div>
+							</div>
+						`);
+
+						listGroup.append(container);
+					} else {
+						listGroup.append('<div class="text-muted">No users found</div>');
+					}
+				}
+			}
+		}
+
+		function removeMatrix(id){
+			$.ajax({
+				url: `${ baseUrl }/removeMatrix/${id}`, 
+				type: 'GET', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) { 
+					if(data.success){
+						toast('Approver successfully removed in matrix!', 'success');
+						$('.listing').show()
+						$('.detail').hide()
+						setApproval(selectedModule, selectedPage);
+					}
+					else {
+						toast(data.message, 'warning');
+					}
+				},
+				error: function(response) {
+					toast(response.responseJSON.data, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
+		}
 
 		function new_access(){
 			category_menu();
@@ -429,6 +757,7 @@
 				]
 			});
 		}
+
 		function selectMenu(id,category,parentid,menuname,filepath, menuStatus){
 			$('#save-access-menu').data('id', id);
 			$('#category-menu').val(category).trigger('change');
@@ -437,157 +766,6 @@
 			$('#menu-file-path').val(filepath)
 			$('#edit-status').show();
 			$('#status').val(menuStatus == 'Active' ? '1' : '0').trigger('change');
-		}
-		function setApproval(moduleid,page){
-
-			selectedModule = moduleid
-
-			getAllPageSignatory(moduleid)
-
-			matrix = []
-			
-			matrix.push({
-				moduleid:moduleid,
-				order:1
-			})
-
-			let signatory = ''
-			for(let i = 0; i < matrix.length; i++){
-				
-				signatory += `
-				<div id="row-${ matrix.length }" class="col-lg-12 row">
-						
-						<div class="col-12">
-							<div class="mb-3">
-								<label class="form-label">Approver - ${ matrix.length }  </label>
-								<select id="signatory-${ matrix.length }" class="form-control"></select>
-							</div>
-						</div>
-				</div>
-				`
-
-				// fetchSignatory(`${ i+1 }`)
-				fetchSignatoryRoles(`${ i+1 }`)
-			}
-			$('#approval-matrix').html(signatory)
-			$('#page').html(page)
-			
-			
-		}
-
-		function newSignatory(){
-
-			matrix.push({
-				moduleid:selectedModule,
-				order:''
-			})
-
-			for(let i = 0; i < matrix.length; i++){
-				
-				if(matrix[i].order == ''){
-					matrix[i].order = matrix.length
-					$('#approval-matrix').append(`
-					<div id="row-${ matrix.length }" class="col-lg-12 row">
-							
-							<div class="col-12">
-								<div class="mb-3">
-									<label class="form-label">Approval Level ${ matrix.length }  <span title="remove" 
-									style="color:red;cursor:pointer;margin-left:10px;" onclick="remove(${matrix.length})">X</span> </label>
-									<select id="signatory-${ matrix.length }" class="form-control"></select>
-								</div>
-							</div>
-					</div>
-					`)
-					// fetchSignatory(matrix.length)
-					fetchSignatoryRoles(matrix.length)
-				}
-				
-			}
-			
-		}
-
-		function remove(index){
-			matrix = matrix.filter(d => {return d.order != index})
-			$(`#row-${ index }`).hide()
-			// $('#approval-matrix').html('')
-			// for(let i = 0; i < matrix.length; i++){
-				
-			// 		matrix[i].order = i+1
-			// 		$('#approval-matrix').append(`
-			// 		<div id="row-${ i+1 }" class="col-lg-12 row">
-							
-			// 				<div class="col-12">
-			// 					<div class="mb-3">
-			// 						<label class="form-label">Approver - ${ i+1 }  <span title="remove" 
-			// 						style="color:red;cursor:pointer;margin-left:10px;" onclick="remove(${i+1})">X</span> </label>
-			// 						<select id="signatory-${i+1 }" class="form-control"></select>
-			// 					</div>
-			// 				</div>
-			// 		</div>
-			// 		`)
-			// 		fetchSignatory(i+1)
-				
-				
-			// }
-		}
-
-		async function fetchSignatory(index){
-			const users = await $.ajax({
-				url: `${ baseUrl }/users`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-			$('#signatory-'+index).empty();
-			 
-			// let filtered_user = users.filter(d => {  return d.userrole == 'General Manager' ||   d.userrole == 'Verifier'})
-
-			let filtered_user = users
-
-			$('#signatory-'+index).append(`
-					<option value=""> Choose User </option>
-				`);
-			if(filtered_user.length > 0){
-				
-				for (let i = 0; i < filtered_user.length; i++) {
-					const el = filtered_user[i];
-					if(el.status == '1'){
-						$('#signatory-'+index).append(`<option value="${ el.id }"> ${ el.firstname } </option>`);
-					}
-				}
-				//$('#signatory-'+index).val('').trigger('change');
-			}
-		}
-
-		async function fetchSignatoryRoles(index){
-			const roles = await $.ajax({
-				url: `${ baseUrl }/roles`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-			$('#signatory-'+index).empty();
-			 
-			// let filtered_user = roles.filter(d => {  return d.userrole == 'General Manager' ||   d.userrole == 'Verifier'})
-
-			let filtered_role = roles;
-
-			$('#signatory-'+index).append(`
-				<option value=""> Select Signatory </option>
-			`);
-			if(filtered_role.length > 0){
-				for (let i = 0; i < filtered_role.length; i++) {
-					const el = filtered_role[i];
-					$('#signatory-'+index).append(`<option value="${ el.id }"> ${ el.user_role_name } </option>`);
-				}
-				//$('#signatory-'+index).val('').trigger('change');
-			}
 		}
 
 		function selected_menu(menu_id, map_id){
@@ -625,83 +803,8 @@
 			}
 		}
 
-		function addSignatory(){
-			$('#approval-matrix').empty();
-			$('.listing').hide()
-			$('.detail').show()
-			newSignatory();
-		}
-
 		function closeModal(){
 			$('.listing').show()
 			$('.detail').hide()
-		}
-
-		async function getAllPageSignatory(pageid){
-			const tableData = await $.ajax({
-				url: `${baseUrl}/approverByPage/${pageid}`,
-				method: 'GET',
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
-			});
-
-		
-			$("#approverlist").DataTable().destroy();
-			$("#approverlist").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-		  		scrollX: true,
-				scrollCollapse: true,
-				paging: false,
-				data: tableData,
-				// aoColumnDefs: [
-				// 	{ className: "text-end", targets: [ 4 ] },
-				// ],
-				columns: [
-					
-					{ data: "level" },
-					{ data: "name" },
-					{ data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-							html = `
-								<button class="btn btn-sm btn-soft-danger" onclick="removeMatrix(${ oData.id }, ${ pageid })"> 
-									X 
-								</button>
-							`;
-							$(nTd).html(html);
-						}
-					},
-				]
-			});
-		}
-
-		function removeMatrix(id, pageId){
-
-			$.ajax({
-					url: `${ baseUrl }/removeMatrix/${id}`, 
-					type: 'GET', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					},
-					success: function (data) { 
-						if(data.success){
-							toast('Approver successfully removed in matrix!', 'success');
-							$('.listing').show()
-							$('.detail').hide()
-							getAllPageSignatory(pageId)
-						}
-						else {
-							toast(data.message, 'warning');
-						}
-					},
-					error: function(response) {
-						toast(response.responseJSON.data, 'danger');
-						forceLogout(response.responseJSON) //if token is expired
-					}
-				});
-			
 		}
 	</script>

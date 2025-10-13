@@ -498,12 +498,8 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
 							//	
 
+
 							html = 'No action available';
-							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Maker') {
-								html = `
-									No Action Available
-								`;
-							}
 
 							if (oData.status == 'DISAPPROVED' && current_roles == 'Maker') {
 								html = `
@@ -516,12 +512,7 @@
 									</button> 
 								`;
 							}
-
-							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Maker') {
-								// console.log(oData.approved_price)
-								html = 'Waiting for approval';
-							}
-
+							
 							if (oData.status == 'WAITING FOR APPROVAL' && current_roles == 'Approver') {
 
 								qoute_data.push({
