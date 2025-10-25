@@ -328,13 +328,37 @@
 														<input type="number" class="form-control" id="pt_amount" autocomplete="off" placeholder="0">
 													</div>
 
-													<div class="col-md-6 col-sm-6 col-12">
+													<div class="col-md-4 col-sm-4 col-12">
 														<!-- File Input -->
-														<label class="col-form-label"> Image Upload </label>
+														<label class="col-form-label"> Upload Collection Receipt (CR) </label>
 														<div class="input-group">
-															<input type="file" class="form-control" id="pt_receipt_image" accept="image/*">
+															<input type="file" class="form-control" id="pt_collection_receipt" accept="image/*">
 															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
-																onclick="previewAndZoomImage('pt_receipt_image')">
+																onclick="previewAndZoomImage('pt_collection_receipt')">
+																<i class="ri-image-line label-icon align-middle"></i> 
+															</button>
+														</div>
+													</div>
+
+													<div class="col-md-4 col-sm-4 col-12">
+														<!-- File Input -->
+														<label class="col-form-label"> Upload Notice to Release (NTR) </label>
+														<div class="input-group">
+															<input type="file" class="form-control" id="pt_notice_to_release" accept="image/*">
+															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+																onclick="previewAndZoomImage('pt_notice_to_release')">
+																<i class="ri-image-line label-icon align-middle"></i> 
+															</button>
+														</div>
+													</div>
+
+													<div class="col-md-4 col-sm-4 col-12">
+														<!-- File Input -->
+														<label class="col-form-label"> Upload Downpayment (DP) </label>
+														<div class="input-group">
+															<input type="file" class="form-control" id="pt_downpayment" accept="image/*">
+															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+																onclick="previewAndZoomImage('pt_downpayment')">
 																<i class="ri-image-line label-icon align-middle"></i> 
 															</button>
 														</div>
@@ -575,13 +599,37 @@
 												<input type="number" class="form-control" id="v_pt_amount" autocomplete="off" placeholder="0" disabled>
 											</div>
 
-											<div class="col-md-6 col-sm-6 col-12">
+											<div class="col-md-4 col-sm-4 col-12">
 												<!-- File Input -->
-												<label class="col-form-label"> Image Upload </label>
+												<label class="col-form-label"> Upload Collection Receipt (CR) </label>
 												<div class="input-group">
-													<input type="text" class="form-control" id="v_pt_receipt_image" data-image-path="" disabled>
+													<input type="file" class="form-control" id="v_pt_collection_receipt" accept="image/*">
 													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
-														onclick="showZoomImage(document.getElementById('v_pt_receipt_image').getAttribute('data-image-path'))">
+														onclick="previewAndZoomImage('v_pt_collection_receipt')">
+														<i class="ri-image-line label-icon align-middle"></i> 
+													</button>
+												</div>
+											</div>
+
+											<div class="col-md-4 col-sm-4 col-12">
+												<!-- File Input -->
+												<label class="col-form-label"> Upload Notice to Release (NTR) </label>
+												<div class="input-group">
+													<input type="file" class="form-control" id="v_pt_notice_to_release" accept="image/*">
+													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+														onclick="previewAndZoomImage('v_pt_notice_to_release')">
+														<i class="ri-image-line label-icon align-middle"></i> 
+													</button>
+												</div>
+											</div>
+
+											<div class="col-md-4 col-sm-4 col-12">
+												<!-- File Input -->
+												<label class="col-form-label"> Upload Downpayment (DP) </label>
+												<div class="input-group">
+													<input type="file" class="form-control" id="v_pt_downpayment" accept="image/*">
+													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+														onclick="previewAndZoomImage('v_pt_downpayment')">
 														<i class="ri-image-line label-icon align-middle"></i> 
 													</button>
 												</div>
@@ -783,8 +831,16 @@
 						toast('#Payment Tagging Details > Amount field is required', 'danger');
 						return false
 					}
-					if ($('#pt_receipt_image').get(0).files.length === 0) {
-						toast('#Payment Tagging Details > Image field is required', 'danger');
+					if ($('#pt_collection_receipt').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Collection Receipt (CR) is required', 'danger');
+						return false;
+					}
+					if ($('#pt_notice_to_release').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Notice to Release (NTR) is required', 'danger');
+						return false;
+					}
+					if ($('#pt_downpayment').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Downpayment (DP) is required', 'danger');
 						return false;
 					}
 
@@ -817,7 +873,9 @@
 					formData.append("pt_date", $('#pt_date').val());
 					formData.append("pt_bank", $('#pt_bank').val());
 					formData.append("pt_amount", $('#pt_amount').val());
-					formData.append("pt_receipt_image", $('#pt_receipt_image').get(0).files[0]);
+					formData.append("pt_collection_receipt", $('#pt_collection_receipt').get(0).files[0]);
+					formData.append("pt_notice_to_release", $('#pt_notice_to_release').get(0).files[0]);
+					formData.append("pt_downpayment", $('#pt_downpayment').get(0).files[0]);
 
 					$.ajax({
 						url: `${baseUrl}/tagUnit`,
