@@ -869,10 +869,10 @@
 				from_data.append('unit_documents', $('#unit-documents').val().trim());
 				from_data.append('date_sold', $('#unit-date-sold').val());
 				from_data.append('date_surrender', $('#unit-date-surrender').val());
-				from_data.append('original_srp', $('#unit-price').val().trim());
-				from_data.append('unit_loan_amount', $('#unit-loan-amount').val());
-				from_data.append('unit_principal_balance', $('#unit-principal-balance').val());
-				from_data.append('unit_total_payment', $('#unit-total-payment').val());
+				from_data.append('original_srp', $('#unit-price').val().trim().replace(/,/g, ''));
+				from_data.append('unit_loan_amount', $('#unit-loan-amount').val().trim().replace(/,/g, ''));
+				from_data.append('unit_principal_balance', $('#unit-principal-balance').val().trim().replace(/,/g, ''));
+				from_data.append('unit_total_payment', $('#unit-total-payment').val().trim().replace(/,/g, ''));
 				from_data.append('last_payment', $('#unit-date-last-payment').val().trim());
 				from_data.append('loan_number', $('#unit-loan-number').val().trim());
 				from_data.append('odo_meter', $('#unit-odo-meter').val().trim());
@@ -1634,12 +1634,12 @@
                $('#unit-mv-file-number').val(data.repo.mv_file_number).attr('disabled', attrValue)
                $('#unit-orcr-status').val(data.repo.orcr_status).trigger('change').attr('disabled', attrValue)
                $('#unit-year-model').val(data.repo.year_model).attr('disabled', attrValue)
-               $('#unit-price').val(roundOf(data.repo.original_srp)).attr('disabled', attrValue)
+               $('#unit-price').val(roundOf(data.repo.original_srp)).attr('disabled', attrValue).trigger('input');
                $('#unit-original-owner').val(data.received_details.original_owner).attr('disabled', attrValue)
                $('#unit-original-owners-id').val(data.received_details.original_owner_id).trigger('change').attr('disabled', attrValue)
-               $('#unit-loan-amount').val(roundOf(data.received_details.loan_amount)).attr('disabled', attrValue)
-               $('#unit-total-payment').val(roundOf(data.received_details.total_payments)).attr('disabled', attrValue)
-               $('#unit-principal-balance').val(roundOf(data.received_details.principal_balance)).attr('disabled', attrValue)
+               $('#unit-loan-amount').val(roundOf(data.received_details.loan_amount)).attr('disabled', attrValue).trigger('input');
+               $('#unit-total-payment').val(roundOf(data.received_details.total_payments)).attr('disabled', attrValue).trigger('input');
+               $('#unit-principal-balance').val(roundOf(data.received_details.principal_balance)).attr('disabled', attrValue).trigger('input');
                $('#unit-date-sold').val(data.repo.date_sold).attr('disabled', attrValue)
                $('#unit-date-surrender').val(data.repo.date_surrender).attr('disabled', attrValue)
 					// $('#unit-msuisva-form').val(data.repo.msuisva_form_no).attr('disabled', attrValue)
