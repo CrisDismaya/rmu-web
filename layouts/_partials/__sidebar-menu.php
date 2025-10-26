@@ -152,17 +152,29 @@
 				<div class="modal-body">
 					<div class="col-md-12 mb-3">
 						<label class="form-label"> Old password </label>
-						<input type="password" id="old-password" class="form-control" placeholder="Enter Old Password">
+						<!-- <input type="password" id="old-password" class="form-control" placeholder="Enter Old Password"> -->
+						<div class="position-relative auth-pass-inputgroup mb-3">
+							<input type="password" class="form-control pe-5 password-input" placeholder="Enter Old Password" id="old-password"> <!-- value="123123123" -->
+							<button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+						</div>
 					</div>
 
 					<div class="col-md-12 mb-3">
 						<label class="form-label"> New password </label>
-						<input type="password" id="new-password" class="form-control" placeholder="Enter New Password">
+						<!-- <input type="password" id="new-password" class="form-control" placeholder="Enter New Password"> -->
+						<div class="position-relative auth-pass-inputgroup mb-3">
+							<input type="password" class="form-control pe-5 password-input" placeholder="Enter New Password" id="new-password"> <!-- value="123123123" -->
+							<button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+						</div>
 					</div>
 
 					<div class="col-md-12 mb-2">
 						<label class="form-label"> Confirm password </label>
-						<input type="password" id="confirm-password" class="form-control" placeholder="Enter Confirm Password">
+						<!-- <input type="password" id="confirm-password" class="form-control" placeholder="Enter Confirm Password"> -->
+						<div class="position-relative auth-pass-inputgroup mb-3">
+							<input type="password" class="form-control pe-5 password-input" placeholder="Enter Confirm Password" id="confirm-password"> <!-- value="123123123" -->
+							<button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+						</div>
 					</div>
 					<span id='password-message'></span>
 				</div>
@@ -263,6 +275,26 @@
 				updatePasswordMessage();
 			});
 
+			$('.password-addon').on('click', function(e) {
+				e.preventDefault();
+
+				const $btn = $(this);
+				const $input = $btn.closest('.auth-pass-inputgroup').find('.password-input');
+				const $icon = $btn.find('i');
+
+				if ($input.attr('type') === 'password') {
+					$input.attr('type', 'text');
+					$btn.attr('aria-pressed', 'true').attr('title', 'Hide password');
+					$icon.removeClass('ri-eye-fill').addClass('ri-eye-off-fill');
+				} else {
+					$input.attr('type', 'password');
+					$btn.attr('aria-pressed', 'false').attr('title', 'Show password');
+					$icon.removeClass('ri-eye-off-fill').addClass('ri-eye-fill');
+				}
+
+				$input.focus();
+			});
+
 			$('#save-button').click(function(){
 
 				if($('#old-password').val() == '' || $('#new-password').val() == '' || $('#confirm-password').val() == ''){
@@ -302,10 +334,19 @@
 		})
 
 		function change_passowrd_modal(){
-			$('#old-password').val('')
-			$('#new-password').val('')
-			$('#confirm-password').val('')
-			$('#save-button').prop('disabled', true)
+			$('#old-password, #new-password, #confirm-password')
+				.val('')
+				.attr('type', 'password'); // reset to password type
+
+			$('.password-addon').each(function() {
+				const $btn = $(this);
+				const $icon = $btn.find('i');
+				$btn.attr('aria-pressed', 'false').attr('title', 'Show password');
+				$icon.removeClass('ri-eye-off-fill').addClass('ri-eye-fill');
+			});
+
+			$('#password-message').text('').removeClass("text-danger").removeClass("text-success");
+			$('#save-button').prop('disabled', false)
 			$('#change-password').modal('show')
 		}
 

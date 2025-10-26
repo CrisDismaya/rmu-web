@@ -120,12 +120,38 @@
 						<div class="col-lg-4" id="password-container">
 							<label for="customer-name" class="col-form-label"> Password </label>
 							<input id="user-password" type="password" class="form-control" placeholder="Password">
-						</div>
+						</div>              
 					</div>
 				</div>
 				<div class="modal-footer">
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
 					<button id="save-user" data-id="0" type="button" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="resetPasswrdModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="myExtraLargeModalLabel">Reset Passowrd</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body container">
+					<div class="col-lg-12 row">
+						<div class="col-lg-12">
+							<label class="col-form-label"> Name </label>
+							<input type="text" class="form-control" id="rp-name" readonly>
+						</div>
+						<div class="col-lg-12">
+							<label class="col-form-label"> New Password </label>
+							<input type="text" class="form-control" id="rp-new-password" readonly>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
 				</div>
 			</div>
 		</div>
@@ -297,6 +323,10 @@
 				scrollCollapse: true,
 				paging: false,
 				data: tableData,
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
 				columns: [
 					{ data: "branch_name" },
 					{ data: "employee_no" },
@@ -311,23 +341,41 @@
 						}
 					},
 					{ data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+						fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
 							var status = oData.status;
+
+							// For toggle button
 							var classes = (status != 1 ? 'success' : 'danger');
 							var text = (status != 1 ? 'Activate' : 'Deactivate');
-							
-							html = `
+
+							// Always show Edit button
+							var html = `
 								<button class="btn btn-sm btn-soft-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
-									onclick="edit(${ oData.id }, '${ oData.employee_no }', '${ oData.firstname }', '${ oData.middlename }', '${ oData.lastname }', '${ oData.email }','${ oData.branch }',
-										'${ oData.userrole }')"> 
-									<i class="ri-edit-box-line"></i> Edit 
-								</button> 
-								&nbsp; | &nbsp;  
-								<button class="btn btn-sm btn-soft-${ classes }"
-									onclick="deactivate(${ oData.id }, ${ oData.status })">
-									${ text }
+										onclick="edit(${oData.id}, '${oData.employee_no}', '${oData.firstname}', '${oData.middlename}', '${oData.lastname}', '${oData.email}', '${oData.branch}', '${oData.userrole}')">
+										<i class="ri-edit-box-line"></i> Edit
 								</button>
 							`;
+
+							// Show Reset Password only for active users
+							if (status == 1) {
+								html += `
+										&nbsp; | &nbsp;
+										<button class="btn btn-sm btn-soft-primary"
+											onclick="resetPassword(${oData.id}, '${oData.firstname}', '${oData.lastname}')">
+											<i class="ri-lock-password-line"></i> Reset Password
+										</button>
+								`;
+							}
+
+							// Always show Activate/Deactivate button
+							html += `
+								&nbsp; | &nbsp;
+								<button class="btn btn-sm btn-soft-${classes}"
+										onclick="deactivate(${oData.id}, ${oData.status})">
+										${text}
+								</button>
+							`;
+
 							$(nTd).html(html);
 						}
 					},
@@ -346,7 +394,39 @@
 			$('#user-role').val(role).trigger('change')
 			$('#user-branch').val(branchid).trigger('change')
 			$('#password-container').hide()
-			
+		}
+
+		function resetPassword(id, fname, lname){
+			$('#resetPasswrdModal').modal('show')
+			$('#rp-name').val(`${ fname } ${ lname }`)
+
+			showLoader()
+			$.ajax({
+				url: `${baseUrl}/resetPassword/`+id, 
+				type: 'GET', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				success: function (data) { 
+
+					console.log(data);
+					
+					if(!data.success){
+						hideLoader()
+						toast(data.message, 'danger');
+					}
+					else{
+						$('#rp-new-password').val(data.data)
+						hideLoader()
+						toast('Password succesfully reset!', 'success');
+					}
+				},
+				error: function(response) {
+					hideLoader()
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
 		}
 
 		function deactivate(id, status){
