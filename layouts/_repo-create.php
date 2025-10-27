@@ -1021,6 +1021,7 @@
 					{  title: "Model", data: "model_name" },
 					{  title: "Engine", data: "model_engine" },
 					{  title: "Chassis", data: "model_chassis" },
+					{  title: "Year Model", data: "year_model", className: "text-center" },
 
 					{  title: "Principal Balance", data: "principal_balance", className: "text-end", render: function(data, type, row) {
 							return parseFloat(data).toLocaleString('en-PH', {
