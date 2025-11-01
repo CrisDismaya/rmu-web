@@ -328,13 +328,37 @@
 														<input type="number" class="form-control" id="pt_amount" autocomplete="off" placeholder="0">
 													</div>
 
-													<div class="col-md-6 col-sm-6 col-12">
+													<div class="col-md-4 col-sm-4 col-12">
 														<!-- File Input -->
-														<label class="col-form-label"> Image Upload </label>
+														<label class="col-form-label"> Upload Collection Receipt (CR) </label>
 														<div class="input-group">
-															<input type="file" class="form-control" id="pt_receipt_image" accept="image/*">
+															<input type="file" class="form-control" id="pt_collection_receipt" accept="image/*">
 															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
-																onclick="previewAndZoomImage('pt_receipt_image')">
+																onclick="previewAndZoomImage('pt_collection_receipt')">
+																<i class="ri-image-line label-icon align-middle"></i> 
+															</button>
+														</div>
+													</div>
+
+													<div class="col-md-4 col-sm-4 col-12">
+														<!-- File Input -->
+														<label class="col-form-label"> Upload Notice to Release (NTR) </label>
+														<div class="input-group">
+															<input type="file" class="form-control" id="pt_notice_to_release" accept="image/*">
+															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+																onclick="previewAndZoomImage('pt_notice_to_release')">
+																<i class="ri-image-line label-icon align-middle"></i> 
+															</button>
+														</div>
+													</div>
+
+													<div class="col-md-4 col-sm-4 col-12">
+														<!-- File Input -->
+														<label class="col-form-label"> Upload Downpayment (DP) </label>
+														<div class="input-group">
+															<input type="file" class="form-control" id="pt_downpayment" accept="image/*">
+															<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+																onclick="previewAndZoomImage('pt_downpayment')">
 																<i class="ri-image-line label-icon align-middle"></i> 
 															</button>
 														</div>
@@ -575,13 +599,37 @@
 												<input type="number" class="form-control" id="v_pt_amount" autocomplete="off" placeholder="0" disabled>
 											</div>
 
-											<div class="col-md-6 col-sm-6 col-12">
+											<div class="col-md-4 col-sm-4 col-12">
 												<!-- File Input -->
-												<label class="col-form-label"> Image Upload </label>
+												<label class="col-form-label"> Collection Receipt (CR) </label>
 												<div class="input-group">
-													<input type="text" class="form-control" id="v_pt_receipt_image" data-image-path="" disabled>
+													<input type="input" class="form-control" id="v_pt_collection_receipt" disabled>
 													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
-														onclick="showZoomImage(document.getElementById('v_pt_receipt_image').getAttribute('data-image-path'))">
+														onclick="previewAndZoomImage('v_pt_collection_receipt')">
+														<i class="ri-image-line label-icon align-middle"></i> 
+													</button>
+												</div>
+											</div>
+
+											<div class="col-md-4 col-sm-4 col-12">
+												<!-- File Input -->
+												<label class="col-form-label"> Notice to Release (NTR) </label>
+												<div class="input-group">
+													<input type="input" class="form-control" id="v_pt_notice_to_release" disabled>
+													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+														onclick="previewAndZoomImage('v_pt_notice_to_release')">
+														<i class="ri-image-line label-icon align-middle"></i> 
+													</button>
+												</div>
+											</div>
+
+											<div class="col-md-4 col-sm-4 col-12">
+												<!-- File Input -->
+												<label class="col-form-label"> Downpayment (DP) </label>
+												<div class="input-group">
+													<input type="input" class="form-control" id="v_pt_downpayment" disabled>
+													<button class="btn btn-primary waves-effect waves-light material-shadow-none" type="button" 
+														onclick="previewAndZoomImage('v_pt_downpayment')">
 														<i class="ri-image-line label-icon align-middle"></i> 
 													</button>
 												</div>
@@ -783,8 +831,16 @@
 						toast('#Payment Tagging Details > Amount field is required', 'danger');
 						return false
 					}
-					if ($('#pt_receipt_image').get(0).files.length === 0) {
-						toast('#Payment Tagging Details > Image field is required', 'danger');
+					if ($('#pt_collection_receipt').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Collection Receipt (CR) is required', 'danger');
+						return false;
+					}
+					if ($('#pt_notice_to_release').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Notice to Release (NTR) is required', 'danger');
+						return false;
+					}
+					if ($('#pt_downpayment').get(0).files.length === 0) {
+						toast('#Payment Tagging Details > Upload Downpayment (DP) is required', 'danger');
 						return false;
 					}
 
@@ -817,7 +873,9 @@
 					formData.append("pt_date", $('#pt_date').val());
 					formData.append("pt_bank", $('#pt_bank').val());
 					formData.append("pt_amount", $('#pt_amount').val());
-					formData.append("pt_receipt_image", $('#pt_receipt_image').get(0).files[0]);
+					formData.append("pt_collection_receipt", $('#pt_collection_receipt').get(0).files[0]);
+					formData.append("pt_notice_to_release", $('#pt_notice_to_release').get(0).files[0]);
+					formData.append("pt_downpayment", $('#pt_downpayment').get(0).files[0]);
 
 					$.ajax({
 						url: `${baseUrl}/tagUnit`,
@@ -858,12 +916,17 @@
 				const input = document.getElementById(inputId);
 				if (input.files && input.files[0]) {
 					const reader = new FileReader();
-					reader.onload = function (e) {
-							showZoomImage(e.target.result); // pass base64 image to zoom modal
+					reader.onload = function(e) {
+							showZoomImage(e.target.result);
 					};
 					reader.readAsDataURL(input.files[0]);
 				} else {
-					toast("No image selected.", "warning");
+					const existingImage = input.getAttribute('data-image');
+					if (existingImage && existingImage.trim() !== '') {
+							showZoomImage(existingImage);
+					} else {
+							toast("No image selected or uploaded.", "warning");
+					}
 				}
 			}
 
@@ -1269,7 +1332,7 @@
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}','${ oData.remarks}'
 											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
-											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_receipt_image}')"> 
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_uploads}')"> 
                                                 <i class="ri-edit-box-line"></i> edit
                                             </button>
 											<button class="btn btn-sm btn-soft-warning"  
@@ -1297,7 +1360,7 @@
                                             ,'${ oData.rebate}','${ oData.terms}','${ oData.rate}','${ oData.interest_rate}'
 											,'${ oData.amount_finance}','${ oData.file_name}','${ oData.path}'
 											,'${ oData.amount_paid}','${ oData.ExternalReference}','${ oData.AgentID}',
-											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_receipt_image}')"> 
+											'${ oData.pt_receipt_no}','${ oData.pt_date}','${ oData.pt_bank}','${ oData.pt_amount}','${ oData.pt_uploads}')"> 
                                                 <i class="ri-edit-box-line"></i> Submit Decision
                                             </button> 
                                         `;
@@ -1350,7 +1413,7 @@
 			function submitApproval(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
 				interest_rate, amount_finance, filename, path, amount_paid, external_ref, agentId,
-				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_receipt_image) {
+				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_uploads) {
 
 				$('#v_rnr').hide()
 
@@ -1414,16 +1477,42 @@
 				$('#v_pt_amount').val(pt_amount)
 				
 				var image_path = `${ baseUrl.replace('/api', '') }`;
-				let filenameValue = pt_receipt_image.split('/').pop().replace(/\s+/g, '_') ?? '';
-				$('#v_pt_receipt_image')
-					.val(filenameValue)
-					.attr('data-image-path', `${ image_path }/${ pt_receipt_image }`);
+				let images = JSON.parse(pt_uploads);
+
+				if (images && images.length > 0) {
+					images.forEach((element, index) => {
+						let complete_directory = `${ image_path }/${element.directory}`;
+
+						switch (index) {
+							case 0:
+								// Collection Receipt
+								$('#v_pt_collection_receipt')
+									.attr('data-image', complete_directory)
+									.val(element.name);
+								break;
+
+							case 1:
+								// Notice to Release
+								$('#v_pt_notice_to_release')
+									.attr('data-image', complete_directory)
+									.val(element.name);
+								break;
+
+							case 2:
+								// Downpayment
+								$('#v_pt_downpayment')
+									.attr('data-image', complete_directory)
+									.val(element.name);
+								break;
+						}
+					});
+				}
 			}
 
 			function edit(id, repo_id, branchname, brandname, model_name, color, model_engine, model_chassis, approved_price, ex_owner,
 				invoice_reference_no, sale_type, new_customer, sold_date, dp, monthly_amo, rebate, terms, rate,
 				interest_rate, amount_finance, filename, path, remarks, amount_paid, external_ref, agentId,
-				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_receipt_image) {
+				pt_receipt_no, pt_date, pt_bank, pt_amount, pt_uploads) {
 
 
 				let type = sale_type == 'INSTALLMENT' ? 'I' : 'C'
@@ -1503,10 +1592,36 @@
 				$('#v_pt_amount').val(pt_amount)
 
 				var image_path = `${ baseUrl.replace('/api', '') }`;
-				let filenameValue = pt_receipt_image.split('/').pop().replace(/\s+/g, '_') ?? '';
-				$('#v_pt_receipt_image')
-					.val(filenameValue)
-					.attr('data-image-path', `${ image_path }/${ pt_receipt_image }`);
+				let images = JSON.parse(pt_uploads);
+
+				if (images && images.length > 0) {
+					images.forEach((element, index) => {
+						let complete_directory = `${ image_path }/${element.directory}`;
+
+						switch (index) {
+							case 0:
+								// Collection Receipt
+								$('#v_pt_collection_receipt')
+									.data('image', complete_directory)
+									.attr('title', element.name);
+								break;
+
+							case 1:
+								// Notice to Release
+								$('#v_pt_notice_to_release')
+									.attr('data-image', complete_directory)
+									.attr('title', element.name);
+								break;
+
+							case 2:
+								// Downpayment
+								$('#v_pt_downpayment')
+									.attr('data-image', complete_directory)
+									.attr('title', element.name);
+								break;
+						}
+					});
+				}
 			}
 
 			function uploadNew() {
