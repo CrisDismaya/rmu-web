@@ -45,7 +45,8 @@
 	<!-- cleave.js -->
 	<script src="../assets/libs/cleave.js/cleave.min.js"></script>
 
-	
+	<!-- excel.js -->
+	<script src="../assets/libs/excel/xlsx.full.min.js"></script>
 
 	<!-- App js -->
 	<script src="../assets/libs/prismjs/prism.js"></script>

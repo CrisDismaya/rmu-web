@@ -38,8 +38,9 @@
 								</div>
 								<div class="card-body">
 									<table id="list-for-transfer-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-										<thead>
+										<!-- <thead>
 											<tr>
+												<th rowspan="2">  </th>
 												<th rowspan="2"> Reference Code </th>
 												<th rowspan="2"> Requestor </th>
 												<th colspan="2" class="text-center"> Branch </th>
@@ -52,7 +53,7 @@
 												<th class="text-center"> From </th>
 												<th class="text-center"> To </th>
 											</tr>
-										</thead>
+										</thead> -->
 									</table>
 								</div>
 							</div>
@@ -194,6 +195,8 @@
 
 		var selected_unit = [], record_id = '', moduleid = current_module_id;
 		// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
+		const carRegex = /^[A-Z]{3}\d{4}$/i;
+		const mcRegex = /^(?:\d{3}[A-Z]{3}|[A-Z]\d{3}[A-Z]{2}|[A-Z]{2}\d{3}[A-Z]|[0-9][A-Z]{3}\d{2}|[A-Z]\d{4}[A-Z]|[A-Z]\d[A-Z]\d{3}|[A-Z]{2}\d{4}|[A-Z]\d{3}[A-Z])$/i;
 
 		$(document).ready(function(){
 			
@@ -283,77 +286,287 @@
 			});
 		});
 		
-		async function display_table(current_module_id){
-			if(current_roles == 'Maker'){
-				$('#stock-transfer-button').show()
-				$('#comment-section').hide()
-			}
-			else{
-				$('#stock-transfer-button').hide()
-				$('#comment-section').show()
+		async function display_table(current_module_id) {
+			if (current_roles == 'Maker') {
+				$('#stock-transfer-button').show();
+				$('#comment-section').hide();
+			} else {
+				$('#stock-transfer-button').hide();
+				$('#comment-section').show();
 			}
 
+			// ✅ Destroy existing DataTable safely
 			if ($.fn.DataTable.isDataTable("#list-for-transfer-table")) {
 				$('#list-for-transfer-table').DataTable().clear().destroy();
 			}
 
-			$("#list-for-transfer-table").DataTable({
+			const table = $("#list-for-transfer-table").DataTable({
 				processing: true,
 				serverSide: true,
 				ajax: {
-					url: `${baseUrl}/getAllForApprovals/${ current_module_id }`,
+					url: `${baseUrl}/getAllForApprovals/${current_module_id}`,
 					type: 'GET',
 					dataType: 'json',
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
-					}
+					headers: { 'Authorization': `Bearer ${auth.token}` },
 				},
-		  		scrollX: true,
+				scrollX: true,
 				scrollCollapse: true,
+				autoWidth: false, 
+				responsive: false, 
 				columns: [
-					{ data: "reference_code" },
-					{ data: "created_by" },
-					{ data: "from_branch" },
-					{ data: "to_branch" },
-					{ data: "transfer_units_count", class: 'text-center' },
-					{ data: "approver_name" },
-					{ data: "approval_status",
-						render: function(data, type, row) {
-							var className;
-							if (row.status_id == 1) {
-									className += ' text-success';
-							} else if (row.status_id == 2) {
-									className += ' text-danger';
-							} else {
-									className += ' text-warning';
-							}
-							return `<span class="text-center ${ className }">${ data }</span>`;
+					{
+						title: '', 
+						className: 'dt-control text-center no-colvis',
+						data: null,
+						defaultContent: '' // <i class="ri-add-line text-primary"></i>
+					},
+					{ title: 'Transaction Ref. No.',  data: "reference_code", className: "fw-semibold" },
+					{ title: 'Requestor',  data: "created_by" },
+					{ title: 'Branch Origin',  data: "from_branch" },
+					{ title: 'Branch Receiver',  data: "to_branch" },
+					{ title: 'Unit Count',  data: "transfer_units_count", className: 'text-center' },
+					{ title: 'Current Approver',  data: "approver_name" },
+					{
+						title: 'Current Status', 
+						data: "approval_status",
+						render: (data, type, row) => {
+							let className = '';
+							if (row.status_id == 1) className = 'text-success';
+							else if (row.status_id == 2) className = 'text-danger';
+							else className = 'text-warning';
+							return `<span class="text-center ${className}">${data}</span>`;
 						}
 					},
-					{ data: null, defaultContent: '', class: 'text-center',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+					{
+						title: 'Action', 
+						data: null,
+						defaultContent: '',
+						class: 'text-center no-colvis',
+						orderable: false, 
+						visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
+					}
+				],
+				order: [[1, 'asc']],
+				dom: 'Bfrtip',
+				buttons: [
+					{
+						extend: 'pageLength',
+						text: 'Rows per page',
+						className: 'btn btn-light bg-gradient waves-effect waves-light'
+					},
+					{
+						extend: 'colvis',
+						text: 'Show/Hide Columns',
+						className: 'btn btn-light bg-gradient waves-effect waves-light',
+						columns: ':not(.no-colvis)'
+					},
+					{
+						extend: 'excelHtml5',
+						text: 'Export to Excel',
+						className: 'btn btn-success bg-gradient waves-effect waves-light',
+						// filename: 'Export_All',
+						// exportOptions: { columns: ':visible' }
+						action: async function () {
+							const exportData = await $.ajax({
+								url: `${baseUrl}/exportTransfersWithUnits`,
+								method: 'GET',
+								headers: { 'Authorization': `Bearer ${auth.token}` },
+							});
 
-							let icon = '';
-							if(auth.role.toLowerCase() == 'warehouse custodian' || auth.role.toLowerCase() == 'Administrator')
-								icon = 'ri-eye-line';
-							else if((auth.role.toLowerCase() == 'verifier' || auth.role.toLowerCase() == 'general manager') && oData.approval_status.toLowerCase() == 'pending')
-								icon = 'ri-search-2-line';
-							else if((auth.role.toLowerCase() == 'verifier'|| auth.role.toLowerCase() == 'general manager') && oData.approval_status.toLowerCase() != 'pending')
-								icon = 'ri-eye-line';
+							const rows = [];
+							let counter = 1;
 
-							html = `
-								<button class="btn btn-sm btn-soft-primary" onclick="view_details(${ oData.id }, '${ oData.approval_status }', '${ oData.remarks }')"> 
-									<i class="${ icon }"></i>
-								</button> 
-							`;
+							exportData.forEach(item => {
+								const plateValid = item.plate_number ? isValidPlate(item.plate_number) : false;
 
-							$(nTd).html(html);
+								rows.push({
+									'NO.': counter++,
+									'TO BRANCH': item.to_branch || '',
+									'FROM BRANCH': item.from_branch || '',
+									'EX OWNER': item.ex_owner || '',
+									'BRAND': item.brand || '',
+									'MODEL': item.model || '',
+									'ENGINE': item.engine || '',
+									'CHASSIS': item.chassis || '',
+									'COLOR': item.color || '',
+									'OR/CR': item.orcr_status === 'On Hand' ? 'TRUE' : 'FALSE',
+									'PLATE': plateValid ? 'TRUE' : 'FALSE',
+									'KEY': item.key_status ? 'TRUE' : 'FALSE',
+									'REPO DOCS': item.document_status === 'Complete' ? 'TRUE' : 'FALSE',
+									'LOAN DOCS': item.loan_document_status ? 'TRUE' : 'FALSE',
+								});
+							});
+
+							// Define headers explicitly
+							const headers = [
+								'NO.', 'TO BRANCH', 'FROM BRANCH', 'EX OWNER', 'BRAND', 'MODEL', 'ENGINE',
+								'CHASSIS', 'COLOR', 'OR/CR', 'PLATE', 'KEY', 'REPO DOCS', 'LOAN DOCS'
+							];
+
+							// Create worksheet
+							const ws = XLSX.utils.json_to_sheet(rows, { header: headers });
+
+							// ✅ Auto-adjust column width
+							const colWidths = headers.map(h => ({
+								wch: Math.max(h.length, ...rows.map(r => (r[h] ? r[h].toString().length : 0))) + 2
+							}));
+							ws['!cols'] = colWidths;
+
+							// ✅ Center specific columns (OR/CR, PLATE, KEY, REPO DOCS, LOAN DOCS)
+							const centerCols = ['OR/CR', 'PLATE', 'KEY', 'REPO DOCS', 'LOAN DOCS'];
+							const range = XLSX.utils.decode_range(ws['!ref']);
+
+							for (let C = range.s.c; C <= range.e.c; ++C) {
+								const colHeader = headers[C];
+								if (centerCols.includes(colHeader)) {
+									for (let R = range.s.r; R <= range.e.r; ++R) {
+										const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+										if (!ws[cellRef]) continue;
+										if (!ws[cellRef].s) ws[cellRef].s = {};
+										ws[cellRef].s.alignment = { horizontal: 'center', vertical: 'center' };
+									}
+								}
+							}
+
+							// ✅ Make header bold and center it
+							headers.forEach((h, i) => {
+								const cell = ws[XLSX.utils.encode_cell({ r: 0, c: i })];
+								if (cell) {
+									if (!cell.s) cell.s = {};
+									cell.s.font = { bold: true };
+									cell.s.alignment = { horizontal: 'center', vertical: 'center' };
+								}
+							});
+
+							// Create workbook and export
+							const wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Transfers");
+
+							// ✅ Write file
+							XLSX.writeFile(wb, "Transfers_With_Units.xlsx", { cellStyles: true });
 						}
 					}
 				],
+				lengthMenu: [
+					[10, 25, 50, -1],
+					[10, 25, 50, 'All']
+				],
+				initComplete: function () {
+					// ✅ Adjust header width after table load
+					table.columns.adjust();
+				}
 			});
+
+			// ✅ Expand / Collapse Logic
+			$('#list-for-transfer-table tbody').on('click', 'td.dt-control', async function () {
+				const tr = $(this).closest('tr');
+				const row = table.row(tr);
+				const icon = $(this).find('i');
+
+				if (row.child.isShown()) {
+					row.child.hide();
+					tr.removeClass('shown');
+					icon.removeClass('ri-subtract-line text-danger').addClass('ri-add-line text-primary');
+					table.columns.adjust(); // ✅ Recalculate widths
+					return;
+				}
+
+				icon.removeClass('ri-add-line text-primary').addClass('ri-loader-4-line text-secondary ri-spin');
+
+				const detailsHtml = await formatDetails(row.data());
+
+				row.child(detailsHtml).show();
+				tr.addClass('shown');
+
+				icon.removeClass('ri-loader-4-line text-secondary ri-spin').addClass('ri-subtract-line text-danger');
+				table.columns.adjust(); // ✅ Fix width after expanding
+			});
+
+			// ✅ Adjust column widths on window resize
+			$(window).on('resize', function () {
+				table.columns.adjust();
+			});
+
+			function isValidPlate(plate) {
+				const p = plate.replace(/\s|-/g, '').toUpperCase(); // normalize (remove spaces/hyphens)
+				return carRegex.test(p) || mcRegex.test(p);
+			}
+
+			// 🔹 Format expanded table section
+			async function formatDetails(data) {
+				try {
+					const id = data.id;
+					const tableData = await $.ajax({
+						url: `${baseUrl}/getTransferUnits/${id}`,
+						method: 'GET',
+						dataType: 'json',
+						headers: { 'Authorization': `Bearer ${auth.token}` },
+					});
+
+					if (!tableData?.length) {
+						return '<div class="text-muted p-2">No transfer units available.</div>';
+					}
+
+					const rows = tableData.map((unit, index) => {
+						// handle possible missing or invalid plate number
+						const plateValid = unit.plate_number ? isValidPlate(unit.plate_number) : false;
+
+						return `
+							<tr>
+								<td>${index + 1}</td>
+								<td>${unit.ex_owner || '-'}</td>
+								<td>${unit.brand || '-'}</td>
+								<td>${unit.model || '-'}</td>
+								<td>${unit.engine || '-'}</td>
+								<td>${unit.chassis || '-'}</td>
+								<td>${unit.color || '-'}</td>
+								<td class="text-center">${unit.year_model || '-'}</td>
+								<td class="text-center">
+									<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${unit.repo_id})"> 
+										<i class="bx bx-images"></i>
+									</button>
+								</td>
+								<td class="text-center">${unit.document_status === 'Complete' ? '✅' : '❌'}</td>
+								<td class="text-center">${plateValid ? '✅' : '❌'}</td>
+								<td class="text-center">${unit.orcr_status === 'On Hand' ? '✅' : '❌'}</td>
+								<td class="text-center">${unit.key_status ? '✅' : '❌'}</td>
+								<td class="text-center">${unit.loan_document_status ? '✅' : '❌'}</td>
+							</tr>
+						`;
+					}).join('');
+
+					return `
+						<div class="p-2">
+							<table class="table table-bordered mb-0" style="width:100%;">
+								<thead class="table-light">
+									<tr>
+										<th>No</th>
+										<th>Ex Owner</th>
+										<th>Brand</th>
+										<th>Model</th>
+										<th>Engine</th>
+										<th>Chassis</th>
+										<th>Color</th>
+										<th>Year Model</th>
+										<th>Files</th>
+										<th>OR/CR</th>
+										<th>Plate</th>
+										<th>Repo Docs</th>
+										<th>Key</th>
+										<th>Loan Docs</th>
+									</tr>
+								</thead>
+								<tbody>${rows}</tbody>
+							</table>
+						</div>
+					`;
+				} catch (error) {
+					console.error('Error loading transfer details:', error);
+					return '<div class="text-danger p-2">Failed to load transfer details.</div>';
+				}
+			}
 		}
-		
+
 		async function get_list_of_model(){
 			$('#staticBackdrop').modal('show')
 

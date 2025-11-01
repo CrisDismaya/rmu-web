@@ -50,7 +50,7 @@
 								</div>
 								<div class="card-body">
 									<table id="received-unit-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-									<thead>
+										<!-- <thead>
 											<tr>
 												<th>Branch</th>
 												<th>Invoice Reference #</th>
@@ -71,7 +71,7 @@
 												<th> Terms </th>
 												<th> Form </th>
 											</tr>
-										</thead>
+										</thead> -->
 									</table>
 								</div>
 							</div>
@@ -121,7 +121,7 @@
 				processing: true,
 				serverSide: true,
 				ajax: {
-					url: `${baseUrl}/SoldMasterList`,
+					url: `${baseUrl}/getAllSoldUnits`,
 					type: 'GET',
 					headers: {
 						'Authorization': `Bearer ${auth.token}`,
@@ -135,40 +135,44 @@
 					left: 0,
 					right: 1
 				},
-
 		  		scrollX: true,
 				scrollCollapse: true,
 				columns: [
-					{ data: "branchname" },
-					{ data: "invoice_reference_no" },
-					{ data: "brandname" },
-					{ data: "model_name" },
-					{ data: "color" },
-					{ data: "approved_price", render: $.fn.dataTable.render.number( '\, ', '.', 2, '', '' ), className: "text-end" },
-					{ data: "model_engine" },
-					{ data: "model_chassis" },
-					{ data: "sale_type" },
-					{ data: "sold_date" },
-					{ data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-						//	
-						    html = `<span>${ oData.o_firstname } ${ oData.o_middlename } ${ oData.o_lastname }</span>`;
-							
-							$(nTd).html(html);
-						}
+					{ title: 'Branch', data: "branch_name", className: "fw-semibold", visible: (auth.role.toLowerCase() !== 'warehouse custodian' ? true : false) },
+					{ title: 'Transaction No.', data: "transaction_number", className: "fw-semibold" },
+					{ title: 'New Owner', data: "new_owner" },
+					{ title: 'Sales Type', data: "sale_type" },
+					{ title: 'sold_date', data: "sold_date" },
+					{ title: 'Brand', data: "brandname" },
+					{ title: 'Model', data: "model_name" },
+					{ title: 'Engine', data: "engine" },
+					{ title: 'Chassis', data: "chassis" },
+					{ title: 'SRP', data: "suggested_retail_price", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
 					},
-					{ data: null, defaultContent: '',
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
-						//	
-						    html = `<span>${ oData.firstname } ${ oData.middlename } ${ oData.lastname }</span>`;
-							
-							$(nTd).html(html);
-						}
+					{ title: 'Downpayment', data: "downpayment", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
 					},
-					{ data: "dp" },
-					{ data: "monthly_amo" },
-					{ data: "rebate" },
-					{ data: "terms" },
+					{ title: 'Loan Amount', data: "computed_loan_amount", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+					},
+					{ title: 'Interest Rate (%)', data: "interest_rate", className: "text-end",
+						render: (d => d != 0 ? `${(+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-')
+					},
+					{ title: 'Terms', data: "terms", className: "text-end",
+						render: (d => d != 0 ? `${d} mos.` : '-')
+					},
+					{ title: 'Principal Amount', data: "principal_amount", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+					},
+					{ title: 'Invoice Ref. No.', data: "invoice_reference_no" },
+					{ title: 'Monthly Amort.', data: "monthly_amortization", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+					},
+					{ title: 'NTR Ref. No.', data: "ntr_reference_no" },
+					{ title: 'Gain/Loss', data: "gain_loss", className: "fw-semibold text-end",
+						render: (d => d ? (+d).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+					},
 					{
 						data: null,
 						defaultContent: '',
@@ -179,16 +183,36 @@
 									<b>Delivery Receipt</b>
 								</a>
 							`;
-
 							$(nTd).html(html);
 						}
 					},
-					
 				],
 				dom: 'Bfrtip',
-					buttons: [
-						'excelHtml5'
-					]
+				buttons: [
+					{
+							extend: 'pageLength',
+							text: 'Rows per page',
+							className: 'btn btn-light bg-gradient waves-effect waves-light'
+					},
+					{
+							extend: 'colvis',
+							text: 'Show/Hide Columns',
+							className: 'btn btn-light bg-gradient waves-effect waves-light'
+					},
+					{
+						extend: 'excelHtml5',
+						text: 'Export to Excel (All Visible)',
+						className: 'btn btn-success bg-gradient waves-effect waves-light',
+						filename: 'Export_All',
+						exportOptions: {
+							columns: ':visible'
+						}
+					},
+				],
+				lengthMenu: [
+					[10, 25, 50, -1],
+					[10, 25, 50, 'All']
+				]
 			});
 		}
 
