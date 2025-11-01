@@ -114,25 +114,46 @@
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="myExtraLargeModalLabel"> List of Unit to transfer  </h5>
+					<h5 class="modal-title" id="myExtraLargeModalLabel"> Details of Stock Transfer </h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 
 				<div class="modal-body">
+					<div class="col-lg-6">
+						<div class="row mb-3">
+							<div class="col-lg-4">
+								<label class="form-label">Transaction Ref. No.</label>
+							</div>
+							<div class="col-lg-8">
+								<input type="text" class="form-control" id="transaction-ref-no" placeholder="Enter your name" readonly>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-lg-6">
+						<div class="row mb-3">
+							<div class="col-lg-4">
+								<label class="form-label">Origin Branch</label>
+							</div>
+							<div class="col-lg-8">
+								<input type="text" class="form-control" id="origin-branch" placeholder="Enter your name" readonly>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-lg-6">
+						<div class="row mb-3">
+							<div class="col-lg-4">
+								<label class="form-label">Receiver Branch</label>
+							</div>
+							<div class="col-lg-8">
+								<input type="text" class="form-control" id="receiver-branch" placeholder="Enter your name" readonly>
+							</div>
+						</div>
+					</div>
+
 					<div class="col-md-12">
 						<table id="list-of-unit-details-table" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
-							<thead>
-								<tr>
-									<th> Brand </th>
-									<th> Model </th>
-									<th> Engine </th>
-									<th> Chassis </th>
-									<th> Color </th>
-									<th> Plate No  </th>
-									<th> Age Unit  </th>
-									<th> Pictures  </th>
-								</tr>
-							</thead>
 						</table>
 					</div>
 
@@ -321,7 +342,6 @@
 						defaultContent: '' // <i class="ri-add-line text-primary"></i>
 					},
 					{ title: 'Transaction Ref. No.',  data: "reference_code", className: "fw-semibold" },
-					{ title: 'Requestor',  data: "created_by" },
 					{ title: 'Branch Origin',  data: "from_branch" },
 					{ title: 'Branch Receiver',  data: "to_branch" },
 					{ title: 'Unit Count',  data: "transfer_units_count", className: 'text-center' },
@@ -337,13 +357,34 @@
 							return `<span class="text-center ${className}">${data}</span>`;
 						}
 					},
+					{ title: 'Person Assigned',  data: "created_by" },
 					{
 						title: 'Action', 
 						data: null,
 						defaultContent: '',
 						class: 'text-center no-colvis',
 						orderable: false, 
-						visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false
+						visible: auth.role.toLowerCase() !== 'warehouse custodian' ? true : false,
+						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+
+							let icon = '';
+							if(auth.role.toLowerCase() == 'warehouse custodian' || auth.role.toLowerCase() == 'Administrator')
+								icon = 'ri-eye-line';
+							else if((auth.role.toLowerCase() == 'verifier' || auth.role.toLowerCase() == 'general manager') && oData.approval_status.toLowerCase() == 'pending')
+								icon = 'ri-search-2-line';
+							else if((auth.role.toLowerCase() == 'verifier'|| auth.role.toLowerCase() == 'general manager') && oData.approval_status.toLowerCase() != 'pending')
+								icon = 'ri-eye-line';
+
+							html = `
+								<button class="btn btn-sm btn-soft-primary" onclick="view_details(${ oData.id }, '${ oData.approval_status }', '${ oData.remarks }', 
+										'${ oData.reference_code }', '${ oData.from_branch }', '${ oData.to_branch }')"
+									> 
+									<i class="${ icon }"></i>
+								</button> 
+							`;
+
+							$(nTd).html(html);
+						}
 					}
 				],
 				order: [[1, 'asc']],
@@ -486,84 +527,84 @@
 			$(window).on('resize', function () {
 				table.columns.adjust();
 			});
+		}
 
-			function isValidPlate(plate) {
-				const p = plate.replace(/\s|-/g, '').toUpperCase(); // normalize (remove spaces/hyphens)
-				return carRegex.test(p) || mcRegex.test(p);
-			}
+		function isValidPlate(plate) {
+			const p = plate.replace(/\s|-/g, '').toUpperCase(); // normalize (remove spaces/hyphens)
+			return carRegex.test(p) || mcRegex.test(p);
+		}
 
-			// 🔹 Format expanded table section
-			async function formatDetails(data) {
-				try {
-					const id = data.id;
-					const tableData = await $.ajax({
-						url: `${baseUrl}/getTransferUnits/${id}`,
-						method: 'GET',
-						dataType: 'json',
-						headers: { 'Authorization': `Bearer ${auth.token}` },
-					});
+		// 🔹 Format expanded table section
+		async function formatDetails(data) {
+			try {
+				const id = data.id;
+				const tableData = await $.ajax({
+					url: `${baseUrl}/getTransferUnits/${id}`,
+					method: 'GET',
+					dataType: 'json',
+					headers: { 'Authorization': `Bearer ${auth.token}` },
+				});
 
-					if (!tableData?.length) {
-						return '<div class="text-muted p-2">No transfer units available.</div>';
-					}
+				if (!tableData?.length) {
+					return '<div class="text-muted p-2">No transfer units available.</div>';
+				}
 
-					const rows = tableData.map((unit, index) => {
-						// handle possible missing or invalid plate number
-						const plateValid = unit.plate_number ? isValidPlate(unit.plate_number) : false;
-
-						return `
-							<tr>
-								<td>${index + 1}</td>
-								<td>${unit.ex_owner || '-'}</td>
-								<td>${unit.brand || '-'}</td>
-								<td>${unit.model || '-'}</td>
-								<td>${unit.engine || '-'}</td>
-								<td>${unit.chassis || '-'}</td>
-								<td>${unit.color || '-'}</td>
-								<td class="text-center">${unit.year_model || '-'}</td>
-								<td class="text-center">
-									<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${unit.repo_id})"> 
-										<i class="bx bx-images"></i>
-									</button>
-								</td>
-								<td class="text-center">${unit.document_status === 'Complete' ? '✅' : '❌'}</td>
-								<td class="text-center">${plateValid ? '✅' : '❌'}</td>
-								<td class="text-center">${unit.orcr_status === 'On Hand' ? '✅' : '❌'}</td>
-								<td class="text-center">${unit.key_status ? '✅' : '❌'}</td>
-								<td class="text-center">${unit.loan_document_status ? '✅' : '❌'}</td>
-							</tr>
-						`;
-					}).join('');
+				const rows = tableData.map((unit, index) => {
+					// handle possible missing or invalid plate number
+					const plateValid = unit.plate_number ? isValidPlate(unit.plate_number) : false;
 
 					return `
-						<div class="p-2">
-							<table class="table table-bordered mb-0" style="width:100%;">
-								<thead class="table-light">
-									<tr>
-										<th>No</th>
-										<th>Ex Owner</th>
-										<th>Brand</th>
-										<th>Model</th>
-										<th>Engine</th>
-										<th>Chassis</th>
-										<th>Color</th>
-										<th>Year Model</th>
-										<th>Files</th>
-										<th>OR/CR</th>
-										<th>Plate</th>
-										<th>Repo Docs</th>
-										<th>Key</th>
-										<th>Loan Docs</th>
-									</tr>
-								</thead>
-								<tbody>${rows}</tbody>
-							</table>
-						</div>
+						<tr>
+							<td>${index + 1}</td>
+							<td>${unit.ex_owner || '-'}</td>
+							<td>${unit.brand || '-'}</td>
+							<td>${unit.model || '-'}</td>
+							<td>${unit.engine || '-'}</td>
+							<td>${unit.chassis || '-'}</td>
+							<td>${unit.color || '-'}</td>
+							<td class="text-center">${unit.year_model || '-'}</td>
+							<td class="text-center">
+								<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${unit.repo_id})"> 
+									<i class="bx bx-images"></i>
+								</button>
+							</td>
+							<td class="text-center">${unit.document_status === 'Complete' ? '✅' : '❌'}</td>
+							<td class="text-center">${plateValid ? '✅' : '❌'}</td>
+							<td class="text-center">${unit.orcr_status === 'On Hand' ? '✅' : '❌'}</td>
+							<td class="text-center">${unit.key_status ? '✅' : '❌'}</td>
+							<td class="text-center">${unit.loan_document_status ? '✅' : '❌'}</td>
+						</tr>
 					`;
-				} catch (error) {
-					console.error('Error loading transfer details:', error);
-					return '<div class="text-danger p-2">Failed to load transfer details.</div>';
-				}
+				}).join('');
+
+				return `
+					<div class="p-2">
+						<table class="table table-bordered mb-0" style="width:100%;">
+							<thead class="table-light">
+								<tr>
+									<th>No</th>
+									<th>Ex Owner</th>
+									<th>Brand</th>
+									<th>Model</th>
+									<th>Engine</th>
+									<th>Chassis</th>
+									<th>Color</th>
+									<th>Year Model</th>
+									<th>Files</th>
+									<th>OR/CR</th>
+									<th>Plate</th>
+									<th>Repo Docs</th>
+									<th>Key</th>
+									<th>Loan Docs</th>
+								</tr>
+							</thead>
+							<tbody>${rows}</tbody>
+						</table>
+					</div>
+				`;
+			} catch (error) {
+				console.error('Error loading transfer details:', error);
+				return '<div class="text-danger p-2">Failed to load transfer details.</div>';
 			}
 		}
 
@@ -658,10 +699,14 @@
 			});
 		}
 
-		async function view_details(id, status, remarks){
+		async function view_details(id, status, remarks, reference_code, from_branch, to_branch){
 			$('#view-units-details').modal('show');
 			$('#comment-section').hide()
-			$('#approver-remark').val('')
+			$('#approver-remark').val('');
+
+			$('#transaction-ref-no').val(reference_code);
+			$('#origin-branch').val(from_branch);
+			$('#receiver-branch').val(to_branch);
 
 			record_id = id;
 			if(auth.role.toLowerCase() == 'warehouse custodian' && auth.role.toLowerCase() == 'Administrator'){
@@ -676,54 +721,92 @@
 				$('.approver').hide()
 				$('#comment-section').show()
 			}
-			$('#approver-remark').val(remarks)
+			$('#approver-remark').val(remarks)	
 
 			const tableData = await $.ajax({
 				url: `${baseUrl}/getTransferUnits/${id}`,
 				method: 'GET',
 				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				}
+				headers: { 'Authorization': `Bearer ${auth.token}` },
 			});
 
+			console.log(tableData)
 
-			$("#list-of-unit-details-table").DataTable().destroy();
+			if ($.fn.DataTable.isDataTable('#list-of-unit-details-table')) {
+				$('#list-of-unit-details-table').DataTable().destroy();
+			}
+			
 			$("#list-of-unit-details-table").DataTable({
+				data: tableData,
 				deferRender: true,
 				searching: true,
 				scrollY: 400,
-		  		scrollX: true,
+				scrollX: true,
 				scrollCollapse: true,
 				paging: false,
-				data: tableData,
 				columns: [
-					{ data: "brandname" },
-					{ data: "model_name" },
-					{ data: "model_engine" },
-					{ data: "model_chassis" },
-					{ data: "color_name" },
-					{ data: "plate_number" },
-					{ data: "aging_unit_days" },
 					{
 						data: null,
-						defaultContent: '',
 						className: "text-center",
-						fnCreatedCell: function(nTd, sData, oData, iRow, iCol) {
-							html = `
-								<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${ oData.repo_id })"> 
+						render: (data, type, row, meta) => meta.row + 1
+					},
+					{ data: "ex_owner", defaultContent: '-', title: "Ex Owner" },
+					{ data: "brand", defaultContent: '-', title: "Brand" },
+					{ data: "model", defaultContent: '-', title: "Model" },
+					{ data: "engine", defaultContent: '-', title: "Engine" },
+					{ data: "chassis", defaultContent: '-', title: "Chassis" },
+					{ data: "color", defaultContent: '-', title: "Color" },
+					{ 
+						data: "year_model", 
+						defaultContent: '-', 
+						className: "text-center", 
+						title: "Year Model" 
+					},
+					{
+						data: "repo_id",
+						className: "text-center",
+						title: "Files",
+						render: repo_id => `
+							<button class="btn btn-sm btn-soft-primary" onclick="fetch_files_updated(${repo_id})">
 									<i class="bx bx-images"></i>
-								</button> 
-							`;
-
-							$(nTd).html(html);
-						}
+							</button>
+						`
+					},
+					{
+						data: "orcr_status",
+						className: "text-center",
+						title: "OR/CR",
+						render: val => val === 'On Hand' ? '✅' : '❌'
+					},
+					{
+						data: "plate_number",
+						className: "text-center",
+						title: "Plate",
+						render: val => val && isValidPlate(val) ? '✅' : '❌'
+					},
+					{
+						data: "document_status",
+						className: "text-center",
+						title: "Repo Docs",
+						render: val => val === 'Complete' ? '✅' : '❌'
+					},
+					{
+						data: "key_status",
+						className: "text-center",
+						title: "Key",
+						render: val => val ? '✅' : '❌'
+					},
+					{
+						data: "loan_document_status",
+						className: "text-center",
+						title: "Loan Docs",
+						render: val => val ? '✅' : '❌'
 					},
 				],
-				dom: 'Bfrtip',
-				buttons: [
-					'excelHtml5'
-				]
+				order: [[0, 'asc']],
+				language: {
+						emptyTable: "No unit details available."
+				}
 			});
 		}
 
