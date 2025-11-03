@@ -422,40 +422,51 @@
 
 		function getModuleByUser() {
 			let sidebar = sessionStorage.getItem("sidebar");
-			let json_sidebar = JSON.parse(sidebar);
 
-			if(sidebar === null){
+			if (!sidebar) {
 				$.ajax({
-					url: `${baseUrl}/getMyModules`, 
-					type: 'GET', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
+					url: `${baseUrl}/getMyModules`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
 					},
-					success: function (data) { 
-						sessionStorage.setItem("sidebar", JSON.stringify(data));
-						formatTreeJson(data);
-					},
-					error: function(response) {
-						if(typeof response.responseJSON == 'undefined'){
-							alert('Your token session is expired.! Please relogin')
-							let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
-							localStorage.removeItem('data')
-							window.location.replace(link)
+					success: function (data) {
+						if (data) {
+							sessionStorage.setItem("sidebar", JSON.stringify(data));
+							formatTreeJson(data);
+						} else {
+							console.warn("⚠️ No module data received from API");
+							formatTreeJson([]);
 						}
-					
+					},
+					error: function (response) {
+						if (typeof response.responseJSON === 'undefined') {
+							alert('Your session token has expired. Please log in again.');
+							const link = location.protocol === "https:" ? '/index.php' : '/rmu_web/index.php';
+							localStorage.removeItem('data');
+							window.location.replace(link);
+						} else {
+							console.error("Error fetching modules:", response);
+						}
 					}
 				});
+			} else {
+				try {
+					const json_sidebar = JSON.parse(sidebar);
+					formatTreeJson(json_sidebar);
+				} catch (error) {
+					console.error("Invalid sidebar JSON in sessionStorage:", error);
+					sessionStorage.removeItem("sidebar"); // clear invalid data
+					getModuleByUser(); // retry fetching
+				}
 			}
-
-			formatTreeJson(json_sidebar);
 		}
 
+
 		function formatTreeJson(data){
-			// Step 1: Create a lookup object
 			const lookup = {};
 			data.forEach(item => lookup[item.id] = { ...item, children: [] });
 
-			// Step 2: Construct the tree
 			const tree = [];
 			data.forEach(item => {
 				if (item.parent_id === "0") {
