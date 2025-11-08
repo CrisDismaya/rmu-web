@@ -46,7 +46,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">Sales Tagging Of Units</h4>
 									<div class="flex-shrink-0">
-										<button type="button" id="tagunit" class="btn btn-soft-primary btn-sm">
+										<button type="button" id="tagunit" class="btn btn-soft-primary btn-sm btn-add-perm d-none">
 											+ Tag Unit
 										</button>
 									</div>
@@ -92,7 +92,7 @@
 				</div>
 			</div>
 
-			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 				<div class="modal-dialog modal-dialog-scrollable modal-xl" id="modal-tag" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
@@ -686,6 +686,7 @@
 			// note: current_module_id and current_roles is global variable to see in assets > js > js-custom.js
 
 			$(document).ready(function() {
+				applyPermissions();
 
 				display_table(current_module_id)
 				//if(auth.role != 'Warehouse Custodian'){

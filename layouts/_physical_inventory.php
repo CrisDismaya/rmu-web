@@ -40,7 +40,7 @@
 							<div class="card card-height-100">
 								<div class="card-header d-flex justify-content-between align-items-center">
 									<h4 class="card-title mb-0">Physical Inventory</h4>
-									<button id="add-new-documents" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+									<button id="add-new-documents" type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
 										Add New Documents
 									</button>
 								</div>
@@ -142,6 +142,7 @@
 
 	<script type="module">
 		document.addEventListener('DOMContentLoaded', () => {
+			applyPermissions();
 			let selectedFiles = [];
 			const MAX_FILES = 3;
 			const MAX_FILE_SIZE_MB = 10;

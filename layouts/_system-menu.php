@@ -31,7 +31,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> System Menu </h4>
@@ -115,59 +115,49 @@
 					
 				</div>
 			</div>
-		</div>
 
-		<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="myExtraLargeModalLabel">
-							Approval Matrix Setup - <span id="page"></span>
-						</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
-					</div>
 
-					<div class="modal-body">
-						<div class="row">
-							<div class="detail col-lg-12">
-								<table id="table-assign-signatory" class="table table-borderless nowrap align-middle mdl-data-table" style="width:100%">
-									<thead>
-										<tr>
-											<td width="5%"></td>
-											<td width="80%"></td>
-											<td width="15%">
-												<button type="button" class="btn btn-soft-secondary btn-sm waves-effect material-shadow-none" onclick="newSignatory()">
-													+ Add New
-												</button>
-											</td>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
+			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="myExtraLargeModalLabel">Approval Matrix Setup - <span id="page"></span></h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
 							</div>
-
-							<div class="listing col-lg-12">
-								<table id="approverlist" class="table table-borderless nowrap align-middle mdl-data-table" style="width:100%">
-									<thead>
-										<tr>
-											<th width="5%"> No </th>
-											<th width="80%"> Approver </th>
-											<th width="15%"></th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
-							</div>
+							<hr />
+							<div class="modal-body container" >
+								<div class="detail">
+									<div class="row">
+										<div class="col-lg-10"></div>
+										<div class="col-lg-2">
+											<a href='#' onclick="newSignatory()"><span>+ Add New</span></a>
+										</div>
+									</div>
+									<div id="approval-matrix">
+									</div>
+									</div>
+									
+								</div>
+								<div class="listing">
+									<div class="row" style="padding:10px;">
+										<table id="approverlist" class="table table-bordered nowrap align-middle mdl-data-table" style="width:100%">
+											<thead>
+												<tr>
+													<th> Level </th>
+													<th> Approver </th>
+													<th>  </th>
+												</tr>
+											</thead>
+										</table>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal" onclick="closeModal()"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+									<button  type="button" class="btn btn-primary listing" onclick="addSignatory()">Add Approver</button>
+									<button id="save-matrix" data-id="0" type="button" class="btn btn-primary detail">Save changes</button>
+								</div>
+								
 						</div>
-					</div>
-
-					<!-- Footer -->
-					<div class="modal-footer">
-						<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal" onclick="closeModal()">
-							<i class="ri-close-line me-1 align-middle"></i> Close
-						</a>
-						<button type="button" class="btn btn-primary listing" onclick="addSignatory()">Add Approver</button>
-						<button id="save-matrix" data-id="0" type="button" class="btn btn-primary detail">Save changes</button>
 					</div>
 				</div>
 			</div>
@@ -186,6 +176,7 @@
 		let cachedUsers = [];
 		let selectedRoleIds = new Set();
 		$(document).ready(function(){
+			applyPermissions();
 			$('.detail').hide()
 			$('#edit-status').hide()
 			new_access();
@@ -731,16 +722,16 @@
 					{ data: "menu_name" },	
 					{ data: "file_path" },
 					{ data: "menu_status" },
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visble: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<input class="form-check-input checks" type="checkbox" id="menu-${ oData.id }" style="height: 18px; width: 18px; cursor: pointer;"
-									onclick="selected_menu(${ oData.id }, ${ oData.map_id })" ${ (oData.isCheck == 'true' ? 'checked' : '') }>
+									onclick="selected_menu(${ oData.id }, ${ oData.map_id })" ${ (oData.isCheck == 'true' ? 'checked' : '') } ${ (oData.id == 1 ? 'disabled' : '') }>
 							`;
 							$(nTd).html(html);
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visble: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 
 							html = oData.is_approvable == 'true' ?
@@ -793,6 +784,7 @@
 						else{
 							toast(data.message, 'success');
 							display_table($('#user-role').val())
+							sessionStorage.removeItem("sidebar")
 						}
 					},
 					error: function(response) {

@@ -250,9 +250,13 @@
 		document.getElementById('user').innerHTML = user.name
 		document.getElementById('role').innerHTML = user.role
 		
-		function route(link, name, current_module, current_roles){
+		function route(link, name, current_module, current_roles, view_permission, add_permission, update_permission){
+
 			localStorage.setItem('current_module_id', current_module)
 			localStorage.setItem('current_roles', current_roles)
+			localStorage.setItem('isView', view_permission)
+			localStorage.setItem('isAdd', add_permission)
+			localStorage.setItem('isUpdate', update_permission)
 			localStorage.setItem('navbar', name)
 			
 			if(link == '/rmu_web/index.php'){
@@ -422,41 +426,53 @@
 
 		function getModuleByUser() {
 			let sidebar = sessionStorage.getItem("sidebar");
-			let json_sidebar = JSON.parse(sidebar);
 
-			if(sidebar === null){
+			if (!sidebar) {
 				$.ajax({
-					url: `${baseUrl}/getMyModules`, 
-					type: 'GET', 
-					headers:{
-						'Authorization':`Bearer ${ auth.token }`,
+					url: `${baseUrl}/getMyModules`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
 					},
-					success: function (data) { 
-						sessionStorage.setItem("sidebar", JSON.stringify(data));
-						formatTreeJson(data);
-					},
-					error: function(response) {
-						if(typeof response.responseJSON == 'undefined'){
-							alert('Your token session is expired.! Please relogin')
-							let link =  location.protocol == "https:" ? '/index.php' : '/rmu_web/index.php'
-							localStorage.removeItem('data')
-							window.location.replace(link)
+					success: function (data) {
+						if (data) {
+							sessionStorage.setItem("sidebar", JSON.stringify(data));
+							formatTreeJson(data);
+						} else {
+							console.warn("⚠️ No module data received from API");
+							formatTreeJson([]);
 						}
-					
+					},
+					error: function (response) {
+						if (typeof response.responseJSON === 'undefined') {
+							alert('Your session token has expired. Please log in again.');
+							const link = location.protocol === "https:" ? '/index.php' : '/rmu_web/index.php';
+							localStorage.removeItem('data');
+							window.location.replace(link);
+						} else {
+							console.error("Error fetching modules:", response);
+						}
 					}
 				});
+			} else {
+				try {
+					const json_sidebar = JSON.parse(sidebar);
+					formatTreeJson(json_sidebar);
+				} catch (error) {
+					console.error("Invalid sidebar JSON in sessionStorage:", error);
+					sessionStorage.removeItem("sidebar"); // clear invalid data
+					getModuleByUser(); // retry fetching
+				}
 			}
-
-			formatTreeJson(json_sidebar);
 		}
 
+
 		function formatTreeJson(data){
-			// Step 1: Create a lookup object
 			const lookup = {};
 			data.forEach(item => lookup[item.id] = { ...item, children: [] });
 
-			// Step 2: Construct the tree
 			const tree = [];
+
 			data.forEach(item => {
 				if (item.parent_id === "0") {
 					tree.push(lookup[item.id]);
@@ -465,6 +481,19 @@
 					lookup[item.parent_id].children.push(lookup[item.id]);
 				}
 			});
+
+			// Sort recursively by "sort" (converted to float)
+			function sortTree(nodes) {
+				nodes.sort((a, b) => parseFloat(a.sort) - parseFloat(b.sort));
+				nodes.forEach(node => {
+					if (node.children && node.children.length > 0) {
+						sortTree(node.children);
+					}
+				});
+			}
+
+			sortTree(tree);
+			
 			buildMenu(tree);
 		}
 
@@ -490,7 +519,8 @@
 				}
 				else {
 					$('#sidebar-container').append(`
-						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }')">
+						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }', 
+							${ details.view_permission }, ${ details.add_permission }, ${ details.update_permission })">
 							<a class="nav-link menu-link" href="javascript: void(0);">
 								<i class=" ri-pages-line"></i> <span data-key="t-receive-of-units"> ${ details.menu_name } </span>
 							</a>
@@ -522,7 +552,8 @@
 				else {
 					let class_id = menu_name.includes(' ') ? menu_name.replace(' ','-') : menu_name
 					$(`.${ class_id }`).append(`
-						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }')">
+						<li class="nav-item" onclick="route('${ details.file_path }', '${ details.menu_name }', ${ details.id }, '${ details.roles }', 
+							${ details.view_permission }, ${ details.add_permission }, ${ details.update_permission })">
 							<a href="javascript: void(0);" class="nav-link" data-key="t-analytics"> ${ details.menu_name } </a>
 						</li>
 					`)

@@ -31,7 +31,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> Details </h4>
@@ -114,7 +114,7 @@
 		<!--end loader-->
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
-		
+		applyPermissions();
 		display_table();
 
 		$('#days').change(function(){
@@ -226,7 +226,7 @@
 					{ data: "Estimated_Cost_of_MD_Parts" },
 					{ data: "Max_Depreciation_from_Original_SP" },
 					{ data: "Immediate_Sales_Value" },
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<button class="btn btn-sm btn-soft-warning"

@@ -30,7 +30,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> List of Stock Transfer </h4>
 									<div class="flex-shrink-0" id="stock-transfer-button">
-										<button type="button" class="btn btn-soft-primary btn-sm" onclick="get_list_of_model()">
+										<button type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" onclick="get_list_of_model()">
 										<!-- data-bs-toggle="modal" data-bs-target="#staticBackdrop" -->
 											Add Stock Transfer
 										</button>
@@ -66,7 +66,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" aria-labelledby="myExtraLargeModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="staticBackdrop" aria-labelledby="myExtraLargeModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -220,6 +220,7 @@
 		const mcRegex = /^(?:\d{3}[A-Z]{3}|[A-Z]\d{3}[A-Z]{2}|[A-Z]{2}\d{3}[A-Z]|[0-9][A-Z]{3}\d{2}|[A-Z]\d{4}[A-Z]|[A-Z]\d[A-Z]\d{3}|[A-Z]{2}\d{4}|[A-Z]\d{3}[A-Z])$/i;
 
 		$(document).ready(function(){
+			applyPermissions();
 			
 			$('#stock-transfer-button').hide();
 			$('.approver').hide();

@@ -31,7 +31,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> User Role </h4>
@@ -101,6 +101,7 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
    <script>
       $(document).ready(function(){
+			applyPermissions();
          display_table()
          $('#edit-status').hide();
 
@@ -171,7 +172,7 @@
 				columns: [
 					{ data: "user_role_name" },
 					{ data: "role_status" },
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
                      var status = (oData.role_status == 'Active' ? 1 : 0)
 

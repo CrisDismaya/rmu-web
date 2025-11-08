@@ -32,7 +32,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> Spare Parts </h4>
@@ -107,6 +107,7 @@
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
 		new Cleave(".number-only", { numeral:!0, numeralThousandsGroupStyle:"thousand"})
+		applyPermissions();
 		//fetch_model_data();
 		display_table();
 
@@ -195,13 +196,25 @@
 
 			$("#parts-table").DataTable().destroy();
 			$("#parts-table").DataTable({
-				deferRender: true,
-				searching: true,
-				scrollY: 400,
-		  		scrollX: true,
+				processing: true,
+				serverSide: true,
+				ajax: {
+					url: `${baseUrl}/parts`,
+					type: 'GET',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Content-Type': 'application/json',
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
+				},
+				fixedColumns: {
+					left: 0,
+					right: 1
+				},
+				scrollX: true,
 				scrollCollapse: true,
-				paging: false,
-				data: tableData,
 				columns: [
 					// { data: "inventory_code" },
 					// { data: "model_name" },
@@ -219,7 +232,7 @@
 							return (data == 'A' ? 'Active' : 'Inactive');
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 
 							var status = oData.status;

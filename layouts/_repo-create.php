@@ -30,7 +30,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of Repo Details</h4>
 									<div class="flex-shrink-0">
-										<button id="add-receive-units" type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_receive_units()">
+										<button id="add-receive-units" type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_receive_units()">
 											Add Repo Details
 										</button>
 									</div>
@@ -478,7 +478,7 @@
 				</div>
 				<div class="modal-footer btn-save-footer">
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-					<button id="save-details" data-id="0" type="button" class="btn btn-primary" data-repo-id="0">Save changes</button>
+					<button id="save-details" data-id="0" type="button" class="btn btn-primary btn-update-perm d-none" data-repo-id="0">Save changes</button>
 				</div>
 			</div>
 		</div>
@@ -519,6 +519,7 @@
 		var requiredFiles = [];
 
 		$(document).ready(function(){
+			applyPermissions();
 			$('#add-receive-units').prop('disabled', true)
 			display_table()
 			fetch_brand_list()

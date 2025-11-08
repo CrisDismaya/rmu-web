@@ -32,7 +32,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> File </h4>
@@ -129,6 +129,7 @@
 
 		var items = [], toSaved = [];
 		$(document).ready(function(){
+			applyPermissions();
 			display_table();
 			$('.text-file-directory').text('Save');
 
@@ -219,7 +220,7 @@
 							$(nTd).html(html);
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							var status = oData.status;
 							var classes = (status != 1 ? 'success' : 'danger');

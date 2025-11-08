@@ -29,7 +29,8 @@
 							<div class="card-header align-items-center d-flex">
 								<h4 class="card-title mb-0 flex-grow-1">List of Customer Profile</h4>
 								<div class="flex-shrink-0">
-									<button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="add_customer_profile()">
+									<button id="btn-add-customer" type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" data-bs-toggle="modal" 
+										data-bs-target="#staticBackdrop" onclick="add_customer_profile()">
 										Add Customer
 									</button>
 								</div>
@@ -59,7 +60,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -224,7 +225,7 @@
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal">
 						<i class="ri-close-line me-1 align-middle"></i> Close
 					</a>
-					<button id="save-details" data-id="0" type="button" class="btn btn-primary" data-customer-profile-id="0">
+					<button id="save-details" data-id="0" type="button" class="btn btn-primary btn-update-perm d-none" data-customer-profile-id="0">
 						Save changes
 					</button>
 				</div>
@@ -247,6 +248,7 @@
 	<script>
 		var brgy_id = '';
 		$(document).ready(function(){
+			applyPermissions();
 			display_table();
 			getAllProvince();
 			fetch_source_of_income()

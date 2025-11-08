@@ -4,6 +4,9 @@ var auth = JSON.parse(localStorage.getItem('data'))
 var baseUrl =  location.protocol == "https:" ? 'https://rmu-api.suertemotoplaza.com/api' : 'http://127.0.0.1:8000/api';
 let current_module_id = localStorage.getItem('current_module_id');
 let current_roles = localStorage.getItem('current_roles');
+let isView = parseInt(localStorage.getItem('isView')) || 0;
+let isAdd = parseInt(localStorage.getItem('isAdd')) || 0;
+let isUpdate = parseInt(localStorage.getItem('isUpdate')) || 0;
 
 $(document).ready(function(){
 	$.ajaxSetup({ 
@@ -12,64 +15,65 @@ $(document).ready(function(){
 		}
 	});
 
+
 	$(".select-single").select2();
 	$(".select-single-modal").select2({
 		dropdownParent: $('#staticBackdrop')
 	});
 
 	// format to "1,232.12"
-  function formatMoney(value) {
-    if (!value) return '';
+  	function formatMoney(value) {
+		if (!value) return '';
 
-    // remove everything except digits and dot
-    value = value.replace(/[^0-9.]/g, '');
+		// remove everything except digits and dot
+		value = value.replace(/[^0-9.]/g, '');
 
-    // only keep first dot
-    const parts = value.split('.');
-    if (parts.length > 2) value = parts[0] + '.' + parts[1];
+		// only keep first dot
+		const parts = value.split('.');
+		if (parts.length > 2) value = parts[0] + '.' + parts[1];
 
-    let [intPart, decPart] = value.split('.');
-    intPart = intPart || '';
-    decPart = decPart || '';
+		let [intPart, decPart] = value.split('.');
+		intPart = intPart || '';
+		decPart = decPart || '';
 
-    // add commas (only if we have at least one digit)
-    if (intPart.length > 0) {
-      intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
+		// add commas (only if we have at least one digit)
+		if (intPart.length > 0) {
+			intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
 
-    // limit to 2 decimals max
-    if (decPart.length > 2) decPart = decPart.substring(0, 2);
+		// limit to 2 decimals max
+		if (decPart.length > 2) decPart = decPart.substring(0, 2);
 
-    // keep dot if user just typed it
-    if (value.endsWith('.')) return intPart + '.';
-    if (decPart.length > 0) return intPart + '.' + decPart;
-    return intPart;
-  }
+		// keep dot if user just typed it
+		if (value.endsWith('.')) return intPart + '.';
+		if (decPart.length > 0) return intPart + '.' + decPart;
+		return intPart;
+	}
 
-  $(document).on('input', '.number-format', function (e) {
-    const input = this;
-    const cursorPos = input.selectionStart;
-    const raw = input.value;
-    
-    const formatted = formatMoney(raw);
-    input.value = formatted;
+  	$(document).on('input', '.number-format', function (e) {
+		const input = this;
+		const cursorPos = input.selectionStart;
+		const raw = input.value;
+		
+		const formatted = formatMoney(raw);
+		input.value = formatted;
 
-    // Keep cursor at end (reliable and user-friendly)
-    input.setSelectionRange(input.value.length, input.value.length);
-  });
+		// Keep cursor at end (reliable and user-friendly)
+		input.setSelectionRange(input.value.length, input.value.length);
+  	});
 
-  // On blur, always fix to 2 decimals
-  $(document).on('blur', '.number-format', function () {
-    let val = $(this).val().replace(/,/g, '');
-    if (!val || val === '.') {
-      $(this).val('');
-      return;
-    }
-    const fixed = parseFloat(val).toFixed(2);
-    const parts = fixed.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    $(this).val(parts.join('.'));
-  });
+	// On blur, always fix to 2 decimals
+	$(document).on('blur', '.number-format', function () {
+		let val = $(this).val().replace(/,/g, '');
+		if (!val || val === '.') {
+			$(this).val('');
+			return;
+		}
+		const fixed = parseFloat(val).toFixed(2);
+		const parts = fixed.split('.');
+		parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		$(this).val(parts.join('.'));
+	});
 });
 
 $('.numberonly').keypress(function (e) {    
@@ -116,7 +120,7 @@ function toast(message, status){
 		stopOnFocus: !0,
 		duration: 3000,
 		close: "close" == 'close'
-  }).showToast()
+  	}).showToast()
 }
 
 function append_number_format_keyup(){
@@ -135,5 +139,17 @@ function append_number_format_keyup(){
 			return false;
 		}
 		return true;
+	});
+}
+
+function applyPermissions() {
+	// Handle Add buttons
+	document.querySelectorAll('.btn-add-perm').forEach(btn => {
+		btn.classList.toggle('d-none', isAdd !== 1);
+	});
+
+	// Handle Update buttons
+	document.querySelectorAll('.btn-update-perm').forEach(btn => {
+		btn.classList.toggle('d-none', isUpdate !== 1);
 	});
 }

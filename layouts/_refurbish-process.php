@@ -88,7 +88,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" >
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -179,7 +179,7 @@
 							<input type="hidden" id="record_id" />
 							<div class="modal-footer btn-save-footer ">
 								<!-- <a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a> -->
-								<button type="button" id="save-refurbish-process" data-id="0" type="button" class="btn btn-primary btnmaker" data-receive-unit-id="0">Submit</button>
+								<button type="button" id="save-refurbish-process" data-id="0" type="button" class="btn btn-primary btnmaker btn-add-perm d-none" data-receive-unit-id="0">Submit</button>
 								<button data-id="0" type="button" class="btn btn-primary btnapprover" data-receive-unit-id="0" onclick="decision('1')">Approve</button>
 								<button data-id="0" type="button" class="btn btn-primary btnapprover" data-receive-unit-id="0" onclick="decision('2')">Disapprove</button>
 								<button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()">Back</button>
@@ -276,6 +276,7 @@
 		}
 
 		$(document).ready(function() {
+			applyPermissions();
 			// $('#details').hide()
 			$('#qoute-list').hide()
 			display_table(current_module_id)
