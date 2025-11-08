@@ -43,7 +43,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">List of  Units</h4>
 									<div class="flex-shrink-0">
-										<button id="request" type="button" class="btn btn-soft-primary btn-sm" onclick="Request_reprice()">
+										<button id="request" type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" onclick="Request_reprice()">
 											Create Request 
 										</button>
 									</div>
@@ -78,7 +78,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -211,7 +211,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="history" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="history" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -266,6 +266,7 @@
 		}
 
 		$(document).ready(function(){
+			applyPermissions();
 			$('#details').hide()
 			$('#update_price').hide()
 			display_table(current_module_id)

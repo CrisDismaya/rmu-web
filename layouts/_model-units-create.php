@@ -32,7 +32,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> Model </h4>
@@ -133,6 +133,7 @@
 	<!--end loader-->
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
+		applyPermissions();
 		fetch_brand_data();
 		// fetch_color_data();
 		display_table();
@@ -340,7 +341,7 @@
 					// 		$(nTd).html(html);
 					// 	}
 					// },
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							
 							html = `

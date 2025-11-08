@@ -32,7 +32,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> Branch </h4>
@@ -107,6 +107,7 @@
 
 	<?php include_once './_partials/__footer-template.php'; ?>
 	<script>
+		applyPermissions();
 		display_table();
 
 		$('#save-branches').click(function(){
@@ -187,7 +188,7 @@
 							return (data == 1 ? 'Active' : 'Inactive');
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							var status = oData.status;
 							var classes = (status != 1 ? 'success' : 'danger');

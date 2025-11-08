@@ -6,6 +6,47 @@
 	<title> User Management | RMU </title>
 	<?php include_once './_partials/__header-template.php'; ?>
 </head>
+<style>
+   .table .form-check-input {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+   }
+
+   .table .form-check {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px;
+   }
+   .table th,
+   .table td {
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+      vertical-align: middle;
+   }
+   /* Strong override: cancel hover styles for rows with .no-hover */
+   .table.table-hover tbody tr.no-hover:hover td,
+   .table.table-hover tbody tr.no-hover:hover th {
+      /* remove any hover background or text color */
+      background-color: transparent !important;
+      color: inherit !important;
+      cursor: default !important;
+
+      /* remove any background image / gradients set by library */
+      background-image: none !important;
+      box-shadow: none !important;
+   }
+
+   /* Make parent rows visually distinct (non-hover look) */
+   .table.table-hover tbody tr.no-hover td,
+   .table.table-hover tbody tr.no-hover th {
+      background-color: #f8f9fa !important; /* light gray */
+      color: inherit !important;
+      font-weight: 600;
+      cursor: default;
+   }
+</style>
 <body>
 	<!-- Begin page -->
 	<div id="layout-wrapper">
@@ -37,7 +78,7 @@
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1">User Management</h4>
 									<div class="flex-shrink-0">
-										<button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop" 
+										<button type="button" class="btn btn-soft-primary btn-sm btn-add-perm d-none" data-bs-toggle="modal" data-bs-target="#staticBackdrop" 
 											onclick="newUser()">
 											Add User
 										</button>
@@ -70,61 +111,97 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="myExtraLargeModalLabel">User Details</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<button type="button" class="btn-close mdl-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body container">
-					<div class="col-lg-12 row">
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Choose Branch </label>
-							<select id="user-branch" class="select-single"></select>
+					<div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							<div class="card border card-border-primary">
+								<div class="card-header">
+									<h6 class="card-title mb-0"> User Information </h6>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Choose Branch </label>
+											<select id="user-branch" class="select-single"></select>
+										</div>
+
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Employee No</label>
+											<input type="text" class="form-control" id="user-employee-no" placeholder="Employee No" autocomplete="off">
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> First Name</label>
+											<input type="text" class="form-control" id="user-first-name" placeholder="First Name" autocomplete="off">
+										</div>
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Middle Name</label>
+											<input type="text" class="form-control" id="user-middle-name" placeholder="Middle Name" autocomplete="off">
+										</div>
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Last Name</label>
+											<input type="text" class="form-control" id="user-last-name" placeholder="Last Name" autocomplete="off">
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Email</label>
+											<input type="email" class="form-control" id="user-email" placeholder="Email" autocomplete="off">
+										</div>
+										<div class="col-md-4 col-sm-6 col-12">
+											<label for="customer-name" class="col-form-label"> Choose User Role</label>
+											<select id="user-role" class="select-single"></select>
+										</div>
+										<div class="col-md-4 col-sm-6 col-12" id="password-container">
+											<label for="customer-name" class="col-form-label"> Password </label>
+											<input id="user-password" type="password" class="form-control" placeholder="Password">
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Employee No</label>
-							<input type="text" class="form-control" id="user-employee-no" placeholder="Employee No" autocomplete="off">
+
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							<div class="card border card-border-primary">
+								<div class="card-header">
+									<h6 class="card-title mb-0"> User Menus Access </h6>
+								</div>
+								<div class="card-body">
+									
+									<div class="table-responsive">
+                              <table id="menus" class="table table-bordered table-hover align-middle table-nowrap mb-0" style="table-layout: fixed; width: 100%;">
+                                 <thead class="table-light">
+                                    <tr>
+                                       <th class="text-center" style="width:5%">No</th>
+                                       <th style="width:35%">Menu Name</th>
+                                       <th class="text-center" style="min-width:115px;">All</th>
+                                       <th class="text-center" style="min-width:115px;">View</th>
+                                       <th class="text-center" style="min-width:115px;">Add</th>
+                                       <th class="text-center" style="min-width:115px;">Update</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody></tbody>
+                              </table>
+                           </div>
+
+								</div>
+							</div>
 						</div>
 					</div>
-					<div class="col-lg-12 row">
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> First Name</label>
-							<input type="text" class="form-control" id="user-first-name" placeholder="First Name" autocomplete="off">
-						</div>
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Middle Name</label>
-							<input type="text" class="form-control" id="user-middle-name" placeholder="Middle Name" autocomplete="off">
-						</div>
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Last Name</label>
-							<input type="text" class="form-control" id="user-last-name" placeholder="Last Name" autocomplete="off">
-						</div>
-					</div>
-					<div class="col-lg-12 row">
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Email</label>
-							<input type="email" class="form-control" id="user-email" placeholder="Email" autocomplete="off">
-						</div>
-						<div class="col-lg-4">
-							<label for="customer-name" class="col-form-label"> Choose User Role</label>
-							<select id="user-role" class="select-single">
-								<!-- <option value=""> User Role </option>
-								<option value="superadmin"> Super Admin </option>
-								<option value="admin"> Admin </option>
-								<option value="branch"> Branch </option>
-								<option value="finance"> Finance </option> -->
-							</select>
-						</div>
-						<div class="col-lg-4" id="password-container">
-							<label for="customer-name" class="col-form-label"> Password </label>
-							<input id="user-password" type="password" class="form-control" placeholder="Password">
-						</div>              
-					</div>
+
 				</div>
 				<div class="modal-footer">
-					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
+					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium mdl-btn-close" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
 					<button id="save-user" data-id="0" type="button" class="btn btn-primary">Save changes</button>
 				</div>
 			</div>
@@ -156,35 +233,66 @@
 			</div>
 		</div>
 	</div>
+
 	<!--start loader-->
 	<div class="loading-overlay" id="loading-overlay">
-			<div class="overlay"></div>
-			<div class="spanner">
-			<div class="loader"></div>
-			<p>Please wait. . . .</p>
-			</div>
-		</div> 
-		<!--end loader-->
+		<div class="overlay"></div>
+		<div class="spanner">
+		<div class="loader"></div>
+		<p>Please wait. . . .</p>
+		</div>
+	</div> 
+	<!--end loader-->
+
 	<?php include_once './_partials/__footer-template.php'; ?>
+
 	<script>
-		fetch_branch_data();
-		display_table();
-		fetch_userole_data();
+      const $menuBody = $("#menus tbody");
 
-		$('#save-user').click(function(){
-			let id = $(this).data('id')
-			let url = (id == 0 ? `${baseUrl}/register` : `${baseUrl}/updateUser/`+id)
+		$(document).ready(() => {
+			applyPermissions();
+			fetch_branch_data();
+			display_table();
+			fetch_userole_data();
 
-			showLoader()
+			showMenuMessage("Please select a role to generate the menu list.");
 
-			$.ajax({
-				url: url, 
-				type: 'POST', 
-				dataType: 'json',
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				data: { 
+			$('#user-role').on('change', function() {
+				let userId = $('#save-user').data('id') ? $('#save-user').data('id') : 0;
+				let roleId = $(this).val();
+
+				if (roleId === '') {
+					showMenuMessage("Please select a role to generate the menu list.");
+					return;
+				}
+
+				loadMenus(userId, roleId);
+			});
+
+			$('#staticBackdrop .mdl-btn-close').click(function(){
+				$('#save-user').data('id', 0);
+				$menuBody.empty();
+				showMenuMessage("Please select a role to generate the menu list.");
+			});
+
+			$('#save-user').click(function(){
+				let id = $(this).data('id')
+				let url = (id == 0 ? `${baseUrl}/register` : `${baseUrl}/updateUser/`+id)
+
+				const menuData = [];
+
+				 $('.child-menu').each(function () {
+					const $row = $(this);
+
+					menuData.push({
+						menu_id: $row.data('menu-id'),
+						view_permission: 1,
+						add_permission: $row.find('.add-check').is(':checked') ? 1 : 0,
+						update_permission: $row.find('.update-check').is(':checked') ? 1 : 0,
+					});
+				});
+
+				const data = {
 					employee_no : $('#user-employee-no').val(),
 					firstname : $('#user-first-name').val(),
 					middlename : $('#user-middle-name').val(),
@@ -192,48 +300,51 @@
 					email : $('#user-email').val(),
 					userrole : $('#user-role').val(),
 					branch : $('#user-branch').val(),
-					password:$('#user-password').val()
-				}, 
-				success: function (data) { 
-					console.log(`data`, data)
-					console.log(`data.success`, !data.success)
-					if(!data.success){
-						hideLoader()
-						for (const field in data.data) {
-							if (data.data.hasOwnProperty(field)) {
-								const messages = data.data[field];
-								if (messages.length > 0) {
-									toast(messages[0], 'danger');
-									break;
+					password:$('#user-password').val(),
+					access_menus: JSON.stringify(menuData)
+				}
+				showLoader()
+
+				$.ajax({
+					url: url, 
+					type: 'POST', 
+					dataType: 'json',
+					headers:{
+						'Authorization':`Bearer ${ auth.token }`,
+					},
+					data: data, 
+					success: function (data) { 
+						console.log(`data`, data)
+						console.log(`data.success`, !data.success)
+						if(!data.success){
+							hideLoader()
+							for (const field in data.data) {
+								if (data.data.hasOwnProperty(field)) {
+									const messages = data.data[field];
+									if (messages.length > 0) {
+										toast(messages[0], 'danger');
+										break;
+									}
 								}
 							}
 						}
-					}
-					else{
-						console.log(`else condition`, data.message)
+						else{
+							console.log(`else condition`, data.message)
+							hideLoader()
+							let msg = id == 0 ? 'User Succesfully added!' : 'User Succesfully updated!'
+							toast(msg, 'success');
+							display_table()
+							$('#staticBackdrop').modal('hide')
+						}
+					},
+					error: function(response) {
 						hideLoader()
-						let msg = id == 0 ? 'User Succesfully added!' : 'User Succesfully updated!'
-						toast(msg, 'success');
-						$('#save-user').data('id', 0)
-						$('#user-employee-no').val('')
-						$('#user-first-name').val('')
-						$('#user-middle-name').val('')
-						$('#user-last-name').val('')
-						$('#user-email').val('')
-						$('#user-role').val('')
-						$('#user-branch').val('').trigger('change')
-						$('#user-password').val('')
-						display_table()
-						$('#staticBackdrop').modal('hide')
+						toast(response.responseJSON.message, 'danger');
+						forceLogout(response.responseJSON) //if token is expired
 					}
-				},
-				error: function(response) {
-					hideLoader()
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
-				}
+				});
 			});
-		});
+      });
 
 		function newUser(){
 			$('#save-user').data('id', 0)
@@ -242,7 +353,7 @@
 			$('#user-middle-name').val('')
 			$('#user-last-name').val('')
 			$('#user-email').val('')
-			$('#user-role').val('')
+			$('#user-role').val('').trigger('change')
 			$('#user-branch').val('').trigger('change')
 			$('#user-password').val('')
 			$('#password-container').show()
@@ -340,7 +451,7 @@
 							return (data == 1 ? 'Active' : 'Inactive');
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visible: isUpdate === 1,
 						fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
 							var status = oData.status;
 
@@ -384,7 +495,6 @@
 		}
 
 		function edit(id, employeeno, fname, mname, lname, email, branchid, role){
-			console.log(role)
 			$('#save-user').data('id', id)
 			$('#user-employee-no').val(employeeno)
 			$('#user-first-name').val(fname)
@@ -458,6 +568,109 @@
 			});
 		}
 
+		// Fetch menus per role/user
+      async function loadMenus(userId, roleId) {
+         showMenuMessage(`
+            <div class="spinner-border spinner-border-sm text-secondary me-2"></div> 
+            Loading menus...
+         `);
+
+         try {
+            const response = await $.ajax({
+               url: `${baseUrl}/getUserMenus/${userId}/${roleId}`,
+               method: "GET",
+               dataType: "json",
+               headers: { Authorization: `Bearer ${auth.token}` },
+            });
+
+            if (!response.length) {
+               showMenuMessage("No menu items available for this role.");
+               return;
+            }
+
+            const rows = response.map((item, index) => renderMenuRow(item, index)).join("");
+            $menuBody.html(rows);
+            setupCheckboxLogic();
+
+         } catch (error) {
+            console.error("Error loading menus:", error);
+            showMenuMessage("Failed to load menu list.");
+         }
+      }
+
+      // Render menu table row
+      function renderMenuRow(item, index) {
+         const {
+            id = 0,
+            menu_name = "-",
+            file_path = "",
+            view_permission,
+            add_permission,
+            update_permission,
+            approval_permission,
+         } = item;
+
+         if (!String(file_path || "").trim()) {
+            return `
+               <tr class="table-light no-hover parent-menu">
+                  <td class="text-center fw-bold">${index + 1}</td>
+                  <td class="fw-bold">${menu_name}</td>
+                  <td class="text-center" colspan="4">
+                     <em class="text-muted">No actions available</em>
+                  </td>
+               </tr>
+            `;
+         }
+
+         const allChecked = [view_permission, add_permission, update_permission].every(p => p == "1");
+
+         return `
+            <tr class="child-menu" data-menu-id="${id}">
+               <td class="text-center">${index + 1}</td>
+               <td>${menu_name}</td>
+               <td class="text-center"><input class="form-check-input all-check" type="checkbox" ${allChecked ? "checked" : ""}></td>
+               <td class="text-center"><input class="form-check-input view-check" type="checkbox" checked disabled></td>
+               <td class="text-center"><input class="form-check-input add-check" type="checkbox" ${checked(add_permission)}></td>
+               <td class="text-center"><input class="form-check-input update-check" type="checkbox" ${checked(update_permission)}></td>
+            </tr>
+         `;
+      }
+
+      // Checkbox logic
+      function setupCheckboxLogic() {
+         $("#menus").off("change", ".form-check-input").on("change", ".form-check-input", function () {
+            const $row = $(this).closest("tr");
+            const $all = $row.find(".all-check");
+            const $add = $row.find(".add-check");
+            const $update = $row.find(".update-check");
+
+            if ($(this).hasClass("all-check")) {
+               const checked = $(this).is(":checked");
+               [$add, $update].forEach($el => $el.prop("checked", checked));
+               return;
+            }
+
+            const allChecked = [$add, $update].every($el => $el.is(":checked"));
+            $all.prop("checked", allChecked);
+
+            const viewAddOnly = $add.is(":checked") && !$update.is(":checked");
+            if (viewAddOnly) $all.prop("checked", false);
+         });
+      }
+
+      // Utility helpers
+      function checked(val) {
+         return val == "1" ? "checked" : "";
+      }
+
+      function showMenuMessage(message) {
+         const colCount = $("#menus thead tr th:visible").length;
+         $menuBody.html(`
+            <tr>
+               <td colspan="${colCount}" class="text-center text-muted py-3">${message}</td>
+            </tr>
+         `);
+      }
 	</script>
 </body>
 </html>

@@ -140,7 +140,7 @@
 							$(nTd).html(html);
 						}
 					},
-					{ data: null, defaultContent: '', className: 'text-center',
+					{ data: null, defaultContent: '', className: 'text-center', visible: isAdd === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 
 							html = `

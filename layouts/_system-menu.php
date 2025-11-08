@@ -31,7 +31,7 @@
 
 					<div class="row">
 						<!--  -->
-						<div class="col-lg-4">
+						<div class="col-lg-4 btn-add-perm d-none">
 							<div class="card">
 								<div class="card-header align-items-center d-flex">
 									<h4 class="card-title mb-0 flex-grow-1"> System Menu </h4>
@@ -117,7 +117,7 @@
 			</div>
 
 
-			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
 							<div class="modal-header">
@@ -168,6 +168,7 @@
 
 		var matrix = []
 		$(document).ready(function(){
+			applyPermissions();
 			$('.detail').hide()
 			$('#edit-status').hide()
 			new_access();
@@ -390,16 +391,16 @@
 					{ data: "menu_name" },	
 					{ data: "file_path" },
 					{ data: "menu_status" },
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visble: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<input class="form-check-input checks" type="checkbox" id="menu-${ oData.id }" style="height: 18px; width: 18px; cursor: pointer;"
-									onclick="selected_menu(${ oData.id }, ${ oData.map_id })" ${ (oData.isCheck == 'true' ? 'checked' : '') }>
+									onclick="selected_menu(${ oData.id }, ${ oData.map_id })" ${ (oData.isCheck == 'true' ? 'checked' : '') } ${ (oData.id == 1 ? 'disabled' : '') }>
 							`;
 							$(nTd).html(html);
 						}
 					},
-					{ data: null, defaultContent: '',
+					{ data: null, defaultContent: '', visble: isUpdate === 1,
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 							<button class="btn btn-sm btn-soft-info" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
@@ -570,6 +571,7 @@
 						else{
 							toast(data.message, 'success');
 							display_table($('#user-role').val())
+							sessionStorage.removeItem("sidebar")
 						}
 					},
 					error: function(response) {
