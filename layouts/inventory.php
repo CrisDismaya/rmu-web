@@ -241,6 +241,11 @@
 					{
 						data: null, title: "Forms", defaultContent: '',
 						fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+								if(oData.is_redemption == 5){
+									$(nTd).html('');
+									return;
+								}
+
 								let html = `
 									<a id="forms-${iRow}" class="btn btn-sm btn-outline-primary"
 										onclick="generateForm(${oData.repo_id}, 'MUISVA')">

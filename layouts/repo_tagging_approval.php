@@ -58,7 +58,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-xl" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -485,9 +485,24 @@
 				</div>
 				<div class="modal-footer btn-save-footer">
 					<a href="javascript:void(0);" class="btn btn-link link-success fw-medium" data-bs-dismiss="modal"><i class="ri-close-line me-1 align-middle"></i> Close</a>
-					<button id="approver-decision" class="btn btn-success waves-effect approver" onclick="approver_decision(this, 1)" data-repo-id="0"> 
-						<i class="ri-thumb-up-line me-1 align-middle"></i> Approve 
-					</button> 
+					<div class="redemption-process d-none">
+						<button type="button" id="btn-redemption" class="btn btn-primary waves-effect" onclick="repo_redemption(this)" data-repo-id="0"> 
+							<i class="ri-motorbike-line me-1 align-middle"></i> Redemption 
+						</button> 
+						<button type="button" id="btn-proceed-to-approval" class="btn btn-success waves-effect"> 
+							<i class=" ri-arrow-right-circle-line me-1 align-middle"></i> Proceed to Approval 
+						</button> 
+					</div>
+
+					<div class="proceed-to-approval d-none">			
+						<button type="button" id="approve-decision" class="btn btn-success waves-effect" onclick="approver_decision(this, 1)" data-repo-id="0"> 
+							<i class="ri-thumb-up-line me-1 align-middle"></i> Approve 
+						</button> 
+						<button type="button" id="disapprove-decision" class="btn btn-danger waves-effect" onclick="approver_decision(this, 2)" data-repo-id="0"> 
+							<i class="ri-thumb-down-line me-1 align-middle"></i> Disapprove 
+						</button> 
+					</div>
+
 				</div>
 			</div>
 		</div>
@@ -537,6 +552,12 @@
 					$('#unit-model').empty();
 					$('#unit-model').prop('disabled', true);
 				}
+			});
+
+			$('#btn-proceed-to-approval').click(function(e){
+				e.preventDefault();
+				$('.redemption-process').addClass('d-none');
+				$('.proceed-to-approval').removeClass('d-none');
 			});
 
 			$('#unit-model').change(function(e){
@@ -595,7 +616,7 @@
 						fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
 							html = `
 								<button class="btn btn-sm btn-warning waves-effect approver"  data-bs-toggle="modal" data-bs-target="#staticBackdrop" 
-									onclick="view_details(${ oData.id }, ${ current_module_id })"> 
+									onclick="view_details(${ oData.id }, ${ current_module_id }, ${ oData.is_allowed_redemption })"> 
 									<i class="ri-edit-line me-1 align-middle"></i> Edit 
 								</button> 
 							`;
@@ -949,10 +970,20 @@
 			}
 		}
 		
-		function view_details(id, current_module_id){
+		function view_details(id, current_module_id, is_allowed_redemption){
 			let repoModuleID = 3;
 
-			$('#approver-decision').prop('disabled', true);
+			if(is_allowed_redemption == 1){
+				$('.redemption-process').removeClass('d-none');
+				$('.proceed-to-approval').addClass('d-none');
+			}
+			else{
+				$('.redemption-process').addClass('d-none');
+				$('.proceed-to-approval').removeClass('d-none');
+			}
+
+			$('#btn-redemption, #approve-decision, #disapprove-decision').prop('disabled', true);
+
 			$.ajax({
 				url: `${ baseUrl }/repoDetailsPerId/${ id }/${ repoModuleID }`, 
 				type: 'GET', 
@@ -961,8 +992,7 @@
 				},
 				success: function (data) {
 					// console.log(data)
-					$('#approver-decision').data('repo-id', data.repo.id)
-					// $('#customer-acumatica-id').val(data.customer_details.id).trigger('change').prop('disabled', true)
+					$('#btn-redemption, #approve-decision, #disapprove-decision').data('repo-id', data.repo.id)
 					fetch_customer_profile_list_id(data.customer_details.id)
 					$('#unit-brand').val(data.brand_details.id).trigger('change').trigger('change').prop('disabled', true)
 			   	fetch_branch_with_model(data.brand_details.id, data.model_details.id)
@@ -1212,7 +1242,7 @@
 					partsCounter = partJson.length
 					$('#spare-parts-append-count').val(partsCounter);
 
-					$('#approver-decision').prop('disabled', false);
+					$('#btn-redemption, #approve-decision, #disapprove-decision').prop('disabled', false);
 				}
 			});
 		}
@@ -1251,6 +1281,38 @@
 					hideLoader()
 					toast(response.responseJSON.message, 'danger');
 					forceLogout(response.responseJSON) //if token is expired
+				}
+			});
+		}
+
+		function repo_redemption(element){
+			var repoid = $(element).data('repo-id');
+			showLoader()
+
+			$.ajax({
+				url: `${ baseUrl }/redemption`, 
+				type: 'POST', 
+				headers:{
+					'Authorization':`Bearer ${ auth.token }`,
+				},
+				data: {
+					repoId: repoid,
+				},	
+				success: function (data) {
+					if(!data.success){
+						toast(data.message, 'danger');
+					}
+					else{
+						toast(data.message, 'success');
+						$('#staticBackdrop').modal('hide')
+						display_table(current_module_id)
+					}
+					hideLoader()
+				},
+				error: function(response) {
+					hideLoader()
+					toast(response.responseJSON.message, 'danger');
+					forceLogout(response.responseJSON)
 				}
 			});
 		}
