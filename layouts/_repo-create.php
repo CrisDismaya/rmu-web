@@ -677,7 +677,7 @@
 
 				$('#div-append-spare-parts').prepend(html);
 				fetch_spare_parts_list(partsCounter, $("#unit-model").val())
-				$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
+				//$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
 				var choices2 = new Choices(`#unit-parts-status-${ partsCounter }`);
 
 				$('#spare-parts-append-count').val(partsCounter)
@@ -1372,32 +1372,56 @@
 			});
 		}
 
-		function fetch_spare_parts_list(partsCounter, modelid, partsid = ''){
-			$.ajax({
-				url: `${ baseUrl }/partsPerModel`, 
-				type: 'GET', 
-				headers:{
-					'Authorization':`Bearer ${ auth.token }`,
-				},
-				success: function (data) {
-					// console.log(data)
-					$(`#unit-parts-${ partsCounter }`).empty();
+		function fetch_spare_parts_list(partsCounter, modelid, partsid = '', partText = '') {
+			let $select = $(`#unit-parts-${partsCounter}`);
 
-					if(data.length > 0){
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> Select Spart Parts </option>`);
-						for (let i = 0; i < data.length; i++) {
-							const el = data[i];
-							$(`#unit-parts-${ partsCounter }`).append(`<option value="${ el.value }">${ el.label }</option>`);
-						}
-					}
-					else{
-						$(`#unit-parts-${ partsCounter }`).append(`<option value=""> No Available Data </option>`);
-					}
-					$(`#unit-parts-${ partsCounter }`).val(partsid != '' ? partsid : '').trigger('change');
+			if ($select.hasClass("select2-hidden-accessible")) {
+				$select.select2('destroy');
+			}
+
+			if (partsid) {
+				let option = new Option(partText, partsid, true, true);
+				$select.append(option);
+			}
+
+			// Initialize Select2
+			$select.select2({
+				dropdownParent: $('#staticBackdrop'),
+				ajax: {
+						url: `${baseUrl}/partsPerModel`,
+						dataType: 'json',
+						delay: 250,
+						headers: {
+							'Authorization': `Bearer ${auth.token}`,
+						},
+						data: function (params) {
+							return {
+								search: params.term,
+								page: params.page || 1,
+								model_id: modelid, // ← if needed for filtering
+							};
+						},
+						processResults: function (data, params) {
+							params.page = params.page || 1;
+							return {
+								results: data.items,
+								pagination: {
+										more: data.more,
+								},
+							};
+						},
+						cache: true,
 				},
-				error: function(response) {
-					toast(response.responseJSON.message, 'danger');
-					forceLogout(response.responseJSON) //if token is expired
+				placeholder: 'Select Spare Parts',
+				minimumInputLength: 2,
+				templateResult: function (data) {
+						return data.text || 'Loading...';
+				},
+			});
+
+			$select.on('select2:open', function () {
+				if (partsid) {
+					$('.select2-search__field').val('').trigger('input');
 				}
 			});
 		}
@@ -1674,8 +1698,7 @@
 
 						$(`#unit-parts-status-${ append_count }`).val(el.parts_status).trigger('change')
 						var choices2 = new Choices(`#unit-parts-status-${ append_count }`);
-						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id)
-						$(".select-single-modal").select2({ dropdownParent: $('#staticBackdrop') });
+						fetch_spare_parts_list(append_count, data.model_details.id, el.parts_id, el.name)
 						$(`#unit-parts-price-${ append_count }`).val(roundOf(el.latest_price))
 					}
 					partsCounter = partsJson.length
