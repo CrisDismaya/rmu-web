@@ -20,7 +20,7 @@
 	<link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
 	<!-- custom Css-->
 	<link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
-	<meta name="csrf-token" content="{{ csrf_token() }}" />
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
 
@@ -106,48 +106,61 @@
 	<script>
 		$('#auth-login').click(function(event) {
 			event.preventDefault();
+
+			// Optional: clear previous session/local storage
 			sessionStorage.removeItem("sidebar")
 			localStorage.removeItem('current_module_id')
 			localStorage.removeItem('current_roles')
 
 			$('#auth-login').text('').prop('disabled', true).html(`<i class="bx bx-hourglass bx-spin font-size-16 align-middle me-2"></i>`);
-			let newURL = baseUrl.replace('/api','')
-		
+
+			// CSRF cookie URL
+			const csrfUrl = `${baseUrl.replace('/api','')}/sanctum/csrf-cookie`;
+
+			// Step 1: Get CSRF cookie
 			$.ajax({
-				url: `${ newURL }/sanctum/csrf-cookie`, 
-				type: 'GET', 
-				success: function (data) { 
+				url: csrfUrl,
+				type: 'GET',
+				xhrFields: { withCredentials: true },
+				success: function() {
+					// Step 2: Send login request
 					$.ajax({
-						url: `${ baseUrl }/login`, 
-						type: 'POST', 
+						url: `${baseUrl}/login`,
+						type: 'POST',
+						data: {
+							email: $('#email').val(),
+							password: $('#password').val()
+						},
+						xhrFields: { withCredentials: true },
 						dataType: 'json',
-						data: { 
-							email : $('#email').val(),
-							password : $('#password').val()
-						}, 
-						success: function (data) { 
-							console.log(data.success)
+						success: function(data) {
 							if(!data.success){
 								$('#auth-error').show().html(data.message)
 								$('#auth-login').text('Log In').prop('disabled', false)
+							} else {
+								localStorage.setItem('data', JSON.stringify({ 
+									token: data.data.token, 
+									name: data.data.name, 
+									role: data.data.role
+								}));
 								
-							}else{
-								//if success set the token for authorization
-								localStorage.setItem('data', JSON.stringify({ token:data.data.token, name:data.data.name, role:data.data.role}))
-								
-								$('#auth-error').hide().html('')
-								$('#auth-login').text('Log In').prop('disabled', false)
-								window.location.replace('layouts/dashboard.php')
+								$('#auth-error').hide().html('');
+								$('#auth-login').text('Log In').prop('disabled', false);
+								window.location.replace('layouts/dashboard.php');
 							}
-						// 	login.text('Log In').prop('disabled', false)
 						},
-						error: function(response) {
-							$('#auth-error').show().html(response.responseJSON.message)
-							$('#auth-login').text('Log In').prop('disabled', false)
+						error: function(xhr) {
+							$('#auth-error').show().html(xhr.responseJSON?.message || 'Login failed')
+							$('#auth-login').text('Log In').prop('disabled', false);
 						}
 					});
+				},
+				error: function(xhr) {
+					console.error('CSRF cookie error:', xhr);
+					$('#auth-error').show().html('Unable to initialize security token')
+					$('#auth-login').text('Log In').prop('disabled', false)
 				}
-			});	
+			});
 		});
 	</script>
 </body>

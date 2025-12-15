@@ -185,10 +185,32 @@
 			if ($.fn.DataTable.isDataTable("#received-unit-table")) {
 				$('#received-unit-table').DataTable().clear().destroy();
 			}
-
+			
+			console.log(`BaseUrl: ${baseUrl} | Bearer: ${auth.token}`)
+			fetch(`${baseUrl}/InventoryMasterList?branchId=${branchId}`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${auth.token}`,
+					'Accept': 'application/json',
+				}
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("API data:", data);
+			})
+			.catch(err => {
+				console.error("Fetch error:", err);
+			});
+			
 			$("#received-unit-table").DataTable({
 				processing: true,
 				serverSide: true,
+<<<<<<< Updated upstream
 				ajax: function(data, callback, settings) {
 					fetch(`${baseUrl}/InventoryMasterList`, {
 						method: 'GET',
@@ -212,6 +234,19 @@
 					.catch(error => {
 						console.error('Error fetching data:', error);
 					});
+=======
+				ajax: {
+					url: `${baseUrl}/InventoryMasterList?branchId=${branchId}`,
+					type: 'POST',
+					dataType: 'json',
+					headers: {
+						'Authorization': `Bearer ${auth.token}`,
+						'Accept': 'application/json'
+					},
+					error: function (xhr, error, thrown) {
+						console.error('DataTables AJAX error:', error, thrown);
+					}
+>>>>>>> Stashed changes
 				},
 		  		scrollX: true,
 				scrollCollapse: true,
